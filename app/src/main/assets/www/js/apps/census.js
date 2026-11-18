@@ -83,7 +83,7 @@ OS.register({
     function profile(page, id) {
       const p = R.get(id);
       const wrap = h('div', { style: 'flex:1;display:flex;flex-direction:column;min-height:0' });
-      let histDay = 0;
+      let histDay = 0, liveTimer = null;
       const pron = { she: ['she', 'her'], he: ['he', 'his'], they: ['they', 'their'] }[p.pron];
       function openPact() { const cid = Chat.bind(id); OS.open('pacts', { contact: cid }); }
       function call() { const cid = Chat.bind(id); const c = Chat.contact(cid); CallCore.dial(c.number); }
@@ -119,7 +119,10 @@ OS.register({
       }
       function personLi(qid, rel) {
         const q = R.get(qid);
-        return UI.li({ lead: UI.avatar(q.name, 38, q.color, q.cid), title: q.name, sub: rel + ' · ' + q.kind, onClick: () => stack.push(pg => profile(pg, qid)) });
+        const st = window.Social ? Social.status(p, q) : null;
+        const last = window.Social ? Social.history(p, 21).find(hh => hh.with === qid && hh.kind === 'meet') : null;
+        const sub = (st && st.id !== 'none' ? st.label : rel) + (last ? ' · last saw ' + HellTime.rel(last.n).toLowerCase().replace(/^(\w+day \d)/, 'on $1') : '') + ' · ' + q.kind;
+        return UI.li({ lead: UI.avatar(q.name, 38, q.color, q.cid), title: q.name + (st && st.id === 'dating' ? ' 🖤' : ''), sub, onClick: () => stack.push(pg => profile(pg, qid)) });
       }
       function draw() {
         U.clear(wrap);
@@ -136,6 +139,22 @@ OS.register({
         function fillHist() { U.clear(hist); const d = HellTime.day() - (histDay + 1); R.log(p, d).filter(b => b.kind !== 'sleep' || b.s === 0).forEach(b => hist.appendChild(entry(b))); }
         fillHist();
         const blocked = st && st.block && Date.now() < st.block;
+        const hide = Store.settings().censusMode === 'known';
+        const J = window.Journal ? Journal.get().people[id] : null;
+        const knownFacts = J ? Object.keys(J.facts).length : 0;
+        const nearby = tr === 'close' || tr === 'devoted';
+        const showLive = !hide || nearby;
+        const live = h('div.list');
+        function fillLive() {
+          U.clear(live);
+          if (!window.Body) return;
+          const m = HellTime.min();
+          Body.feed(p, Math.max(0, m - 40), m).slice(-9).reverse().forEach((a, i) => live.appendChild(h('div', { style: 'display:flex;gap:10px;padding:7px 16px;border-bottom:1px solid var(--line);' + (i === 0 ? 'font-weight:600' : 'opacity:' + (1 - i * 0.08)) }, h('div', { style: 'width:58px;flex-shrink:0;font-size:12px;color:var(--muted)' }, R.fmt(a.m)), h('div', { style: 'font-size:13px' }, a.text))));
+        }
+        fillLive();
+        clearInterval(liveTimer); liveTimer = setInterval(() => { if (wrap.isConnected && showLive) fillLive(); else clearInterval(liveTimer); }, 2500);
+        const histItems = window.Social ? Social.history(p, 10).slice(0, 8) : [];
+        const texts = window.Social ? Social.texts(p) : [];
         const memN = st ? st.mem.length : 0;
         wrap.append(
           UI.appbar({ title: '', actions: [
@@ -154,30 +173,37 @@ OS.register({
             h('div', { style: 'display:flex;justify-content:center;gap:18px;padding:4px 0 16px' },
               act('message', 'Pact', openPact), act('phone', 'Call', call), act('heart', 'Gift souls', gift),
               act(inSouls ? 'check' : 'plus', inSouls ? 'In Souls' : 'Add', () => { if (!inSouls) { Chat.bind(id); OS.toast(p.first + ' bound to your Souls'); draw(); } else OS.open('souls', { contact: Chat.bind(id) }); })),
-            UI.section('Right now'),
-            h('div.list', h('div', { style: 'display:flex;gap:12px;align-items:center;padding:12px 16px' },
+            showLive ? UI.section('Right now') : null,
+            showLive ? h('div.list', h('div', { style: 'display:flex;gap:12px;align-items:center;padding:12px 16px' },
               h('div', { style: 'color:var(--accent)' }, icon(KIND_ICON[nb.kind] || 'pin', 26)),
               h('div', { style: 'flex:1' },
                 h('div', { style: 'font-weight:600' }, nb.kind === 'sleep' ? 'Asleep' : nb.act.charAt(0).toUpperCase() + nb.act.slice(1)),
-                h('div.muted', { style: 'font-size:12px' }, nb.where + ' · since ' + R.fmt(nb.s) + ' · until ' + R.fmt(nb.e % 1440))))),
-            UI.section('Today so far · ' + HellTime.label() + ', ' + HellTime.clock()),
-            h('div.list', R.log(p).filter(b => b.kind !== 'sleep' || b.s === 0).map(entry)),
-            UI.section('History'),
-            UI.chips(days.map((d, i) => ({ id: i, label: d })), 0, i => { histDay = +i; fillHist(); }),
-            hist,
-            UI.section('Who ' + pron[0] + (p.pron === 'they' ? ' are' : ' is')),
-            h('div', { style: 'padding:4px 20px 8px;font-size:14px;line-height:1.5;display:flex;flex-direction:column;gap:8px' },
+                h('div.muted', { style: 'font-size:12px' }, nb.where + ' · since ' + R.fmt(nb.s) + ' · until ' + R.fmt(nb.e % 1440))))) : null,
+            UI.section(showLive ? 'Live · what ' + p.first + ' is doing' : 'Live'),
+            showLive ? live : h('div.muted', { style: 'padding:6px 20px 10px;font-size:13px' }, 'Only close friends share where they are. Get closer to ' + p.first + ' to see this.'),
+            showLive ? (UI.section('Today so far · ' + HellTime.label() + ', ' + HellTime.clock())) : null,
+            showLive ? (h('div.list', R.log(p).filter(b => b.kind !== 'sleep' || b.s === 0).map(entry))) : null,
+            showLive && histItems.length ? UI.section('With friends lately') : null,
+            showLive ? (histItems.length ? h('div.list', histItems.map(hh => { const q = R.get(hh.with); return UI.li({ lead: UI.avatar(q.name, 34, q.color, q.cid), title: (hh.kind === 'clash' ? 'Run-in with ' : (hh.date ? 'Date with ' : '') ) + q.name, sub: HellTime.rel(hh.n) + ' · ' + (hh.kind === 'clash' ? 'over ' + hh.topic.text : hh.what.replace(/ with .*$/, '') + ' at ' + R.PLACES[hh.place].n + ' · talked about ' + hh.topic.text.replace(/^how /, '')), onClick: () => stack.push(pg => profile(pg, q.id)) }); })) : null) : null,
+            UI.section('Phone · ' + texts.length + ' text' + (texts.length === 1 ? '' : 's') + ' today'),
+            hide ? h('div.muted', { style: 'padding:6px 20px 10px;font-size:13px' }, 'Their messages are private.') : h('div.list', texts.slice(-6).reverse().map(x => h('div', { style: 'padding:8px 16px;border-bottom:1px solid var(--line);font-size:13px' }, h('span.muted', R.fmt(x.m) + ' · ' + (x.from === id ? 'to ' + R.get(x.to).first : 'from ' + R.get(x.from).first) + ': '), x.text))),
+            showLive ? (UI.section('History')) : null,
+            showLive ? (UI.chips(days.map((d, i) => ({ id: i, label: d })), 0, i => { histDay = +i; fillHist(); })) : null,
+            showLive ? (hist) : null,
+            hide ? h('div', UI.section('What you know'), h('div.list', knownFacts ? Object.values(J.facts).slice(0, 12).map(f => UI.li({ icon: 'bookmark', title: f.text })) : [h('div.muted', { style: 'padding:8px 20px;font-size:13px' }, 'You don\'t know much about ' + p.first + ' yet. Talk to them.')]), UI.li({ icon: 'bookmark', title: 'Open in Grimoire', onClick: () => OS.open('grimoire', { rid: id }) })) : null,
+            hide ? null : UI.section('Who ' + pron[0] + (p.pron === 'they' ? ' are' : ' is')),
+            hide ? null : h('div', { style: 'padding:4px 20px 8px;font-size:14px;line-height:1.5;display:flex;flex-direction:column;gap:8px' },
               h('div', L.origin ? p.first + ' is from ' + L.origin + ', and ended up in Hell after ' + (p.pron === 'they' ? 'they ' : pron[0] + ' ') + L.how + '. That was ' + L.years + ' years ago.' : p.first + ' ' + L.how + ', about ' + L.years + ' years ago.'),
               h('div', 'Dream: to ' + L.dream + '.'),
               h('div', 'Afraid of ' + L.fear + '.'),
               h('div', 'Quirk: ' + p.first + ' ' + L.quirk + '.'),
               tr === 'close' || tr === 'devoted' ? h('div', { style: 'color:var(--accent)' }, '🔓 Secret: ' + p.first + ' ' + L.secret + '.') : h('div.muted', '🔒 ' + p.first + ' has a secret. Get close and ask.')),
-            UI.section('Personality'),
-            h('div', { style: 'padding:0 20px 6px;font-size:13px' }, 'Texts like: ', h('b', R.VOICES[p.voice.id].label)),
-            trait('Warmth', p.traits.warmth), trait('Temper', p.traits.temper), trait('Humour', p.traits.humor), trait('Honesty', p.traits.honesty),
-            trait('Curiosity', p.traits.curiosity), trait('Energy', p.traits.energy), trait('Pride', p.traits.pride), trait('Gossip', p.traits.gossip),
-            UI.section('Likes and dislikes'),
-            h('div.list',
+            hide ? null : UI.section('Personality'),
+            hide ? null : h('div', { style: 'padding:0 20px 6px;font-size:13px' }, 'Texts like: ', h('b', R.VOICES[p.voice.id].label)),
+            ...(hide ? [] : [trait('Warmth', p.traits.warmth), trait('Temper', p.traits.temper), trait('Humour', p.traits.humor), trait('Honesty', p.traits.honesty),
+            trait('Curiosity', p.traits.curiosity), trait('Energy', p.traits.energy), trait('Pride', p.traits.pride), trait('Gossip', p.traits.gossip)]),
+            hide ? null : UI.section('Likes and dislikes'),
+            hide ? null : h('div.list',
               UI.li({ icon: 'heart', title: p.likes.join(', '), sub: 'Likes' }),
               UI.li({ icon: 'close', title: p.dislikes.join(', '), sub: 'Dislikes' }),
               UI.li({ icon: 'star', title: p.hobbies.map(x => x[0]).join(', '), sub: 'Hobbies' }),

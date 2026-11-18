@@ -213,6 +213,7 @@
     else if (/ tomorrow /.test(t)) res.when = 'tomorrow';
     else if (/ tonight | this evening /.test(t)) res.when = 'tonight';
     for (const [id, re] of INTENTS) {
+      if (id === 'social') { if (res.person && re.test(t)) res.intents.push(id); continue; }
       if (id === 'person') { if (res.person && / (who is|do you know|what do you think|what about|have you seen|did you see|where is|what is .* doing|how is|tell me about|know|is .* (nice|okay|cool|mean)) /.test(t)) res.intents.push(id); continue; }
       if (id === 'judge') { const q = evalQ(t) || (PLAYER_DOING.test(t) && /\?|any good|is it/.test(t) ? {} : null); if (q && !(q.name && (R.findByName(' ' + q.name + ' ').length || /^(you|me)$/.test(q.name)))) res.intents.push(id); continue; }
       if (id === 'place') { if (res.place && / (have you been|ever been|been to|what do you think|like|go to|is .* (good|nice|fun)|what is|tell me about) /.test(t)) res.intents.push(id); continue; }
@@ -295,9 +296,10 @@
       case 'sleep': return E('{I was asleep|I was sleeping|I was literally asleep|I was dreaming about [food]} {until you texted|before this|zzz}', { food: p.fav.food });
       case 'work': { const ws = R.day(p).filter(x => x.kind === 'work' && x.s > 0); const endW = ws.length ? R.fmt(ws[ws.length - 1].e % 1440) : ''; return E('{I\'m at work|Working|Stuck at work|On shift|Clocked in|At my job} {at|over at|down at} [where]{.|, ugh.|.} {So far I\'ve|Today I|Already|This shift I} [act]{.| and I\'m tired.| and it\'s only going downhill.|. Living the dream.|. Send help.|.}{| I knock off at [end].| Finish at [end], thank the Throne.| Off at [end].}', { where, act, end: endW }); }
       case 'lunch': return E('{On my lunch break|Having lunch|Eating} {at|over at} [where]{.|, finally.|, best part of the day.}', { where });
-      case 'commute': return E('{On my way|Heading out|In transit}{, nearly there|}. {I [act].|The roads in Hell are awful.|}', { act });
+      case 'commute': { const how = { walk: 'Walking', tram: 'On the Hellnet tram', ferry: 'On Charon\'s ferry', fly: 'Flying' }[b.mode] || 'On my way'; const to = b.to === 'home' ? 'home' : R.PLACES[b.to] ? R.PLACES[b.to].n : 'somewhere'; const left = b.left != null ? b.left : Math.max(1, b.e - HellTime.min()); return left <= 2 ? E('[how] [to], {nearly there.|almost there.|pulling in now.}', { how, to: to === 'home' ? 'home' : 'to ' + to }) : E('[how] [to]{, about [l] minutes away.|. [l] minutes to go.}', { how, to: to === 'home' ? 'home' : 'to ' + to, l: left }); }
       case 'hobby': return E('{Just|Currently|Right now I\'m} at [where]. {I [act].|Spent a while here already, I [act].}', { where, act });
-      case 'social': return E('{Out with|Hanging with|With} [w] at [where]{. We [what].|. We\'re having fun.|!}', { w, where, what: act.replace(/ with .*$/, '') });
+      case 'player': return E('{Waiting for you|Here for you} at [where]{!|. Where are you?}', { where });
+      case 'social': if (window.Social && b.with != null && Social.status(p, b.with).id === 'dating') return E('{On a date with [w], actually.|Out with [w]. It\'s kind of a date.|With [w] at [where]. Don\'t make it weird.}', { w, where }); return E('{Out with|Hanging with|With} [w] at [where]{. We [what].|. We\'re having fun.|!}', { w, where, what: act.replace(/ with .*$/, '') });
       case 'errand': return E('{Running errands|Out and about|Doing chores} at [where]. {I [act].|}', { where, act });
       case 'player': return E('{Hanging out with you|With you} at [where]{, obviously.|! Look up.|. Hi!}', { where });
       case 'festival': return E('{At|Out at|Celebrating at} [where] for [f]{!|. Happy [f]!|. It\'s packed.}', { where, f: (HellTime.festival() || { name: 'the festival' }).name });
@@ -530,8 +532,21 @@
     };
     return E(lines[c.tr]);
   };
-  H.where_now = c => guarded(c) || E('{I\'m at [w]|At [w] right now|Currently at [w]|[w]|Right now? [w]|I\'m over at [w]|Stuck at [w]}{.|!|, why?|, how about you?|, where are you?|. Come say hi.|. Why, you stalking me?}', { w: c.nb.kind === 'commute' ? 'on my way somewhere' : c.nb.where });
-  H.doing_now = c => guarded(c) || nowPhrase(c.p, c.nb);
+  H.where_now = c => guarded(c) || E('{I\'m at [w]|At [w] right now|Currently at [w]|[w]|Right now? [w]|I\'m over at [w]|Stuck at [w]}{.|!|, why?|, how about you?|, where are you?|. Come say hi.|. Why, you stalking me?}', { w: c.nb.kind === 'commute' ? (c.nb.toName === 'home' ? 'on my way home' : 'on my way to ' + c.nb.toName) : c.nb.where });
+  H.doing_now = c => {
+    const g = guarded(c); if (g) return g;
+    let s = nowPhrase(c.p, c.nb);
+    if (window.Body && c.nb.kind !== 'sleep' && chance(0.45)) { const a = Body.now(c.p); const raw = a ? lc(a.text).replace(/\b(her|his|their)\b/g, 'my').replace(/\.$/, '') : '', ing = a ? Grammar.toIng(raw) : ''; if (a && !/^(sets off|arrives|texts)/.test(raw) && ing.split(' ')[0] !== raw.split(' ')[0] && !/\b(they|she|he|them)\b/.test(ing)) s += ' ' + E('{Right now I\'m|Literally just|Currently} [x].', { x: fp(ing) }); }
+    return s;
+  };
+  H.eta = c => {
+    const nb = c.nb;
+    if (nb.kind === 'commute' && nb.left <= 2) return E('{Nearly there!|Basically there.|Pulling in now.}');
+    if (nb.kind === 'commute') return E('{About [l] minutes away.|[l] minutes, ish.|Nearly there, [l] minutes.|On the [how], [l] minutes out.}', { l: nb.left, how: { walk: 'way', tram: 'tram', ferry: 'ferry', fly: 'wing' }[nb.mode] || 'way' });
+    const pl = plans().find(x => x.rid === c.p.id && x.status === 'agreed' && x.day === HellTime.day());
+    if (pl) { const m = HellTime.min(); if (m >= pl.s && nb.place === pl.place) return E('{I\'m here already!|Here! Where are you?}'); const tr = R.travel(c.p, nb.place, pl.place); return E('{Leaving soon, it takes me about [t] minutes to get there.|I\'m [t] minutes away once I leave.}', { t: tr.mins }); }
+    return E('{I\'m at [w].|Not going anywhere, I\'m at [w].}', { w: nb.where });
+  };
   H.day = c => guarded(c) || summarise(c.p, R.log(c.p), c.tl.mood, 'present');
   H.yesterday = c => guarded(c) || summarise(c.p, R.log(c.p, HellTime.day() - 1), R.day(c.p, HellTime.day() - 1).mood, 'past');
   H.tomorrow = c => {
@@ -651,7 +666,7 @@
     if (k === 'place') return E('{Probably|Easy:|Gotta be} [v]{.|!}', { v: c.p.fav.place });
     return E('{Easy, [v].|[v]!|Has to be [v].|Probably [v]. Why?|[v], obviously.}', { v: c.p.fav[k] });
   };
-  H.likes = c => E('{I like|I\'m a fan of|I love|Big fan of|Honestly I love} [a]{, [b]|} and [c]{.|!|. Simple pleasures.|. And you?}', { a: c.p.likes[0], b: c.p.likes[1], c: c.p.fav.food });
+  H.likes = c => (window.Social && Social.pickedUp(c.p).length && chance(0.5) ? E('{[f] got me into [x], actually.|Lately? [x]. Blame [f].}', { f: R.get(Social.pickedUp(c.p)[0].from).first, x: Social.pickedUp(c.p)[0].like }) + ' ' : '') + E('{I like|I\'m a fan of|I love|Big fan of|Honestly I love} [a]{, [b]|} and [c]{.|!|. Simple pleasures.|. And you?}', { a: c.p.likes[0], b: c.p.likes[1], c: c.p.fav.food });
   H.dislikes = c => E('{I can\'t stand|I hate|Don\'t talk to me about|Ugh,|I really don\'t like} [a]{. Or [b].| and [b].|.|. Don\'t get me started.|. And [b], while we\'re at it.}', { a: c.p.dislikes[0], b: c.p.dislikes[1] });
   H.quirk = c => E('{Fun fact: I|Weird thing about me: I|People say I} [q]{.|. Don\'t judge.}', { q: fp(c.p.lore.quirk, true) });
   H.identity = c => {
@@ -744,6 +759,8 @@
     else if (c.tr === 'dislike') s = E('{What?|Oh. Hi.|Hey. What do you want?}');
     else if (gap > 2 * 86400000 && c.st.talks > 2) s = E('{Long time no see[n]!|Look who it is! Where have you been[n]?|[n]! Thought you\'d been exorcised.}', { n: n.trim() ? n : '' });
     else s = E(c.tr === 'close' || c.tr === 'devoted' ? '{Heyyy[n]!|There you are[n]!|Hi[n]! Missed you.|Hey[n]! My favourite soul.|Oh good, it\'s you[n]!|Hiii[n]!}{| What\'s up?| How are you?|}' : '{Hey[n].|Hi[n]!|Hello[n].|Oh, hey[n].|Yo[n].|Evening[n]. It\'s always evening.|Greetings[n].|Hiya[n].}{| What\'s up?| What\'s burning?|}', { n });
+    // plans with other residents tonight
+    if (window.Social && !coldTier(c) && chance(0.45)) { const up = Social.upcoming(c.p); if (up && up.s - HellTime.min() < 300) s += ' ' + (up.date ? E('{Can\'t talk long, I have a date with [n] at [t] 😳|I\'m seeing [n] at [t]. Like, SEEING seeing.}', { n: R.get(up.with).first, t: R.fmt(up.s) }) : E('{Can\'t talk long, I\'m meeting [n] at [t].|Heads up, I\'m seeing [n] at [w] at [t].}', { n: R.get(up.with).first, w: R.PLACES[up.place].n, t: R.fmt(up.s) })); }
     // messages passed on, secrets that leaked, news to ask about
     const hi = recall(c.st, 'hi');
     if (hi && !coldTier(c)) { c.st.mem = c.st.mem.filter(m => m !== hi); s += ' ' + E('{[n] said you said hi! Hi back.|Oh, [n] passed on your hello.}', { n: hi.v }); }
@@ -1720,7 +1737,68 @@
     return cand;
   }
 
+  H.social = (c, d, t) => {
+    const p = c.p, cx = c.st && c.st.ctx && c.st.ctx.type === 'person' && Date.now() - (c.st.ctx.t || 0) < 10 * 60e3 ? R.get(c.st.ctx.id) : null;
+    const q = d.person || cx;
+    if (!window.Social) return d.person ? H.person(c, d, t) : null;
+    if (!q) return / (?:up to|doing) /.test(t) ? H.schedule ? H.schedule(c, d, t) : H.doing_now(c, d, t) : null;
+    if (!d.person) d = Object.assign({}, d, { person: q });
+    const st = Social.status(p, q), hist = Social.history(p, 21).filter(h => h.with === q.id);
+    const last = hist.find(h => h.kind === 'meet'), fight = hist.find(h => h.kind === 'clash');
+    const dayTxt = n => { const r = HellTime.rel(n); return /^(Today|Yesterday)$/.test(r) ? r.toLowerCase() : 'on ' + r; };
+    relBothSoc(c, p, q, st);
+    if (/ when did you (?:last )?see | last time you (?:saw|hung|met)| when did you last /.test(t)) {
+      if (!last) return E('{Haven\'t seen [n] in ages.|Not for a while, honestly.|Can\'t even remember.}', { n: q.first });
+      c.ctx = { type: 'person', id: q.id, rel: relationTo(p, q) };
+      return E('{[d], at [w].|[D]. We [what] at [w].|[d]! We [what].}', { d: dayTxt(last.n), D: cap(dayTxt(last.n)), w: R.PLACES[last.place].n, what: last.what });
+    }
+    if (/ what did you (?:and [a-z]+ |two |guys )?(?:do|get up to|talk about)| what do you (?:two )?talk about | what did you (?:do|talk about) with /.test(t)) {
+      if (!last) return fight ? E('{We had a run-in [d]. Over [x]. Don\'t ask.|Fought, mostly. About [x].}', { d: dayTxt(fight.n), x: fight.topic.text }) : E('{Nothing lately.|We haven\'t hung out in ages.}');
+      return E('{We [what] at [w] [d].|[D] we [what] at [w].} {Talked about [x] mostly.|Ended up talking about [x] for hours.|Mostly about [x].}', { what: last.what, w: R.PLACES[last.place].n, d: dayTxt(last.n), D: cap(dayTxt(last.n)), x: 'how ' + Social.personal(last.topic.line || last.topic.text.replace(/^how /, ''), p, null) });
+    }
+    if (/ did you (?:text|talk to|chat with|message|hear from) | has [a-z]+ (?:texted|messaged) /.test(t)) {
+      const tx = Social.texts(p).filter(x => x.from === q.id || x.to === q.id);
+      if (!tx.length) return E('{Not today.|Nope, nothing today.|Haven\'t heard from [n] today.}', { n: q.first });
+      const lastT = tx[tx.length - 1];
+      return lastT.from === q.id ? E('{Yeah, [n] texted me: "[x]"|[n] messaged earlier. "[x]"}', { n: q.first, x: lastT.text }) : E('{Yeah, I texted [n] earlier.|I messaged [n] about [x].}', { n: q.first, x: 'tonight' });
+    }
+    if (/ (?:dating|together|a thing|seeing each other|seeing [a-z]+|going out|in love|an item|boyfriend|girlfriend|partner|crush on) /.test(t)) {
+      if (st.id === 'dating') return coldTier(c) ? E('{None of your business.|Why do you care?}') : E('{Maybe. We went on a date [d]. Don\'t tell anyone.|Shh. Kind of? It\'s new.|...Yes. I think so. 😳}', { d: last ? dayTxt(last.n) : 'recently' });
+      if (st.id === 'together' || st.id === 'rocky') return st.id === 'together' ? E('{Yes, [n] is my partner!|Of course, we\'re together.}', { n: q.first }) : E('{We\'re together... it\'s complicated right now.|Technically. We\'re going through a rough patch.}');
+      if (/enemies|rivals|frenemies/.test(st.id)) return E('{Ew. No.|With [n]? Absolutely not.|I\'d rather date Cerberus.}', { n: q.first });
+      return E('{No! We\'re just friends.|Ha, no. Just mates.|Not like that, no.}');
+    }
+    if (/ what is [a-z]+ (?:up to|doing)| where is [a-z]+ | is [a-z]+ (?:at work|home|working|asleep|awake|out) /.test(t) && !/ been up to /.test(t)) {
+      const nq = R.now(q), close = /close|dating|together|sibling/.test(st.id) || Social.texts(p).some(x => x.from === q.id || x.to === q.id);
+      if (!close) return E('{No idea, honestly.|Couldn\'t tell you.|How would I know?}');
+      if (nq.block && nq.block.with === p.id) return E('{[N]\'s right here with me!|With me, actually.}', { N: q.first });
+      const tx = Social.texts(p).filter(x => x.from === q.id).pop();
+      const x = nq.kind === 'sleep' ? 'asleep' : nq.kind === 'commute' ? nq.where : nq.kind === 'work' ? 'at work, at ' + nq.where : nq.place === 'home' ? 'at home' : 'at ' + nq.where;
+      return E('{Last I heard, [n] was [x].|[n]? [X], I think.|[n] should be [x] right now.}', { n: q.first, x, X: cap(x) }) + (tx ? ' ' + E('{They texted me earlier.|We were texting before.}') : '');
+    }
+    if (/ still friends | (?:still )?get along | fall out | fell out | drifting | why do you hate | did you (?:two )?fight | do you get along | are you (?:two )?close | are you friends /.test(t)) {
+      if (st.id === 'drifting') return E('{Sort of. We haven\'t really hung out lately.|We\'ve drifted a bit, honestly.}');
+      if (/enemies|rivals/.test(st.id)) return E('{We do NOT get along. Ever since [x].|Long story. [x]. Never forgave them.}', { x: fight ? fight.topic.text : 'that thing with Lucien' });
+      if (st.id === 'frenemies') return E('{It\'s complicated. We fight, then we don\'t.|Frenemies, I guess.}');
+      if (st.id === 'close' || st.id === 'dating') return E('{[n]? We\'re really close.|Best friends, basically.}', { n: q.first });
+      return E('{Yeah, we\'re good.|We\'re friends, sure.}');
+    }
+    if (/ how (?:are|is) things with | what is new with | been up to | how is [a-z]+ doing | heard from | any news (?:about|on) /.test(t)) {
+      const nw = Social.news(p, q);
+      if (nw) return E('{[n] [x], apparently. [N] [how].|Oh, [n] [x]! [N] [how].}', { n: q.first, N: cap(q.pron === 'they' ? 'they' : q.pron), x: nw.text, how: nw.how });
+      return H.person(c, d, t);
+    }
+    if (/ how do you know | how did you (?:two )?meet /.test(t)) {
+      const rel = relationTo(p, q);
+      return rel === 'coworker' ? E('{We work together at [w].|Work. [w].}', { w: R.PLACES[p.job.place].n }) : rel === 'neighbour' ? E('{We\'re neighbours in [h].|Same circle, same street, basically.}', { h: p.home }) : rel === 'sibling' ? E('{[n]\'s my sibling!}', { n: q.first }) : E('{We go way back.|Met at [w] years ago.|Friend of a friend, then just friends.}', { w: R.PLACES[pick(SOCIAL_IDS)].n });
+    }
+    return H.person(c, d, t);
+  };
+  function relBothSoc(c, a, b, st) { if (!window.Journal) return; const lab = st.label; if (lab && st.id !== 'none') { JP(c, a.id, 'rel:' + b.id, cap(lab) + ' with ' + b.name); JP(c, b.id, 'rel:' + a.id, cap(lab) + ' with ' + a.name); } }
+
   const LIVING_INTENTS = [
+    ['eta', / how far (?:away )?are you | how long (?:till|until|before) you (?:get here|arrive|are here) | eta | are you close | almost here | nearly here | where are you now /],
+    ['social', / when did you (?:last )?see | last time you (?:saw|hung|met)| when did you last | what did you (?:and [a-z]+ |two |guys )?(?:do|get up to|talk about)| what do you (?:two )?talk about | what did you (?:do|talk about) with | did you (?:text|talk to|chat with|message|hear from) | has [a-z]+ (?:texted|messaged) | (?:dating|together|a thing|seeing each other|going out|in love|an item|crush on) | still friends | fall out | fell out | drifting | why do you hate | did you (?:two )?fight | (?:still )?get along | are you (?:two )?close | are you friends | what is [a-z]+ (?:up to|doing)| where is [a-z]+ | is [a-z]+ (?:at work|home|working|asleep|awake|out) | how (?:are|is) things with | what is new with | been up to | how is [a-z]+ doing | heard from | any news (?:about|on) | how do you know | how did you (?:two )?meet /],
     ['no_worries', / no (?:problem|problems|probs|prob|probz|worries|worry|stress|biggie|drama|dramas|sweat|bother|big deal|issues?) | all good | (?:that is|that s|its|it is) (?:fine|okay|ok|cool|alright) | all g | fair enough | totally fine | no hard feelings | dont worry about it | do not worry about it /],
     ['judge', null],
     ['player_doing', PLAYER_DOING],
@@ -1959,5 +2037,7 @@
     return { total, templates: all.size };
   }
 
-  window.Mind = { _intents: INTENTS, _follow: FOLLOW, _handlers: H, late, callback, bump: bumpRid, reply, ambient, callLines, gift, state, tier, save, stats, norm, extract, detect, expand: E, count: s => count(parse(s)), TIERS };
+  // another resident's line, in their own texting voice (for NPC-to-NPC texts)
+  function say(rid, tpl, slots) { const p = R.get(rid); const r = style(p, E(tpl, slots || {}), 'like', { plain: true }); return Array.isArray(r) ? r.join(' ') : String(r).replace(/ \| /g, ' '); }
+  window.Mind = { say, _intents: INTENTS, _follow: FOLLOW, _handlers: H, late, callback, bump: bumpRid, reply, ambient, callLines, gift, state, tier, save, stats, norm, extract, detect, expand: E, count: s => count(parse(s)), TIERS };
 })();
