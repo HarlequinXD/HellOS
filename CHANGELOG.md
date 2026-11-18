@@ -1,5 +1,16 @@
 # HellOS changelog
 
+## 6.9.0 — the 666 residents of Hell
+- **666 residents**, each with their own procedural pixel portrait (new hair styles, horns, halos, glasses, crowns, scars, third eyes and more), species, job and shift, home circle, hobbies, favourites, backstory, sin, dream, fear, quirk and secret, plus friends, rivals, partners and siblings among each other. Lucien, Vex, Charon, Mortis, Morgana and Beelzebub are six of them.
+- **Daily lives on the real clock:** sleep, breakfast, commute, work, lunch, hobbies, errands, evenings out with friends (both sides agree on every meet-up), run-ins with rivals and one odd thing a day. Everything is deterministic, so it costs no storage.
+- **New app: Census.** Browse and search all 666; filter by circle, who is awake or at work, who likes you. Each profile shows what they are doing right now, today's record, the last six days, their lore, personality bars, texting style, likes, favourites and relationships.
+- **Built-in conversation engine** (offline, no AI service): about 60 kinds of question and remark with slang and typos, answers drawn from the resident's own life and the lives of others, "idk about that" in dozens of ways, follow-up questions that understand your answers, and small talk about their day. A test of 1.58 million replies across all 666 residents produced 970,756 different ones, and the total keeps climbing the longer you test.
+- **13 texting voices** with per-resident case, punctuation, slang, emoji, tics, typos, pet names and double-texting.
+- **Hidden memory:** they remember your name, likes, hates, favourites, pets, family names, mood, where you went and anything you tell them to remember, bring it up later, and gossipy friends pass some of it on.
+- **Like meter** (−100 to 100) on every resident: greetings, compliments, answering their questions, shared tastes and gifts of souls raise it; insults, repeating yourself and dissing their friends lower it. It changes their greeting, what they will share (secrets need a close friend), how often they text and call you, and at the bottom they block you for two hours.
+- **Pacts:** a like meter and where they are under the title, gift souls, new quick replies, bubbles that arrive in order, and tap a bubble to hear it in their voice. Strangers sometimes text you out of the blue.
+- **Calls:** residents talk about what they're doing and remember you, in their own synthesised babble voice (pitch, speed and timbre per resident). They may be asleep.
+
 ## 6.8.1 — everything is pixel art
 - Every interface element is now a procedural pixel-art image: title bars (in the chosen material), status bar, capacitive keys, buttons, chips, the floating button, list press highlight, category strips, text fields, checkboxes, slider groove and knob, progress bars, badges, tabs, quick-setting tiles, toasts, dialog button bars, dial-pad and calculator keys (with a pixel LCD), call buttons, panel rims and the iron frame.
 - Plates are 24×24 nine-slices with flat dithered centres, drawn with "repeat" so their pixels never stretch.

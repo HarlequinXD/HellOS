@@ -80,7 +80,37 @@ OS.register({
         Sound.play('pop');
         Chat.send(id, t);
       }
-      const sugg = h('div.suggest', ['Hi', 'How are you?', 'Can I get a refund?', 'Wanna play a game?'].map(s => h('button.chip', { onclick() { ta.value = s; send(); } }, s)));
+      const res = Chat.resident(c);
+      const SUGG = res ? ['Hi', 'How was your day?', 'What are you doing?', 'Where are you?', 'Tell me about yourself', 'Do you like me?', 'What are you doing tomorrow?', 'What did you do yesterday?', 'Who did you see today?', 'Tell me a secret', 'What do you know about me?', 'Tell me a joke', 'Any news?', 'Bye']
+        : ['Hi', 'How are you?', 'Can I get a refund?', 'Wanna play a game?'];
+      const sugg = h('div.suggest', SUGG.map(s => h('button.chip', { onclick() { ta.value = s; send(); } }, s)));
+      // like meter + where they are, for residents of Hell
+      const strip = res ? h('button', { style: 'display:flex;align-items:center;gap:10px;padding:6px 16px;background:none;border:none;border-bottom:1px solid var(--line);color:var(--text);text-align:left;width:100%', onclick: () => OS.open('census', { rid: res.id }) }) : null;
+      function fillStrip() {
+        if (!strip) return;
+        U.clear(strip);
+        const st = Store.get('minds', {})[res.id];
+        const aff = st ? st.aff : res.baseAff;
+        const tr = Mind.tier(aff);
+        const nb = Residents.now(res);
+        const col = aff < -25 ? '#C8281E' : aff < 15 ? '#B08A5A' : 'var(--accent)';
+        const blocked = st && st.block && Date.now() < st.block;
+        strip.append(
+          h('span', { style: 'font-size:12px;font-weight:700;color:' + col + ';white-space:nowrap' }, blocked ? '✖ Blocked you' : (aff >= 15 ? '♥ ' : aff <= -25 ? '✖ ' : '') + tr.label),
+          h('span', { style: 'flex:1;height:6px;border-radius:3px;background:var(--tile);position:relative' }, h('span', { style: 'position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:' + col + ';width:' + Math.round((aff + 100) / 2) + '%' })),
+          h('span.muted', { style: 'font-size:12px;white-space:nowrap;max-width:42%;overflow:hidden;text-overflow:ellipsis' }, nb.kind === 'sleep' ? 'Asleep' : nb.where));
+      }
+      fillStrip();
+      async function gift() {
+        const have = Store.settings().souls;
+        const v = await OS.sheet('Gift souls (you have ' + have + ')', [5, 10, 25, 66].map(n => ({ label: n + ' souls', icon: 'heart', value: n })));
+        if (!v) return;
+        if (v > Store.settings().souls) { OS.toast('Not enough souls. Win some in HellPlay.'); return; }
+        Store.setting('souls', Store.settings().souls - v);
+        Chat.push(id, { from: 'me', text: '🔥 Sent you ' + v + ' souls', status: 'sent' });
+        Chat.deliver(id, Mind.gift(res.id, v), 900);
+        Sound.play('success');
+      }
       function fill() {
         U.clear(thread);
         const t = Chat.threads()[id];
@@ -88,7 +118,9 @@ OS.register({
         (t ? t.msgs : []).forEach((m, i, arr) => {
           const day = U.dayKey(m.t);
           if (day !== lastDay) { thread.appendChild(h('div.bmeta', U.sameDay(m.t, Date.now()) ? 'Today' : U.dateShort(m.t))); lastDay = day; }
-          thread.appendChild(h('div.bubble.' + (m.from === 'me' ? 'out' : 'in') + (m.status === 'failed' ? '.fail' : ''), m.text));
+          const bub = h('div.bubble.' + (m.from === 'me' ? 'out' : 'in') + (m.status === 'failed' ? '.fail' : ''), m.text);
+          if (m.from !== 'me' && res && window.Voice) bub.addEventListener('click', () => Voice.speak(m.text, res.voice, { vol: 0.5 }));
+          thread.appendChild(bub);
           const isLastOfMine = m.from === 'me' && (i === arr.length - 1 || arr[i + 1].from !== 'me');
           if (isLastOfMine) thread.appendChild(h('div.bmeta.r', m.status === 'failed' ? 'Not delivered' : U.time(m.t) + ' · Sealed'));
         });
@@ -98,16 +130,15 @@ OS.register({
         requestAnimationFrame(() => { thread.scrollTop = thread.scrollHeight; });
       }
       fill();
-      const unsub1 = Store.on('threads', () => { if (win.viewing === id) { Chat.markRead(id); } fill(); });
+      const unsub1 = Store.on('threads', () => { if (win.viewing === id) { Chat.markRead(id); } fill(); fillStrip(); });
       const unsub2 = Store.on('typing', cid => { if (cid === id) fill(); });
       page.onPop = () => { unsub1(); unsub2(); win.viewing = null; win._current = null; };
       win.own(unsub1); win.own(unsub2);
       return h('div', { style: 'flex:1;display:flex;flex-direction:column;min-height:0' },
         UI.appbar({ title: c.name, actions: [
-          { icon: 'phone', label: 'Call', onClick: () => CallCore.dial(c.number) },
-          { icon: 'info', label: 'Contact', onClick: () => OS.open('souls', { contact: id }) }
-        ] }),
-        thread, sugg,
+          { icon: 'phone', label: 'Call', onClick: () => CallCore.dial(c.number) }
+        ].concat(res ? [{ icon: 'heart', label: 'Gift souls', onClick: gift }, { icon: 'users', label: 'Census profile', onClick: () => OS.open('census', { rid: res.id }) }] : [{ icon: 'info', label: 'Contact', onClick: () => OS.open('souls', { contact: id }) }]) }),
+        strip, thread, sugg,
         h('div.composer', ta, h('button.send', { 'aria-label': 'Send', onclick: send }, icon('send', 20))));
     }
   }

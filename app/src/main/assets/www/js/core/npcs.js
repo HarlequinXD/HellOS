@@ -85,6 +85,10 @@
     }
   };
 
+  // the six originals are also residents of Hell (see residents.js)
+  if (window.Residents) Object.keys(NPCS).forEach(id => { const r = Residents.all.find(p => p.npc === id); if (r) { r.number = NPCS[id].number; r.email = NPCS[id].email; } });
+  function residentOf(c) { if (!c || !window.Residents) return null; return c.rid != null ? Residents.get(c.rid) : Residents.byCid(c.id); }
+
   // ---------------- chat engine ----------------
   const lastPick = {};
   function pickLine(id, arr) {
@@ -132,15 +136,45 @@
       const ok = OS.cellular();
       Chat.push(contactId, { from: 'me', text, status: ok ? 'sent' : 'failed' });
       if (!ok) { OS.toast('Not delivered. Descent mode is on.'); return; }
+      const res = residentOf(c);
+      if (res && window.Mind) {
+        // a resident of Hell: their own mind answers (or ignores you)
+        const r = Mind.reply(res.id, text);
+        if (!r || !r.msgs.length) return;
+        Chat.deliver(contactId, r.msgs, r.delay);
+        return;
+      }
       const npcId = c && c.npc;
       const reply = npcId ? replyFor(npcId, text) : (Math.random() < 0.5 ? U.pick(['…', 'who is this?', 'the line crackles with static', '👁️', 'stop texting the dead']) : null);
       if (!reply) return;
-      const delay = 1200 + Math.random() * 2500;
-      setTimeout(() => { Chat.typing[contactId] = true; Store.emit('typing', contactId); }, 600);
-      setTimeout(() => {
-        Chat.typing[contactId] = false;
-        Chat.incoming(contactId, reply);
-      }, delay + 600);
+      Chat.deliver(contactId, [reply], 1200 + Math.random() * 2500);
+    },
+    // show "typing…" then each bubble in turn
+    _busy: {},
+    deliver(contactId, msgs, delay) {
+      // queue behind anything they are still "typing" so bubbles never interleave
+      const wait = Math.max(0, (Chat._busy[contactId] || 0) - Date.now());
+      let at = wait + 600 + delay;
+      setTimeout(() => { Chat.typing[contactId] = true; Store.emit('typing', contactId); }, wait + 600);
+      msgs.forEach((m, i) => {
+        setTimeout(() => {
+          Chat.typing[contactId] = i < msgs.length - 1;
+          Chat.incoming(contactId, m);
+        }, at);
+        at += 700 + Math.min(3500, m.length * 35);
+      });
+      Chat._busy[contactId] = Date.now() + at;
+    },
+    resident: residentOf,
+    // make sure a resident is in Souls; returns the contact id
+    bind(rid) {
+      const p = Residents.get(rid);
+      const list = Store.get('contacts', []) || [];
+      const have = list.find(c => c.rid === rid || c.id === p.cid);
+      if (have) return have.id;
+      list.push(Residents.contactFor(p));
+      Store.set('contacts', list);
+      return p.cid;
     },
     incoming(contactId, text) {
       Chat.push(contactId, { from: 'them', text });
@@ -157,7 +191,7 @@
   const Seed = {
     run() {
       const now = Date.now();
-      const contacts = Object.keys(NPCS).map(id => ({ id: 'c_' + id, npc: id, name: NPCS[id].name, number: NPCS[id].number, email: NPCS[id].email, circle: NPCS[id].circle, fav: id === 'vex' || id === 'lucien', color: NPCS[id].color }));
+      const contacts = Object.keys(NPCS).map(id => ({ id: 'c_' + id, npc: id, rid: window.Residents ? Residents.byCid('c_' + id).id : undefined, name: NPCS[id].name, number: NPCS[id].number, email: NPCS[id].email, circle: NPCS[id].circle, fav: id === 'vex' || id === 'lucien', color: NPCS[id].color }));
       contacts.push({ id: 'c_hotline', npc: null, name: 'Hell Hotline', number: '666', email: 'support@hellos.hell', circle: 'Services', fav: false, color: '#3A1410' });
       Store.set('contacts', contacts);
       const threads = {};
@@ -220,11 +254,38 @@
     Store.set('nextAmbient', now.getTime() + (3 + Math.random() * 6) * 60000);
     const s = Store.settings();
     if (s.descent || OS.inCall) return;
-    const ids = Object.keys(NPCS).filter(id => NPCS[id].ambient.length);
-    const id = U.pick(ids);
-    if (Math.random() < 0.18 && !s.silence && window.CallCore) CallCore.incoming('c_' + id);
-    else Chat.incoming('c_' + id, pickLine(id + '_amb', NPCS[id].ambient));
+    if (!window.Residents || !window.Mind) {
+      const ids = Object.keys(NPCS).filter(id => NPCS[id].ambient.length);
+      const id = U.pick(ids);
+      if (Math.random() < 0.18 && !s.silence && window.CallCore) CallCore.incoming('c_' + id);
+      else Chat.incoming('c_' + id, pickLine(id + '_amb', NPCS[id].ambient));
+      return;
+    }
+    // residents you know get in touch; the more they like you, the more often
+    const known = (Store.get('contacts', []) || []).map(c => ({ c, r: residentOf(c) })).filter(x => x.r && x.c.id !== 'c_pizza');
+    if (Math.random() < 0.08 || !known.length) { stranger(); return; }
+    const weights = known.map(x => Math.max(0.15, (Mind.state(x.r.id).aff + 60) / 50));
+    let roll = Math.random() * weights.reduce((a, b) => a + b, 0), pickd = known[0];
+    for (let i = 0; i < known.length; i++) { if ((roll -= weights[i]) < 0) { pickd = known[i]; break; } }
+    const aff = Mind.state(pickd.r.id).aff;
+    if (Math.random() < 0.12 && aff > -10 && Residents.now(pickd.r).kind !== 'sleep' && !s.silence && window.CallCore) { CallCore.incoming(pickd.c.id); return; }
+    if (pickd.r.npc && NPCS[pickd.r.npc].ambient.length && Math.random() < 0.25) { Chat.incoming(pickd.c.id, pickLine(pickd.r.npc + '_amb', NPCS[pickd.r.npc].ambient)); return; }
+    const msgs = Mind.ambient(pickd.r.id);
+    if (msgs) Chat.deliver(pickd.c.id, msgs, 0);
   });
+
+  // now and then a resident you've never met texts you
+  function stranger() {
+    const pool = Residents.all.filter(p => !p.npc && !Chat.contact(p.cid) && Residents.now(p).kind !== 'sleep');
+    if (!pool.length) return;
+    const p = U.pick(pool);
+    const list = Store.get('contacts', []) || [];
+    const c = Residents.contactFor(p); c.circle = 'Strangers';
+    list.push(c); Store.set('contacts', list);
+    const friend = p.friends.length ? Residents.get(p.friends[0]).first : 'someone at the Pit';
+    const line = Mind.expand(['{Hey,|Hi,|Um, hi.} {is this the new HellOS number|is this the soul with the new phone}? {I\'m [n]|It\'s [n] here}{.|!} {[f] gave me your number.|Got your number from [f].|Found your number on The Pit.}', '{Wrong number, sorry|Oops, wrong soul}{.|!} {I\'m [n] btw.|This is [n]. Hi I guess.}', '{Hello|Hey}{, stranger|}. {I\'m [n], from [h].|[n] here. I live in [h].} {Thought I\'d say hi.|We should be friends. Or enemies. Your choice.}'], { n: p.name, f: friend, h: p.home });
+    Chat.deliver(c.id, [line], 0);
+  }
 
   window.Chat = Chat;
   window.Seed = Seed;

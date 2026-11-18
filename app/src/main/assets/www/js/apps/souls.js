@@ -69,7 +69,8 @@ OS.register({
             h('div.list',
               UI.li({ icon: 'phone', title: c.number, sub: 'Mobile · tap to call', onClick: () => CallCore.dial(c.number) }),
               c.email ? UI.li({ icon: 'globe', title: c.email, sub: 'Soul-mail' }) : null,
-              c.note ? UI.li({ icon: 'note', title: c.note, sub: 'Notes' }) : null),
+              c.note ? UI.li({ icon: 'note', title: c.note, sub: 'Notes' }) : null,
+              (() => { const r = Chat.resident(c); if (!r) return null; const st = Store.get('minds', {})[r.id]; const aff = st ? st.aff : r.baseAff; return UI.li({ icon: 'users', title: Mind.tier(aff).label + ' · ' + r.kind, sub: 'Census profile: life, lore and what they are doing now', onClick: () => OS.open('census', { rid: r.id }) }); })()),
             h('div.section-title', 'Recent calls'),
             h('div.list', (Store.get('calllog', []).filter(l => l.contact === id).slice(0, 5).map(l => UI.li({ icon: l.dir === 'missed' ? 'phoneOff' : 'phone', title: l.dir === 'missed' ? 'Missed' : l.dir === 'in' ? 'Incoming' : 'Outgoing', sub: U.ago(l.t) + (l.dur ? ' · ' + U.dur(l.dur) : '') })).concat(Store.get('calllog', []).some(l => l.contact === id) ? [] : [h('div.li', h('div.ls', 'No calls yet'))]))),
             h('div', { style: 'height:20px' })));

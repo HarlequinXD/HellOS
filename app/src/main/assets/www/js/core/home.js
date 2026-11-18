@@ -3,7 +3,7 @@
   'use strict';
   const $ = U.$;
   const DOCK = ['calls', 'pacts', 'brimstone', 'pyrecam'];
-  const DEFAULT_HOME = ['relics', 'souls', 'lament', 'doomclock', 'hellscape', 'hellplay', 'scribe', 'rites'];
+  const DEFAULT_HOME = ['relics', 'souls', 'census', 'lament', 'doomclock', 'hellscape', 'hellplay', 'scribe', 'rites'];
   let drawer = null, clockEl = null, dateEl = null;
 
   function homeApps() {

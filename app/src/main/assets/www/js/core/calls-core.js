@@ -29,7 +29,7 @@
     U.clear(L);
     L.classList.remove('hidden');
     const c = state.contactId ? Chat.contact(state.contactId) : null;
-    const avaArt = state.contactId ? Art.get('avatars', state.contactId) : null;
+    const avaArt = state.contactId ? Art.get('avatars', state.contactId) : state.res ? Art.get('avatars', state.res.cid) : null;
     const ava = h('div.cava', { style: c ? { background: c.color } : null }, avaArt ? h('img', { src: avaArt, alt: '' }) : (c ? U.initials(c.name) : icon('user', 50)));
     const stateEl = h('div.cstate', opts.status || '');
     const cap = h('div.caption', { 'aria-live': 'polite' });
@@ -70,8 +70,28 @@
 
   function say(lines, done, gap) {
     gap = gap || 2700;
-    lines.forEach((ln, i) => later(() => { if (!state) return; state.ui.caption.textContent = '“' + ln + '”'; murmur(ln.length); }, 600 + i * gap));
-    later(() => { if (done) done(); }, 600 + lines.length * gap + 400);
+    let at = 600;
+    lines.forEach(ln => {
+      later(() => {
+        if (!state) return;
+        state.ui.caption.textContent = '“' + ln + '”';
+        if (state.res && window.Voice) { if (!state.muted) Voice.speak(ln, state.res.voice, { vol: state.speaker ? 0.6 : 0.3 }); }
+        else murmur(ln.length);
+      }, at);
+      at += state && state.res ? Math.max(1800, ln.length * 62 / (state.res.voice.rate || 1)) : gap;
+    });
+    later(() => { if (done) done(); }, at + 400);
+  }
+  // the resident behind a contact or number, if any
+  function residentFor(contactId, number) {
+    if (!window.Residents) return null;
+    const c = contactId ? Chat.contact(contactId) : null;
+    if (c) return c.rid != null ? Residents.get(c.rid) : Residents.byCid(c.id);
+    return number ? Residents.byNumber(number) : null;
+  }
+  function linesFor() {
+    if (state.res && window.Mind) return Mind.callLines(state.res.id);
+    return NPCS[state.npc] ? NPCS[state.npc].call : ['…', 'Wrong number.'];
   }
 
   function hangup(reason) {
@@ -108,8 +128,7 @@
     state.dir = 'in';
     screen({ status: 'Connected' });
     connected();
-    const npc = state.npc;
-    say(NPCS[npc] ? NPCS[npc].call : ['…', 'Wrong number.'], () => hangup('They hung up'));
+    say(linesFor(), () => hangup('They hung up'));
   }
   function decline() {
     if (!state) return;
@@ -132,15 +151,19 @@
       if (state) { OS.toast('Already on a call'); return; }
       if (!OS.cellular()) { OS.toast('No signal. Descent mode is on.'); Sound.play('error'); return; }
       const c = Chat.contactByNumber(number);
-      state = { contactId: c ? c.id : null, npc: c ? c.npc : null, number, name: c ? c.name : number, dir: 'out', timers: [], startedAt: Date.now() };
+      const res = residentFor(c ? c.id : null, number);
+      state = { contactId: c ? c.id : null, npc: c ? c.npc : null, res, number, name: c ? c.name : res ? res.name : number, dir: 'out', timers: [], startedAt: Date.now() };
       OS.inCall = true;
       screen({ status: 'Calling…' });
       Sound.play('ringback');
       later(() => Sound.play('ringback'), 3000);
       if (digits === '666') {
         later(() => { state.ui.status.textContent = 'Connected'; connected(); hotline(); }, 2500);
-      } else if (c && c.npc) {
-        later(() => { state.ui.status.textContent = 'Connected'; connected(); say(NPCS[c.npc].call, () => hangup('They hung up')); }, 3200 + Math.random() * 2000);
+      } else if (res && Residents.now(res).kind === 'sleep' && Math.random() < 0.6) {
+        later(() => { state.ui.status.textContent = 'No answer'; state.ui.caption.textContent = res.first + ' is asleep.'; }, 7000);
+        later(() => hangup('No answer'), 9500);
+      } else if (res || (c && c.npc)) {
+        later(() => { state.ui.status.textContent = 'Connected'; connected(); say(linesFor(), () => hangup('They hung up')); }, 3200 + Math.random() * 2000);
       } else if (c) {
         later(() => { state.ui.status.textContent = 'No answer'; state.ui.caption.textContent = 'Nobody answers. Only breathing.'; }, 6000);
         later(() => hangup('No answer'), 9000);
@@ -153,7 +176,7 @@
       if (state || OS.inCall) return;
       const c = Chat.contact(contactId);
       if (!c) return;
-      state = { contactId, npc: c.npc, number: c.number, name: c.name, dir: 'ringing', timers: [], startedAt: Date.now() };
+      state = { contactId, npc: c.npc, res: residentFor(contactId), number: c.number, name: c.name, dir: 'ringing', timers: [], startedAt: Date.now() };
       OS.inCall = true;
       screen({ status: 'Incoming call', incoming: true });
       state.stopRing = Sound.loop('ring');
