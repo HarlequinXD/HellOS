@@ -233,7 +233,7 @@
     let s = text;
     if (v.formal) CONTRACT.forEach(([re, rep]) => { s = s.replace(re, rep); });
     if (v.slang) SLANGIFY.forEach(([re, rep, pr]) => { s = s.replace(re, m => chance(pr * v.slang) ? rep : m); });
-    if (v.terse && s.length > 70) { const parts = s.split(/(?<=[.!?])\s+/); if (parts.length > 2) s = parts.slice(0, 2).join(' '); }
+    if (v.terse && s.length > 70 && !/\d(?::\d\d)?(am|pm)|\?$/.test(s)) { const parts = s.split(/(?<=[.!?])\s+/); if (parts.length > 2) s = parts.slice(0, 2).join(' '); }
     const cold = tierId === 'hate' || tierId === 'dislike' || /sorry|awful|rough|are you okay|sucks|here if you need|i'm here|so sorry|holding up|doing okay/i.test(text);
     if (!opts.plain) {
       if (p.voice.tic && chance(cold ? 0.15 : 0.3)) s = pick(v.pre) + ' ' + s.charAt(0).toLowerCase() + s.slice(1);
@@ -1027,24 +1027,67 @@
     l.push({ id: U.uid(), rid: p.id, day: pr.day, s: pr.s, e: pr.e, place: pr.place, status: 'agreed', made: realNow() });
     savePlans(l);
     if (window.Journal) Journal.day(p.id, HellTime.key(pr.day) + ' plans', 'Plans with you: ' + R.PLACES[pr.place].n + ' at ' + R.fmt(pr.s) + '.', p.id);
-    return E('{It\'s a date. Well, not a date.|Deal!|I\'m in!|Sure, why not.|Yes! Finally.} {[w], [when]|See you at [w], [when]|[when] at [w] then}{.|!|. Don\'t be late.}', { w: R.PLACES[pr.place].n, when: whenText(pr) });
+    return (pr.what ? E('{Ooh, [x]? Yes.|[x]? Say no more.|I could always go for [x].}', { x: pr.what }) + ' ' : '') + E('{It\'s a date. Well, not a date.|Deal!|I\'m in!|Sure, why not.|Yes! Finally.} {[w], [when]|See you at [w], [when]|[when] at [w] then}{.|!|. Don\'t be late.}', { w: R.PLACES[pr.place].n, when: whenText(pr) });
+  }
+  // where you'd go for a given food or drink
+  function venueFor(name) {
+    const n = (name || '').toLowerCase();
+    if (/pizza|garlic bread/.test(n)) return 'pizza';
+    if (/latte|coffee|tea|chocolate/.test(n)) return 'rage_cafe';
+    if (/ale|mead|mary|soda|drink|beer|wine/.test(n)) return pick(['limbo_lounge', 'frost']);
+    if (/skewer|ribs|wings|tacos|noodles|soup|marshmallow|brownie/.test(n)) return 'night_market';
+    return pick(['slop', 'night_market', 'pizza']);
   }
   H.invite = (c, d, t) => {
     const p = c.p;
     const pr = parseWhen(t);
-    const want = ({ hate: 0, dislike: 0.08, wary: 0.35, neutral: 0.6, like: 0.85, close: 0.95, devoted: 1 })[c.tr] * (0.75 + p.traits.energy * 0.4) + (pr.fest ? 0.1 : 0);
-    if (Math.random() > want) return no(c, coldTier(c) ? E('{With you? No.|Absolutely not.|I\'d rather swim in the Styx.}') : E('{Maybe another time.|I\'m not really up for it, sorry.|Ehh, I\'ll pass this time.|Can I get back to you on that? (No.)}'));
+    // "wanna get SOME today?" -> some of what we were just talking about
+    let what = null;
+    const th = c.st.thing && Date.now() - c.st.thing.t < 30 * 60000 ? c.st.thing : null;
+    if (th && / (some|it|them|that|those|one|a few|any) /.test(t) && /^(food|drink)/.test(th.kind)) what = th.name;
+    else if (d && d.frame && d.frame.object && window.Lexicon) { const lk = Lexicon.look(d.frame.object.split(' ').pop()); if (lk && /^(FOOD|FOOD_ITEM|DRINK|DRINK_ITEM)$/.test(lk.concept)) what = d.frame.object; }
+    if (what && !pr.place) pr.place = venueFor(what);
+    pr.what = what;
+    const want = ({ hate: 0, dislike: 0.08, wary: 0.35, neutral: 0.6, like: 0.85, close: 0.95, devoted: 1 })[c.tr] * (0.75 + p.traits.energy * 0.4) + (pr.fest ? 0.1 : 0) + (what && sharesTaste(p, what) ? 0.2 : 0);
     const busy = busyAt(p, pr);
     if (busy) {
       let alt;
-      if (busy.why === 'work' && busy.until < 22 * 60) alt = { day: pr.day, s: busy.until + 60, e: busy.until + 180, place: pr.place };
-      else alt = { day: pr.day + 1, s: 19 * 60, e: 21 * 60, place: pr.place };
+      if (busy.why === 'work' && busy.until < 22 * 60) alt = { day: pr.day, s: busy.until + 60, e: busy.until + 180, place: pr.place, what };
+      else alt = { day: pr.day + 1, s: 19 * 60, e: 21 * 60, place: pr.place, what };
       c.st.pending = { k: 'invite', prop: alt, t: realNow() };
+      c.ctx = { type: 'declined', reason: busy.why };
       const why = busy.why === 'work' ? E('{I\'m working then|I\'ve got a shift|I\'m stuck at work} {till [u]|at [w]}', { u: R.fmt(busy.until), w: busy.where }) : busy.why === 'sleep' ? E('{That\'s way past my bedtime|I\'ll be asleep}') : E('{I\'ve already got plans then|We already have plans around then!}');
-      return why + E('. {How about|What about|Could do} [when] instead?', { when: whenText(alt) });
+      return (what ? E('{I\'d love some [x], but|Ooh, [x]. But|Tempting, but}', { x: what }) + ' ' + lc(why) : why) + E('. {How about|What about|Could do} [when] instead?', { when: whenText(alt) });
+    }
+    if (Math.random() > want) {
+      c.ctx = { type: 'declined', reason: 'mood' };
+      if (coldTier(c)) return no(c, E('{With you? No.|Absolutely not.|I\'d rather swim in the Styx.}'));
+      // a real reason, from their actual day
+      const dayTl = R.day(p, pr.day);
+      const soc = dayTl.find(b => b.kind === 'social' && b.with != null);
+      const wx = HellWeather.at(R.PLACES[pr.place || 'pizza'] ? R.PLACES[pr.place || 'pizza'].c : p.circle, pr.day, Math.floor(pr.s / 60));
+      const reasons = [];
+      if (soc) reasons.push(E('{I\'m seeing [n] [d]|I already said I\'d hang out with [n] [d]}', { n: R.get(soc.with).first, d: pr.day === HellTime.day() ? 'tonight' : 'that night' }));
+      if (HellWeather.bad(wx.cond)) reasons.push(E('{In [w]? No thanks|Not in [w]}', { w: wx.cond.say }));
+      if (p.traits.energy < 0.5 || c.tl.mood < 0) reasons.push(E('{I\'m wiped|I\'m so tired|I just want to stay in}'));
+      reasons.push(E('{I\'m saving my souls this week|I\'ve got stuff to sort out|I\'m not really up for going out}'));
+      const why = pick(reasons);
+      const lead = what ? E('{I love [x], but|[x] sounds good, but|Ugh, [x], tempting. But}', { x: what }) + ' ' + lc(why) : why;
+      if (c.tr === 'neutral' || c.tr === 'wary') return no(c, lead + E('{. Sorry.|. Maybe another time.|. Next time?}'));
+      const alt = { day: pr.day + 1 + (U.hash(p.id + t) % 2), s: 19 * 60, e: 21 * 60, place: pr.place, what };
+      c.st.pending = { k: 'invite', prop: alt, t: realNow() };
+      return no(c, lead + E('{. Not [d]. How about [when]?|. Rain check? [When] works.|, sorry. [When] instead?}', { d: pr.day === HellTime.day() ? 'today' : 'then', when: whenText(alt), When: cap(whenText(alt)) }));
     }
     if (!pr.place) { pr.place = placeIdByName(p.fav.place) || pick(SOCIAL_IDS); }
     return agree(c, pr);
+  };
+  // "no worries" / "no problem" / "all good": that's fine, not a no
+  H.no_worries = c => {
+    const x = c.st.ctx;
+    const pd = c.prevPending || c.st.pending;
+    if (pd && pd.k === 'invite' && pd.prop) { c.keepPending = true; return E('{Thanks for understanding.|Cheers, you\'re a legend.|Appreciate it.} {So [when] then?|Does [when] work instead?|[When] still good?}', { when: whenText(pd.prop), When: cap(whenText(pd.prop)) }); }
+    if (x && x.type === 'declined' && Date.now() - x.t < 30 * 60000) return E('{Thanks for understanding.|Cheers. Next time, promise.|You\'re the best. Rain check for sure.|Appreciate it. We\'ll sort something out.}');
+    return E('{Cool.|All good!|Sweet.|Glad that\'s sorted.|Nice.}');
   };
   H.plan_check = c => {
     const pl = plans().filter(x => x.rid === c.p.id && x.status === 'agreed' && x.day * 1440 + x.e > HellTime.total()).sort((a, b) => a.day - b.day || a.s - b.s)[0];
@@ -1278,10 +1321,10 @@
 
   // ---------------------------------------------------------------- answers to the NPC's newer questions
   function takeAnswer2(c, pd, t, raw) {
-    const yes = / (yes|yeah|sure|okay|ok|definitely|of course|sounds good|deal|i am in|lets go|let us go|why not|absolutely|bet) /.test(t);
+    const yes = / (yes|yeah|sure|okay|ok|definitely|of course|sounds good|deal|i am in|lets go|let us go|why not|absolutely|bet|no problem|no problems|no worries|works for me|that works) /.test(t);
     const nope = / (no|nope|nah|can not|cannot|busy|not really|maybe later|another time) /.test(t);
     if (pd.k === 'invite') {
-      if (yes && !nope) return agree(c, pd.prop);
+      if (yes && (!nope || / no (problem|problems|worries) /.test(t))) return agree(c, pd.prop);
       if (nope) return E('{Aw, okay. Another time.|No worries.|Fine, your loss.}');
       return H.invite(c, null, t);
     }
@@ -1678,6 +1721,7 @@
   }
 
   const LIVING_INTENTS = [
+    ['no_worries', / no (?:problem|problems|probs|prob|probz|worries|worry|stress|biggie|drama|dramas|sweat|bother|big deal|issues?) | all good | (?:that is|that s|its|it is) (?:fine|okay|ok|cool|alright) | all g | fair enough | totally fine | no hard feelings | dont worry about it | do not worry about it /],
     ['judge', null],
     ['player_doing', PLAYER_DOING],
     ['plan_check', / are we still on | still meeting | our plans | are we meeting | what are our plans | still on for /],
@@ -1758,7 +1802,7 @@
       } else if (pending && !ev && !facts.length && !d.question && (!main || (pending.k === 'opinion' && /^(compliment|insult|love)$/.test(main)))) {
         out.push(takeAnswer(c, t, text));
       } else {
-        if (pending) st.pending = null;
+        if (pending) { c.prevPending = pending; st.pending = null; }
         if (d.intents.indexOf('greet') >= 0 && (!main || st.talks === 0 || !U.sameDay(st.seen || 0, now))) out.push(H.greet(c));
         if (learned) out.push(learned);
         if (ev && main !== 'guess_what') out.push(eventReact(c, ev));
@@ -1774,6 +1818,7 @@
             else out.push(H[main] ? H[main](c, d, t) || idk(c) : idk(c));
             if (!c.refused && CTX[main]) { const cx = CTX[main](c, d, t); if (cx) st.ctx = Object.assign(cx, { t: now }); }
             if (c.ctx) st.ctx = Object.assign(c.ctx, { t: now });
+            if (c.keepPending && c.prevPending) st.pending = c.prevPending;
             if (!c.refused && RECORD[main] && window.Journal) { try { RECORD[main](c, d, t); } catch (e) { console.warn(e); } }
           }
           if (INFO.indexOf(main) >= 0 || /^(identity|hobby|fav|likes|dislikes|dream|job|myname|kind)$/.test(main)) bump(st, 0.5); // being asked about yourself is nice

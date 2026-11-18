@@ -1,5 +1,11 @@
 # HellOS changelog
 
+## 6.14.1 — saying no properly
+- **"Wanna get some?"** now means some of whatever you were just talking about (their favourite food, a drink…), and they pick a place that sells it ("Ooh, smoked brimstone ribs? Say no more. Dis Night Market, today at 7pm").
+- **Declines come with a real reason from their day** (seeing a friend tonight, working, too tired, saving souls, an ember storm at the venue) and residents who like you offer another day ("Rain check? Tomorrow at 7pm works").
+- **"No problems", "no worries", "all good", "no stress", "fair enough"** are understood as "that's fine", not as "no": "Thanks for understanding. So, tomorrow at 7pm then?" Said to a counter-offer, they count as accepting it. The hivemind was retrained to know them too.
+- Short-texting residents no longer drop the place and time when agreeing to plans.
+
 ## 6.14.0 — the Hellnet hivemind
 - **A neural network, built and trained from scratch** for HellOS (no outside AI, no libraries): `js/core/brain.js` runs it, `tools/brain/train.js` trains it. It reads hashed words, word pairs and letter chunks (so typos and slang still look familiar), passes them through 48 hidden units, and scores 112 kinds of message plus "none". 522 KB, loads in about 13 ms, runs fully offline.
 - **One shared mind for all 666 residents:** it works out what you meant; each resident still answers with their own life, memories, personality and opinion of you. The hand-written rules stay in charge, and the hivemind steps in only when they miss and it's confident.

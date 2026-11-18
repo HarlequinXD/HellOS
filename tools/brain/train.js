@@ -105,6 +105,7 @@ const HAND = {
   cancel: ['i can not make it', 'sorry i have to cancel', 'raincheck', 'can we do another time', 'i will not be able to come'],
   judge: ['is it any good', 'you rate it', 'worth trying', 'is it fun', 'how was that', 'was it nice', 'is that even good', 'do you reckon it is good'],
   define: ['what does that mean', 'what is the meaning of that', 'what is a ghoul', 'whats that word mean', 'explain that word'],
+  no_worries: ['no problems', 'no worries', 'no stress', 'all good', 'thats fine', 'no biggie', 'dont worry about it', 'fair enough', 'no drama mate', 'its okay'],
   favour: ['can you do something for me', 'i need a favour', 'could you help me out', 'help me out'],
   advice: ['what would you do', 'any advice', 'should i do it', 'give me some advice'],
   whats_wrong: ['what is wrong with you today', 'whats up with you', 'why are you sad', 'what is bothering you'],
