@@ -233,3 +233,6 @@ button { cursor: pointer; }
 .sheet .stitle { padding: 4px 24px 10px; font-weight: 600; color: var(--muted); font-size: 13px; }
 @keyframes up { from { transform: translateY(100%); } }
 .toast { position: absolute; left: 50%; bottom: calc(var(--nav) + 70px); transform: translateX(-50%); background: #3A1A14; color: var(--text); padding: 12px 20px; border-radius: 22px; font-size: 14px; max-width: 86%; text-align: center; box-shadow: 0 8px 24px rgba(0,0,0,.5); animation: fadein2 .2s; z-index: 80; }
+.boot img.glow { animation: fadein 1.2s forwards; opacity: 0; }
+.seal-btn img { width: 62px; height: 62px; object-fit: contain; pointer-events: none; }
+.callscreen .cava img { width: 100%; height: 100%; object-fit: cover; }

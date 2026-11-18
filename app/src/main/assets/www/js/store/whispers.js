@@ -9,6 +9,7 @@
       const level = h('canvas', { width: 300, height: 60, style: 'width:300px;height:60px;display:block;margin:10px auto' });
       const btn = h('button.rec-btn', { 'aria-label': 'Record', onclick: toggle });
       const list = h('div.list');
+      UI.backdrop(win.body, 'whispers_play', { top: 0.7, bottom: 0.93 });
       win.body.append(UI.appbar({ title: M.name }), time, level, h('div', { style: 'display:flex;justify-content:center;margin:16px 0 20px' }, btn), UI.section('Recordings'), h('div.scroll', list));
       let analyser = null, raf = null;
       async function toggle() {

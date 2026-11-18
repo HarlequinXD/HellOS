@@ -39,7 +39,7 @@ OS.register({
         }
         wrap.append(
           UI.appbar({ title: path.length ? path[path.length - 1] : 'Abyss', back: path.length ? () => { path.pop(); draw(); } : false, actions: [{ icon: 'search', label: 'Search files', onClick: search }] }),
-          crumbs, storage, h('div.scroll', list, h('div', { style: 'height:90px' })),
+          crumbs, h('div.scroll', path.length ? null : UI.banner('abyss_files', 120, null, 'Abyss'), storage, list, h('div', { style: 'height:90px' })),
           h('button.fab', { onclick: create }, icon('plus', 22), 'New'));
       }
       draw();

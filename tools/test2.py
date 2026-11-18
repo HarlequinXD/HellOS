@@ -81,7 +81,7 @@ async def main():
             await pg.evaluate(f"OS.open('rites',{{page:'{pgname}'}})"); await pg.wait_for_timeout(250)
         await pg.screenshot(path=OUT+'/t_rites_about.png')
         await pg.evaluate("OS.open('rites',{page:'app',app:'lament'})"); await pg.wait_for_timeout(300); await pg.screenshot(path=OUT+'/t_appinfo.png')
-        await pg.evaluate("OS.open('rites',{page:'display'})"); await pg.wait_for_timeout(300); await pg.click('[aria-label=\"Accent #9B5CFF\"]'); await pg.wait_for_timeout(200)
+        await pg.evaluate("OS.open('rites',{page:'display'})"); await pg.wait_for_timeout(300); await pg.click('[aria-label=\"Void flame\"]'); await pg.wait_for_timeout(200)
         await pg.evaluate("OS.home()"); await pg.screenshot(path=OUT+'/t_purple.png')
         # back to exit at home
         log('back at home:', await pg.evaluate("OS.back()"))

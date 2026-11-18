@@ -39,7 +39,8 @@
       const sel = h('select.input', { 'aria-label': 'Language', onchange() { data.language = sel.value; } },
         ['English (Australia)', 'English (United States)', 'English (United Kingdom)'].map(l => h('option', { value: l, selected: (data.language || 'English (Australia)') === l ? true : null }, l)));
       const wall = h('div', { style: 'position:absolute;inset:0;z-index:-1' });
-      OS.wallpaperStyle(wall, 'lava');
+      if (Art.get('backgrounds', 'setup_gateway')) UI.backdrop(wall, 'setup_gateway', { top: 0.25, bottom: 0.9 });
+      else OS.wallpaperStyle(wall, 'lava');
       const el = h('div', { style: 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;padding:calc(var(--sb) + 70px) 28px 34px;text-align:center;isolation:isolate' },
         wall,
         h('div', { style: 'color:var(--accent)' }, Boot.logo(110)),
@@ -100,7 +101,7 @@
       if (data.signature) { const im = new Image(); im.onload = () => ctx.drawImage(im, 0, 0); im.src = data.signature; strokes = 25; }
       const accept = nextBtn('Sign & accept', !!data.signature, () => { data.signature = pad.toDataURL('image/png'); Setup.next(); });
       return frame({ icon: 'contract', title: 'Terms of Damnation', sub: 'Read the contract, then sign below with your finger.', left: skipBtn('Clear', () => { ctx.clearRect(0, 0, pad.width, pad.height); strokes = 0; data.signature = null; accept.disabled = true; }), right: accept },
-        terms, h('div', { style: 'font-size:12px;color:var(--muted);margin:14px 4px 6px' }, 'Signature'), pad);
+        UI.banner('setup_terms', 120, null, 'Terms of Damnation'), terms, h('div', { style: 'font-size:12px;color:var(--muted);margin:14px 4px 6px' }, 'Signature'), pad);
     },
     // 3 pact account
     function () {
@@ -135,7 +136,7 @@
       }
       function enrollSeal() {
         let count = 0;
-        const ring = h('div', { style: 'width:150px;height:150px;border-radius:75px;border:3px solid var(--tile);display:flex;align-items:center;justify-content:center;color:var(--accent);transition:border-color .2s;touch-action:none' }, icon('pentagram', 80, { sw: 1.2 }));
+        const ring = h('div', { style: 'width:150px;height:150px;border-radius:75px;border:3px solid var(--tile);display:flex;align-items:center;justify-content:center;color:var(--accent);transition:border-color .2s;touch-action:none' }, Art.get('system', 'unlock_seal') ? h('img', { src: Art.get('system', 'unlock_seal'), alt: '', style: 'width:110px;height:110px;object-fit:contain;pointer-events:none' }) : icon('pentagram', 80, { sw: 1.2 }));
         const msg = h('div', { style: 'text-align:center;color:var(--muted)' }, 'Press and hold the seal 5 times');
         let t = null;
         ring.addEventListener('pointerdown', () => { ring.style.borderColor = 'var(--accent)'; t = setTimeout(() => { count++; OS.vibrate(40); Sound.play('pop'); msg.textContent = count >= 5 ? 'Seal bound to your soul' : `Lift and press again (${count}/5)`; ring.style.boxShadow = `0 0 ${count * 8}px var(--accent)`; if (count >= 5) { data.seal = true; setTimeout(() => { p.close(); draw(); }, 700); } }, 450); });
@@ -161,7 +162,7 @@
         prev.appendChild(row);
       }
       const walls = h('div', { style: 'display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px' });
-      const sw = h('div', { style: 'display:flex;gap:12px;margin-top:16px;justify-content:center' });
+      const sw = h('div', { style: 'margin-top:16px' });
       function drawPickers() {
         U.clear(walls); U.clear(sw);
         OS.WALLS.forEach(w => {
@@ -169,7 +170,7 @@
           const bg = h('div', { style: 'position:absolute;inset:0' }); OS.wallpaperStyle(bg, w.id); b.appendChild(bg);
           walls.appendChild(b);
         });
-        ACCENTS.forEach(c => sw.appendChild(h('button.swatch' + (data.accent === c ? '.on' : ''), { 'aria-label': 'Accent ' + c, style: `background:${c};width:40px;height:40px;border-radius:20px`, onclick() { data.accent = c; drawPickers(); drawPrev(); } })));
+        sw.appendChild(UI.themePicker(data.accent, c => { data.accent = c; drawPickers(); drawPrev(); }));
       }
       drawPickers(); drawPrev();
       return frame({ icon: 'palette', title: 'Choose your inferno', sub: 'Pick a wallpaper and a flame colour. You can change these later in Rites.', right: nextBtn('Next', true) }, prev, walls, sw);
@@ -198,6 +199,7 @@
         h('h1', { style: 'font-family:var(--display);font-size:32px;margin:0' }, 'Your hell is ready'),
         h('div', { style: 'color:var(--muted);font-size:15px;max-width:280px' }, 'Welcome, ' + (data.name || 'Damned Soul') + '. Swipe up from the home screen for all apps, and down from the top for Quick settings.'),
         h('button.btn', { style: 'margin-top:20px;height:52px;width:200px;font-size:16px', onclick: finish }, 'Enter HellOS'));
+      UI.backdrop(el, 'setup_finish', { top: 0.45, bottom: 0.9 });
       return el;
     }
   ];

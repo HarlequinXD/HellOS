@@ -133,7 +133,7 @@
           const fm = CATALOG[featured];
           const heroArt = Art.get('store', featured + '_banner');
           content.appendChild(h('div.scroll',
-            h('button.st-hero', { style: 'width:calc(100% - 28px);text-align:left;color:var(--text)' + (heroArt ? `;background-image:url("${heroArt}")` : ''), onclick() { stack.push(p => detail(p, featured)); } },
+            h('button.st-hero' + (heroArt ? '.art' : ''), { style: 'width:calc(100% - 28px);text-align:left;color:var(--text)' + (heroArt ? `;background-image:linear-gradient(transparent 30%, rgba(11,5,5,.85)),url("${heroArt}")` : ''), onclick() { stack.push(p => detail(p, featured)); } },
               h('div.k', tab === 'games' ? 'Game of the eternity' : 'Editor’s choice'), h('div.h', fm.name), h('div', { style: 'font-size:13px;color:#F2C3A8' }, fm.desc.slice(0, 80) + '…')),
             UI.section(tab === 'games' ? 'Free to play' : 'Free tools'),
             h('div.st-row', ids.filter(i => !CATALOG[i].price).map(card)),
@@ -183,7 +183,7 @@
         page.onShow = draw;
         return h('div', { style: 'flex:1;display:flex;flex-direction:column;min-height:0' },
           h('div.appbar', h('div', { style: 'color:var(--accent);padding-left:10px' }, icon('bag', 26)), h('div.ttl', { style: 'font-family:var(--display);font-weight:700' }, 'HellPlay'), soulsPill,
-            h('button.ibtn', { 'aria-label': 'Account', onclick() { OS.open('rites'); } }, h('span', { style: 'width:34px;height:34px;border-radius:17px;background:var(--accent);color:var(--on-accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px' }, U.initials(Store.settings().name)))),
+            h('button.ibtn', { 'aria-label': 'Account', onclick() { OS.open('rites'); } }, UI.playerAvatar(34))),
           content, bar);
       }
 
@@ -195,10 +195,13 @@
         function drawStars(n) { U.clear(stars); for (let i = 1; i <= 5; i++) stars.appendChild(h('button.ibtn', { 'aria-label': i + ' stars', style: i <= n ? 'color:var(--accent)' : 'color:var(--muted2)', onclick() { Store.update('ratings', {}, r => { r[id] = i; return r; }); drawStars(i); OS.toast('Thanks for your judgement'); } }, icon('star', 28, i <= n ? { fill: 'currentColor' } : null))); }
         drawStars(myRating);
         const shots = h('div.st-shots');
-        for (let i = 1; i <= 3; i++) { const a = Art.get('store', id + '_shot' + i); shots.appendChild(h('div', { style: a ? `background-image:url("${a}")` : '' }, a ? null : icon(m.icon, 40))); }
+        for (let i = 1; i <= 3; i++) { const a = Art.get('store', id + '_shot' + i); if (a) shots.appendChild(h('div', { role: 'img', 'aria-label': 'Illustration', style: `background-image:url("${a}")` })); }
+        if (!shots.children.length) shots.appendChild(h('div', icon(m.icon, 40)));
+        const bannerArt = Art.get('store', id + '_banner');
         return h('div.st-detail', { style: 'flex:1;display:flex;flex-direction:column;min-height:0' },
           UI.appbar({ title: '', actions: [{ icon: 'share', label: 'Share', onClick: () => OS.toast('Link sent to the Ninth Circle') }] }),
           h('div.scroll',
+            bannerArt ? h('div.banner', { role: 'img', 'aria-label': m.name + ' illustration', style: `background-image:url("${bannerArt}")` }) : null,
             h('div.top', OS.appIcon(OS.apps[id] || { id, icon: m.icon, tint: m.tint }, 84),
               h('div.grow', h('div', { style: 'font-size:22px;font-weight:700' }, m.name), h('div', { style: 'color:var(--accent);font-weight:600;font-size:14px' }, m.dev), h('div.muted', { style: 'font-size:12px' }, m.genre + (m.perms ? ' · uses ' + m.perms : '')))),
             h('div.stats', h('div', h('b', m.rating + ' ★'), 'rating'), h('div', h('b', m.downloads), 'downloads'), h('div', h('b', m.size + ' MB'), 'size'), h('div', h('b', 'Damned'), 'rated')),
@@ -210,7 +213,7 @@
             h('div', { style: 'padding:0 26px;color:var(--muted)' }, m.changes),
             UI.section('Rate this ' + (m.cat === 'game' ? 'game' : 'app')), stars,
             UI.section('Reviews'),
-            h('div.list', [['Vex', 5, 'absolute banger. lost my soul to it (again)'], ['Mortis', 4, 'very nice. reminds me of digging.'], ['Lucien Graves', 2, 'Read the terms. I did. Twice.']].map(([n, r, t]) => UI.li({ lead: UI.avatar(n, 36), title: n + ' · ' + '★'.repeat(r), sub: t }))),
+            h('div.list', [['Vex', 5, 'absolute banger. lost my soul to it (again)', 'c_vex'], ['Mortis', 4, 'very nice. reminds me of digging.', 'c_mortis'], ['Lucien Graves', 2, 'Read the terms. I did. Twice.', 'c_lucien']].map(([n, r, t, cid]) => UI.li({ lead: UI.avatar(n, 36, null, cid), title: n + ' · ' + '★'.repeat(r), sub: t }))),
             h('div', { style: 'height:20px' })));
       }
     }

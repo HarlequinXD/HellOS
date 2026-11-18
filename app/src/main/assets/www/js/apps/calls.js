@@ -62,7 +62,7 @@ OS.register({
         const name = c ? c.name : e.number;
         const dirIcon = e.dir === 'missed' ? 'phoneOff' : (e.dir === 'in' ? 'back' : 'forward');
         list.appendChild(UI.li({
-          lead: UI.avatar(name, 40, c ? c.color : null),
+          lead: UI.avatar(name, 40, c ? c.color : null, c ? c.id : null),
           title: name,
           sub: h('span', { style: e.dir === 'missed' ? 'color:var(--danger)' : '' }, (e.dir === 'missed' ? 'Missed' : e.dir === 'in' ? 'Incoming' : 'Outgoing') + ' · ' + U.ago(e.t) + (e.dur ? ' · ' + U.dur(e.dur) : '')).textContent,
           trail: h('button.ibtn.accent', { 'aria-label': 'Call ' + name, onclick(ev) { ev.stopPropagation(); CallCore.dial(e.number); } }, icon('phone', 20)),
@@ -88,7 +88,7 @@ OS.register({
         U.clear(list);
         const cs = contacts().filter(c => !q || c.name.toLowerCase().includes(q) || String(c.number).includes(q));
         cs.forEach(c => list.appendChild(UI.li({
-          lead: UI.avatar(c.name, 40, c.color), title: c.name, sub: c.number,
+          lead: UI.avatar(c.name, 40, c.color, c.id), title: c.name, sub: c.number,
           trail: h('button.ibtn.accent', { 'aria-label': 'Call ' + c.name, onclick(ev) { ev.stopPropagation(); CallCore.dial(c.number); } }, icon('phone', 20)),
           onClick: () => OS.open('souls', { contact: c.id })
         })));
@@ -104,7 +104,7 @@ OS.register({
       if (!fs.length) { content.appendChild(UI.empty('star', 'Star a soul in Souls to see them here.')); return; }
       const grid = h('div', { style: 'display:grid;grid-template-columns:repeat(3,1fr);gap:18px;padding:10px 16px' });
       fs.forEach(c => grid.appendChild(h('button', { style: 'background:none;border:none;color:var(--text);display:flex;flex-direction:column;align-items:center;gap:8px', onclick() { CallCore.dial(c.number); } },
-        UI.avatar(c.name, 76, c.color), h('span', { style: 'font-size:13px;font-weight:600;text-align:center' }, c.name))));
+        UI.avatar(c.name, 76, c.color, c.id), h('span', { style: 'font-size:13px;font-weight:600;text-align:center' }, c.name))));
       content.appendChild(h('div.scroll', grid));
     }
 

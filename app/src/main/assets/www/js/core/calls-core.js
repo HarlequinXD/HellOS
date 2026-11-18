@@ -29,7 +29,8 @@
     U.clear(L);
     L.classList.remove('hidden');
     const c = state.contactId ? Chat.contact(state.contactId) : null;
-    const ava = h('div.cava', { style: c ? { background: c.color } : null }, c ? U.initials(c.name) : icon('user', 50));
+    const avaArt = state.contactId ? Art.get('avatars', state.contactId) : null;
+    const ava = h('div.cava', { style: c ? { background: c.color } : null }, avaArt ? h('img', { src: avaArt, alt: '' }) : (c ? U.initials(c.name) : icon('user', 50)));
     const stateEl = h('div.cstate', opts.status || '');
     const cap = h('div.caption', { 'aria-live': 'polite' });
     state.ui = { status: stateEl, caption: cap };
@@ -51,6 +52,8 @@
       el.appendChild(grid);
       el.appendChild(h('button.end', { 'aria-label': 'End call', onclick: () => hangup('You hung up') }, icon('phoneOff', 32)));
     }
+    const cbg = Art.get('backgrounds', 'calls_active');
+    if (cbg) el.style.background = `linear-gradient(rgba(11,5,5,.55), rgba(11,5,5,.92) 60%), url("${cbg}") center top/cover no-repeat`;
     L.appendChild(el);
   }
 

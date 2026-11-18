@@ -10,6 +10,7 @@
       const sEl = h('span'), bEl = h('span');
       const board = h('div.g2048', { style: 'width:min(92vw,360px)' });
       wrap.append(h('div.hud', h('span', 'Score ', sEl), h('span', 'Best ', bEl)), board, h('div.muted', { style: 'font-size:12px;text-align:center' }, 'Swipe to merge. Imp + Imp = Ghoul… all the way to the Throne.'));
+      GameKit.backdrop(win.body, 'damned2048');
       win.body.append(UI.appbar({ title: M.name, actions: [{ icon: 'refresh', label: 'New game', onClick: () => reset() }] }), wrap);
       function reset() { grid = Array(16).fill(0); score = 0; over = false; won = false; add(); add(); save(); draw(); }
       function add() { const e = grid.map((v, i) => v ? -1 : i).filter(i => i >= 0); if (!e.length) return; grid[U.pick(e)] = Math.random() < 0.9 ? 2 : 4; }

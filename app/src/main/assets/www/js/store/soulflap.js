@@ -9,6 +9,8 @@
       const wrap = h('div.game', { style: 'position:relative' }, cv);
       win.body.append(UI.appbar({ title: M.name }), wrap);
       const g = cv.getContext('2d');
+      const batImg = GameKit.sprite('soulflap_bat'), boneImg = GameKit.sprite('soulflap_bone_pillar');
+      GameKit.backdrop(win.body, 'soulflap');
       let bat, pipes, score, running, raf, last, frame = 0;
       function reset() { bat = { y: H / 2, v: 0 }; pipes = []; score = 0; running = true; last = performance.now(); for (let i = 0; i < 3; i++) pipes.push(pipe(W + 60 + i * 180)); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); }
       function pipe(x) { return { x, gap: 120 + Math.random() * 30, y: 90 + Math.random() * (H - 260), passed: false }; }
@@ -28,12 +30,25 @@
         const sky = g.createLinearGradient(0, 0, 0, H); sky.addColorStop(0, '#1B0508'); sky.addColorStop(1, '#4A1008');
         g.fillStyle = sky; g.fillRect(0, 0, W, H);
         g.fillStyle = 'rgba(226,59,59,.8)'; g.beginPath(); g.arc(250, 70, 26, 0, Math.PI * 2); g.fill();
+        const bones = GameKit.ready(boneImg);
         pipes.forEach(p => {
+          if (bones) {
+            // lower pillar upright, upper pillar flipped; drawn within the same 44px collision column
+            g.drawImage(boneImg, p.x - 6, p.y + p.gap, 56, H - p.y - p.gap);
+            g.save(); g.translate(p.x - 6, p.y); g.scale(1, -1); g.drawImage(boneImg, 0, 0, 56, p.y); g.restore();
+            return;
+          }
           g.fillStyle = '#E8D9C4';
           g.fillRect(p.x, 0, 44, p.y); g.fillRect(p.x, p.y + p.gap, 44, H - p.y - p.gap);
           g.fillStyle = '#C8B8A8'; g.fillRect(p.x - 4, p.y - 14, 52, 14); g.fillRect(p.x - 4, p.y + p.gap, 52, 14);
         });
         g.save(); g.translate(70, bat.y); g.rotate(Math.max(-0.5, Math.min(0.8, bat.v / 10)));
+        if (GameKit.ready(batImg)) {
+          const sy = 1 + Math.sin(frame * 0.4) * 0.12;
+          g.scale(1, sy); g.drawImage(batImg, -26, -21, 52, 42); g.restore();
+          g.fillStyle = '#F3E6DA'; g.font = '700 36px Cinzel, Georgia, serif'; g.textAlign = 'center'; g.fillText(String(score), W / 2, 56);
+          return;
+        }
         const wing = Math.sin(frame * 0.4) * 10;
         g.fillStyle = '#1A0605';
         g.beginPath(); g.moveTo(0, 0); g.lineTo(-22, -8 - wing); g.lineTo(-14, 2); g.lineTo(-24, 6 - wing / 2); g.closePath(); g.fill();

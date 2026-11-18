@@ -13,7 +13,7 @@ OS.register({
     function threadList(page) {
       const list = h('div.list');
       const el = h('div', { style: 'flex:1;display:flex;flex-direction:column;min-height:0;position:relative' },
-        UI.appbar({ title: 'Pacts', big: true, back: false, actions: [{ icon: 'search', label: 'Search', onClick: search }] }),
+        UI.appbar({ title: 'Pacts', big: true, back: false, hero: 'pacts_inbox', actions: [{ icon: 'search', label: 'Search', onClick: search }] }),
         h('div.scroll', list, h('div', { style: 'height:90px' })),
         h('button.fab', { onclick: newPact }, icon('message', 22), 'New pact'));
       function fill() {
@@ -25,7 +25,7 @@ OS.register({
           const c = Chat.contact(t.id) || { name: 'Unknown', color: null };
           const last = t.msgs[t.msgs.length - 1];
           list.appendChild(UI.li({
-            lead: UI.avatar(c.name, 44, c.color),
+            lead: UI.avatar(c.name, 44, c.color, c.id),
             title: c.name,
             sub: (last.from === 'me' ? 'You: ' : '') + last.text,
             trail: h('div.ltr', { style: 'flex-direction:column;align-items:flex-end' }, h('span', U.ago(last.t)), t.unread ? h('span', { style: 'background:var(--accent);color:var(--on-accent);border-radius:10px;padding:1px 7px;font-weight:700;font-size:11px' }, String(t.unread)) : null),
@@ -69,6 +69,8 @@ OS.register({
       win.viewing = id; win._current = id;
       Chat.markRead(id);
       const thread = h('div.thread');
+      UI.backdrop(thread, 'pacts_thread', { top: 0.86, bottom: 0.94 });
+      thread.style.backgroundAttachment = 'local';
       const ta = h('textarea', { rows: 1, placeholder: 'Write in blood…', 'aria-label': 'Message', oninput() { ta.style.height = 'auto'; ta.style.height = Math.min(120, ta.scrollHeight) + 'px'; } });
       ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
       function send() {

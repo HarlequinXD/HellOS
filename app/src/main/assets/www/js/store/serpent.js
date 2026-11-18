@@ -1,7 +1,18 @@
 /* Serpent: snake. */
 (function () {
   const M = CATALOG.serpent;
+  const sprites = {};
   window.GameKit = {
+    // transparent gameplay sprite; use only when GameKit.ready(img)
+    sprite(key) {
+      if (sprites[key] !== undefined) return sprites[key];
+      const url = Art.get('gameplay', key);
+      if (!url) return (sprites[key] = null);
+      const im = new Image(); im.src = url; sprites[key] = im; return im;
+    },
+    ready(im) { return !!(im && im.complete && im.naturalWidth); },
+    // illustrated backdrop for a game screen, under a dark overlay
+    backdrop(el, appId) { return UI.backdrop(el, appId + '_play', { top: 0.82, bottom: 0.93 }); },
     // shared: reward souls for a finished run, remember best score
     finish(key, score, perSoul, title) {
       const best = Store.get(key + 'Best', 0);
@@ -32,6 +43,8 @@
       wrap.append(h('div.hud', h('span', 'Score ', score), h('span', 'Best ', best)), cv, dpad);
       win.body.append(UI.appbar({ title: M.name }), wrap);
       const g = cv.getContext('2d');
+      const headImg = GameKit.sprite('serpent_head_right'), appleImg = GameKit.sprite('serpent_forbidden_apple');
+      GameKit.backdrop(win.body, 'serpent');
       let snake, dir, nextDir, fruit, alive, paused, tick, speed, pts;
       function reset() { snake = [[8, 9], [7, 9], [6, 9]]; dir = [1, 0]; nextDir = [1, 0]; pts = 0; speed = 160; alive = true; paused = false; place(); score.textContent = '0'; loop(); }
       function place() { do { fruit = [Math.floor(Math.random() * N), Math.floor(Math.random() * N)]; } while (snake.some(s => s[0] === fruit[0] && s[1] === fruit[1])); }
@@ -53,10 +66,18 @@
         g.fillStyle = '#120605'; g.fillRect(0, 0, 360, 360);
         g.strokeStyle = 'rgba(255,110,60,.06)';
         for (let i = 0; i <= N; i++) { g.beginPath(); g.moveTo(i * c, 0); g.lineTo(i * c, 360); g.moveTo(0, i * c); g.lineTo(360, i * c); g.stroke(); }
-        g.fillStyle = '#E2481F'; g.beginPath(); g.arc(fruit[0] * c + c / 2, fruit[1] * c + c / 2, c / 2.4, 0, Math.PI * 2); g.fill();
-        g.fillStyle = '#3FA34D'; g.fillRect(fruit[0] * c + c / 2 - 1, fruit[1] * c + 2, 2, 5);
-        snake.forEach((s, i) => { g.fillStyle = i === 0 ? '#7BD88F' : `hsl(${130 - i * 2},45%,${40 - Math.min(20, i)}%)`; g.fillRect(s[0] * c + 1, s[1] * c + 1, c - 2, c - 2); });
-        g.fillStyle = '#120605'; const hd = snake[0]; g.fillRect(hd[0] * c + c / 2 + dir[0] * 4 - 2, hd[1] * c + c / 2 + dir[1] * 4 - 2, 4, 4);
+        if (GameKit.ready(appleImg)) { const s = c * 1.25; g.drawImage(appleImg, fruit[0] * c + c / 2 - s / 2, fruit[1] * c + c / 2 - s / 2, s, s); }
+        else {
+          g.fillStyle = '#E2481F'; g.beginPath(); g.arc(fruit[0] * c + c / 2, fruit[1] * c + c / 2, c / 2.4, 0, Math.PI * 2); g.fill();
+          g.fillStyle = '#3FA34D'; g.fillRect(fruit[0] * c + c / 2 - 1, fruit[1] * c + 2, 2, 5);
+        }
+        const useHead = GameKit.ready(headImg);
+        snake.forEach((s, i) => { if (i === 0 && useHead) return; g.fillStyle = i === 0 ? '#7BD88F' : `hsl(${130 - i * 2},45%,${40 - Math.min(20, i)}%)`; g.fillRect(s[0] * c + 1, s[1] * c + 1, c - 2, c - 2); });
+        const hd = snake[0];
+        if (useHead) {
+          g.save(); g.translate(hd[0] * c + c / 2, hd[1] * c + c / 2); g.rotate(Math.atan2(dir[1], dir[0]));
+          const s = c * 1.5; g.drawImage(headImg, -s / 2, -s / 2, s, s); g.restore();
+        } else { g.fillStyle = '#120605'; g.fillRect(hd[0] * c + c / 2 + dir[0] * 4 - 2, hd[1] * c + c / 2 + dir[1] * 4 - 2, 4, 4); }
       }
       function die() {
         alive = false; Sound.play('boom'); OS.vibrate(200);

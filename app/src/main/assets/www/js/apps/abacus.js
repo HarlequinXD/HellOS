@@ -60,7 +60,7 @@ OS.register({
         if (v === 'clear') Store.set('calcHistory', []);
         else if (v != null) { expr = l[+v].e; preview(); }
       } }] }),
-      h('div.calc', h('div.disp', exprEl, resEl), extra, keys));
+      h('div.calc', UI.backdrop(h('div.disp', exprEl, resEl), 'abacus_calculator', { top: 0.45, bottom: 0.85 }), extra, keys));
     window.addEventListener('keydown', onKey);
     win.own(() => window.removeEventListener('keydown', onKey));
     function onKey(e) {

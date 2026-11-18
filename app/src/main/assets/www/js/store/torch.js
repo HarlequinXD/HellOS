@@ -30,7 +30,8 @@
         const real = !!(OS.bridge && OS.bridge.hasTorch && OS.bridge.hasTorch());
         note.textContent = on ? (real && !screenMode ? 'The flash burns bright.' : 'Screen lantern lit.') : (real ? 'Tap to light your phone’s flash.' : 'No flash found. The screen becomes your lantern.');
         lantern.textContent = screenMode ? 'Screen lantern: on' : 'Screen lantern: off';
-        scr.style.background = on && screenMode ? 'radial-gradient(circle at 50% 40%, #FFF4DC 0%, #FFB347 45%, #E2481F 100%)' : '';
+        const idle = Art.get('backgrounds', 'torch_idle');
+        scr.style.background = on && screenMode ? 'radial-gradient(circle at 50% 40%, #FFF4DC 0%, #FFB347 45%, #E2481F 100%)' : (idle ? `linear-gradient(rgba(11,5,5,.55), rgba(11,5,5,.85)), url("${idle}") center/cover no-repeat` : '');
       }
       draw();
       win.listen('torch', draw);

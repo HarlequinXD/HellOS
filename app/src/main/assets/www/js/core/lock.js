@@ -72,7 +72,8 @@
       if (OS.notifications.length > 4) notes.appendChild(h('div', { style: 'text-align:center;font-size:12px;color:var(--muted)' }, '+' + (OS.notifications.length - 4) + ' more'));
     }
 
-    const seal = h('button.seal-btn', { 'aria-label': s.seal ? 'Hold the seal to unlock' : 'Unlock' }, icon('pentagram', 38, { sw: 1.3 }));
+    const sealArt = Art.get('system', 'unlock_seal');
+    const seal = h('button.seal-btn', { 'aria-label': s.seal ? 'Hold the seal to unlock' : 'Unlock' }, sealArt ? h('img', { src: sealArt, alt: '' }) : icon('pentagram', 38, { sw: 1.3 }));
     let holdT = null;
     seal.addEventListener('pointerdown', () => {
       if (s.seal) holdT = setTimeout(() => { OS.vibrate(40); unlock(); }, 550);

@@ -46,7 +46,7 @@ The APK is signed with the fixed key in `keystore/`, so new builds install over 
 - `app/src/main/assets/www/` is the OS itself, in plain HTML, CSS and JavaScript (no build step).
   - `js/core/` holds the kernel (window manager, notifications, scheduler), setup, lock, home, shade, telephony and characters.
   - `js/apps/` holds the system apps; `js/store/` holds the HellPlay catalog and its apps.
-- Art is swappable. See **[ART_GUIDE.md](ART_GUIDE.md)**.
+- Art comes from the HellOS Graphic Art Pack (masters in `art-source/`). See **[ART_GUIDE.md](ART_GUIDE.md)** for what goes where.
 
 ### Adding a HellPlay app
 

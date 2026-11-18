@@ -32,6 +32,9 @@
       let cam = { x: HOME.x * 0.6, y: HOME.y * 0.6, z: 0.22 };
       let selected = null, route = null;
       const pointers = new Map();
+      const mapArtUrl = Art.get('backgrounds', 'hellscape_map');
+      let mapArt = null;
+      if (mapArtUrl) { const im = new Image(); im.onload = () => { mapArt = im; draw(); }; im.src = mapArtUrl; }
       let pinchStart = null;
 
       const q = h('input', { placeholder: 'Search Hellscape', 'aria-label': 'Search places', oninput: showResults, onfocus: showResults });
@@ -58,6 +61,8 @@
         const dpr = window.devicePixelRatio || 1;
         g.fillStyle = '#0E0403'; g.fillRect(0, 0, canvas.width, canvas.height);
         const [cx, cy] = w2s(0, 0);
+        const R9 = 9 * RING * cam.z * dpr;
+        if (mapArt) { g.save(); g.beginPath(); g.arc(cx, cy, R9, 0, Math.PI * 2); g.clip(); g.drawImage(mapArt, cx - R9 * 1.08, cy - R9 * 1.08, R9 * 2.16, R9 * 2.16); g.restore(); }
         // circles from outside in
         for (let i = 0; i < 9; i++) {
           const r = (9 - i) * RING * cam.z * dpr;
@@ -65,7 +70,9 @@
           g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2);
           g.fillStyle = `rgb(${shade + 40},${Math.max(6, 20 - i * 2)},${8 + (i === 8 ? 30 : 0)})`;
           if (i === 8) g.fillStyle = '#5A8AA8';
+          if (mapArt) g.globalAlpha = i === 0 ? 0.35 : 0.16;
           g.fill();
+          g.globalAlpha = 1;
           g.strokeStyle = 'rgba(255,140,80,.25)'; g.lineWidth = 2 * dpr; g.stroke();
           // label
           if (cam.z > 0.25) {

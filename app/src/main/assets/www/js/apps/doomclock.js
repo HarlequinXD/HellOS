@@ -153,7 +153,8 @@
         }
         upd();
         win.interval(() => { if (tab === 'clock') upd(); }, 1000);
-        content.append(UI.appbar({ title: 'Clock', back: false }), h('div.scroll', big, date, list));
+        const hero = UI.backdrop(h('div', { style: 'margin:0 12px;border-radius:28px;padding:30px 0 26px' }, big, date), 'doomclock_clock', { top: 0.35, bottom: 0.75 });
+        content.append(UI.appbar({ title: 'Clock', back: false }), h('div.scroll', hero, list));
       }
 
       function timerTab() {

@@ -79,6 +79,8 @@
       h('div.nhead', h('span', 'Torments'), OS.notifications.length ? h('button.btn.text', { style: 'height:32px', onclick() { OS.clearNotifs(); } }, 'Banish all') : null),
       list,
       h('div.grab'));
+    const sbg = Art.get('backgrounds', 'shade_quick_settings');
+    if (sbg) el.style.background = `linear-gradient(rgba(12,5,4,.86), rgba(12,5,4,.97) 55%), url("${sbg}") center top/cover no-repeat`;
     U.swipe(el, { up(e) { if (!e.target.closest('.nlist') || list.scrollTop <= 0) Shade.close(); } }, { min: 60 });
     el.querySelector('.grab').addEventListener('click', () => Shade.close());
     layer.appendChild(el);

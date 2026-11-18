@@ -109,6 +109,7 @@
       }
 
       function site(...kids) { return h('div.site', kids); }
+      function banner(key) { const a = Art.get('websites', key); return a ? h('div.site-banner', { role: 'img', 'aria-label': '', style: `background-image:url("${a}");margin:-18px -18px 14px;width:auto` }) : null; }
       function link(url, text) { return h('a', { href: '#', onclick(e) { e.preventDefault(); go(url); } }, text); }
 
       function render(url) {
@@ -134,7 +135,8 @@
       function seek(query) {
         if (!query) {
           const inp = h('input.sq', { placeholder: 'Seek and ye shall burn', onkeydown(e) { if (e.key === 'Enter') go('hell://seek.hell/?q=' + encodeURIComponent(inp.value)); } });
-          return h('div.seekhome', h('div.logo', 'Seek'), inp,
+          const sbg = Art.get('backgrounds', 'brimstone_seek');
+          return h('div.seekhome', { style: sbg ? `min-height:100%;background:linear-gradient(rgba(11,5,5,.35),rgba(11,5,5,.8)),url("${sbg}") center/cover no-repeat` : null }, h('div.logo', { style: sbg ? 'color:#FFD9C2;text-shadow:0 2px 16px #000' : null }, 'Seek'), inp,
             h('div', { style: 'display:flex;gap:10px;flex-wrap:wrap;justify-content:center' },
               [['hell://news.hell', 'Daily Damnation'], ['hell://infernopedia.hell/wiki/Nine%20Circles', 'Infernopedia'], ['hell://pit.hell', 'The Pit'], ['hell://beelzepizza.hell', 'Pizza']].map(([u, t]) => h('button.btnp', { onclick() { go(u); } }, t))));
         }
@@ -148,16 +150,16 @@
           h('p', { style: 'font-family:var(--ui);font-size:13px' }, 'Looking for the real web? Type a full address like example.com.'));
       }
       function news() {
-        return site(h('h1', 'Daily Damnation'), h('p', { style: 'font-style:italic' }, U.dateLong(new Date()) + ' · All the news that is fit to burn'),
+        return site(banner('news'), h('h1', 'Daily Damnation'), h('p', { style: 'font-style:italic' }, U.dateLong(new Date()) + ' · All the news that is fit to burn'),
           NEWS.map((n, i) => h('div.newsitem', link('hell://news.hell/' + i, n.t), h('div', { style: 'font-size:14px;margin-top:4px' }, n.b.slice(0, 90) + '…'))));
       }
       function article(i) {
         const n = NEWS[i]; if (!n) return site(h('h1', 'Story not found'));
-        return site(link('hell://news.hell', '← Daily Damnation'), h('h1', n.t), h('p', { style: 'font-style:italic' }, 'By Staff Demon · ' + U.dateShort(new Date())), h('p', n.b), h('p', 'More details are expected as soon as anyone escapes to report them. This story will be updated, eternally.'));
+        return site(banner(i === 3 ? 'styx_ferry' : 'news'), link('hell://news.hell', '← Daily Damnation'), h('h1', n.t), h('p', { style: 'font-style:italic' }, 'By Staff Demon · ' + U.dateShort(new Date())), h('p', n.b), h('p', 'More details are expected as soon as anyone escapes to report them. This story will be updated, eternally.'));
       }
       function wiki(topic) {
         const text = WIKI[topic];
-        return site(h('div', { style: 'font-family:var(--ui);font-size:12px;color:#6B5047' }, 'Infernopedia, the free damned encyclopedia'),
+        return site(banner(topic === 'Charon' || topic === 'Styx' ? 'styx_ferry' : 'infernopedia'), h('div', { style: 'font-family:var(--ui);font-size:12px;color:#6B5047' }, 'Infernopedia, the free damned encyclopedia'),
           h('h1', topic), text ? h('p', text) : h('p', 'Infernopedia does not have an article with this exact name.'),
           h('h2', 'See also'), h('ul', Object.keys(WIKI).filter(k => k !== topic).map(k => h('li', link('hell://infernopedia.hell/wiki/' + encodeURIComponent(k), k)))));
       }
@@ -168,7 +170,7 @@
           { who: 'mortis', text: 'reminder that graves are a renewable resource', t: Date.now() - 1800000 }
         ]);
         const ta = h('textarea', { rows: 3, placeholder: 'Complain about eternity…', style: 'width:100%;border-radius:12px;border:1px solid #C9B2A6;padding:10px;font-size:15px;background:#fff;color:#23110D' });
-        return site(h('h1', 'The Pit'), h('p', 'A forum for the damned. Be cruel, be kind, it all burns the same.'),
+        return site(banner('pit'), h('h1', 'The Pit'), h('p', 'A forum for the damned. Be cruel, be kind, it all burns the same.'),
           posts.map(p => h('div.newsitem', h('b', p.who), h('span', { style: 'color:#6B5047;font-size:12px' }, ' · ' + U.ago(p.t)), h('div', p.text))),
           h('h2', 'Post'), ta,
           h('button.btnp', { style: 'margin-top:8px', onclick() { if (!ta.value.trim()) return; posts.push({ who: Store.settings().name.toLowerCase().replace(/\s+/g, '_'), text: ta.value.trim(), t: Date.now() }); Store.set('pit', posts); load(curUrl()); } }, 'Post to the Pit'));
@@ -177,7 +179,7 @@
         const tI = h('input.sq', { value: to, placeholder: 'To (soul-mail address)' });
         const sI = h('input.sq', { placeholder: 'Subject', style: 'margin-top:8px' });
         const bI = h('textarea', { rows: 6, placeholder: 'Your message', style: 'width:100%;margin-top:8px;border-radius:12px;border:1px solid #C9B2A6;padding:10px;font-size:15px;background:#fff;color:#23110D' });
-        return site(h('h1', 'Soul-mail'), h('p', 'From: ' + (Store.settings().email || 'anonymous@hellnet.666')), tI, sI, bI,
+        return site(banner('mail'), h('h1', 'Soul-mail'), h('p', 'From: ' + (Store.settings().email || 'anonymous@hellnet.666')), tI, sI, bI,
           h('button.btnp', { style: 'margin-top:10px', onclick() {
             if (!/@/.test(tI.value)) { OS.toast('Enter a soul-mail address'); return; }
             const c = (Store.get('contacts', []) || []).find(x => (x.email || '').toLowerCase() === tI.value.trim().toLowerCase());
@@ -188,7 +190,7 @@
       }
       function pizza() {
         const menuItems = [['Inferno Supreme', 13], ['Brimstone Meat Lovers', 15], ['Ghost Pepper Margherita', 11], ['Cursed Garlic Bread', 6]];
-        return site(h('h1', 'Beelzebub’s Pizza'), h('p', 'Hot as hell, guaranteed. Delivered in 6 to 66 minutes.'),
+        return site(banner('beelzepizza'), h('h1', 'Beelzebub’s Pizza'), h('p', 'Hot as hell, guaranteed. Delivered in 6 to 66 minutes.'),
           menuItems.map(([n, p]) => h('div.newsitem', { style: 'display:flex;justify-content:space-between;align-items:center' }, h('span', n), h('button.btnp', { onclick() {
             if (OS.souls() < p) { OS.toast('Not enough souls. Earn some in HellPlay games.'); return; }
             OS.addSouls(-p); OS.toast(n + ' ordered for ' + p + ' souls');

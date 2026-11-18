@@ -53,7 +53,7 @@
             if (v != null) { Store.set('omensPlace', +v); draw(); Home.refreshClock(); }
           } }, { icon: 'refresh', label: 'Refresh', onClick: () => { OS.toast('The omens have been read'); draw(); } }] }),
           h('div.scroll',
-            h('div.wx-hero', h('div', { style: 'font-size:18px;font-weight:600' }, p.n), h('div', { style: 'color:var(--accent);display:flex;justify-content:center;margin:12px 0' }, icon(w.cond.i, 56, { sw: 1.4 })), h('div.temp', w.temp + '°'), h('div', { style: 'font-size:16px' }, w.cond.n), h('div.muted', { style: 'margin-top:4px' }, 'High ' + d.hi + '° · Low ' + d.lo + '°')),
+            UI.backdrop(h('div.wx-hero', { style: 'margin:0 12px 6px;border-radius:28px;padding-top:20px' }, h('div', { style: 'font-size:18px;font-weight:600' }, p.n), h('div', { style: 'color:var(--accent);display:flex;justify-content:center;margin:12px 0' }, icon(w.cond.i, 56, { sw: 1.4 })), h('div.temp', w.temp + '°'), h('div', { style: 'font-size:16px' }, w.cond.n), h('div.muted', { style: 'margin-top:4px' }, 'High ' + d.hi + '° · Low ' + d.lo + '°')), 'omens_forecast', { top: 0.3, bottom: 0.85 }),
             UI.section('Hourly'), hours,
             UI.section('7-day omens'), week,
             UI.section('Details'),

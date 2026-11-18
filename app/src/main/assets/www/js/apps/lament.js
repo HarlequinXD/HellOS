@@ -166,7 +166,7 @@
         win.own(unsub);
         page.onShow = fill;
         return h('div', { style: 'flex:1;display:flex;flex-direction:column;min-height:0' },
-          UI.appbar({ title: 'Lament', big: true, back: false, actions: [{ icon: 'shuffle', label: 'Shuffle all', onClick: () => { Lament.shuffle(true); Lament.playIndex(Math.floor(Math.random() * TRACKS.length)); stack.push(nowPlaying); } }] }),
+          UI.appbar({ title: 'Lament', big: true, back: false, hero: 'lament_player', actions: [{ icon: 'shuffle', label: 'Shuffle all', onClick: () => { Lament.shuffle(true); Lament.playIndex(Math.floor(Math.random() * TRACKS.length)); stack.push(nowPlaying); } }] }),
           h('div', { style: 'padding:0 16px 10px;color:var(--muted);font-size:13px' }, TRACKS.length + ' songs from the underworld · composed live'),
           h('div.scroll', list, h('div', { style: 'height:12px' })), mini);
       }

@@ -16,11 +16,14 @@
       letters.split('').forEach(ch => { if (ch === ' ') lt.appendChild(h('br')); else lt.appendChild(h('span', { 'data-ch': ch, style: 'display:inline-block;width:1.15em' }, ch)); });
       board.appendChild(lt);
       const pl = h('div.planchette', { style: 'left:50%;top:60%' });
-      pl.innerHTML = '<svg viewBox="0 0 60 70" width="60" height="70" aria-hidden="true"><path d="M30 2C48 2 58 22 58 40c0 16-12 28-28 28S2 56 2 40C2 22 12 2 30 2z" fill="rgba(240,217,181,.85)" stroke="#5A3A26" stroke-width="2"/><circle cx="30" cy="30" r="10" fill="rgba(40,20,10,.6)" stroke="#5A3A26" stroke-width="2"/></svg>';
+      const plArt = Art.get('gameplay', 'ouija_planchette');
+      if (plArt) pl.appendChild(h('img', { src: plArt, alt: '', style: 'width:64px;height:68px;object-fit:contain;filter:drop-shadow(0 4px 8px rgba(0,0,0,.6))' }));
+      else pl.innerHTML = '<svg viewBox="0 0 60 70" width="60" height="70" aria-hidden="true"><path d="M30 2C48 2 58 22 58 40c0 16-12 28-28 28S2 56 2 40C2 22 12 2 30 2z" fill="rgba(240,217,181,.85)" stroke="#5A3A26" stroke-width="2"/><circle cx="30" cy="30" r="10" fill="rgba(40,20,10,.6)" stroke="#5A3A26" stroke-width="2"/></svg>';
       board.appendChild(pl);
       const said = h('div', { style: 'font-family:var(--display);font-size:24px;letter-spacing:6px;min-height:34px;text-align:center;color:var(--accent)' });
       const q = h('input.input', { placeholder: 'Ask the spirits a question…', onkeydown(e) { if (e.key === 'Enter') ask(); } });
       let busy = false;
+      UI.backdrop(win.body, 'ouija_play', { top: 0.75, bottom: 0.93 });
       win.body.append(UI.appbar({ title: M.name }), h('div.game', board, said, h('div', { style: 'width:100%;max-width:380px;display:flex;gap:8px' }, q, h('button.btn', { onclick: ask }, 'Ask'))));
       function locate(ch) {
         const br = board.getBoundingClientRect();

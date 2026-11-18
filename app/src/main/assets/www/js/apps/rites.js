@@ -55,11 +55,11 @@ OS.register({
         }
         filter('');
         return h('div', { style: 'flex:1;display:flex;flex-direction:column;min-height:0' },
-          UI.appbar({ title: 'Rites', big: true, back: false }),
+          UI.appbar({ title: 'Rites', big: true, back: false, hero: 'rites_settings' }),
           h('div.scroll',
             h('div.searchbox', icon('search', 20), q),
             h('button.card', { style: 'margin:0 12px 12px;display:flex;align-items:center;gap:14px;border:none;width:calc(100% - 24px);text-align:left;color:var(--text)', onclick() { stack.push(account); } },
-              h('div', { style: 'width:52px;height:52px;border-radius:26px;background:var(--accent);color:var(--on-accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px' }, U.initials(s.name)),
+              UI.playerAvatar(52),
               h('div.grow', h('div', { style: 'font-weight:600;font-size:16px' }, s.name), h('div.muted', { style: 'font-size:13px' }, (s.email || 'Offline pact') + ' · ' + s.souls + ' souls'))),
             list, h('div', { style: 'height:20px' })));
       });
@@ -198,8 +198,7 @@ OS.register({
           const bg = h('div', { style: 'position:absolute;inset:0' }); OS.wallpaperStyle(bg, w.id); b.appendChild(bg);
           walls.appendChild(b);
         });
-        const accents = h('div', { style: 'display:flex;gap:12px;padding:6px 16px;flex-wrap:wrap' });
-        ['#FF5A2A', '#F2A93B', '#D4243B', '#9B5CFF', '#3FC1A5', '#E85A9B', '#C8B8A8'].forEach(c => accents.appendChild(h('button.swatch' + (s.accent === c ? '.on' : ''), { 'aria-label': 'Accent ' + c, style: `background:${c};width:42px;height:42px;border-radius:21px`, onclick() { set('accent', c); page.rerender(); } })));
+        const accents = h('div', { style: 'padding:6px 12px' }, UI.themePicker(s.accent, c => { set('accent', c); page.rerender(); }, ['#E85A9B', '#C8B8A8']));
         const bright = h('input', { type: 'range', min: 5, max: 100, value: Math.round(s.brightness * 100), style: 'width:100%', 'aria-label': 'Brightness', oninput() { Store.setting('brightness', bright.value / 100); OS.applyBrightness(); } });
         return pageShell('Display & flame',
           UI.section('Wallpaper'), walls,

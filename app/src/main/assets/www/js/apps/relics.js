@@ -6,7 +6,7 @@ OS.register({
     const grid = h('div.pgrid');
     const count = h('div', { style: 'padding:0 16px 10px;color:var(--muted);font-size:13px' });
     const chips = UI.chips([{ id: 'all', label: 'All' }, { id: 'photo', label: 'Photos' }, { id: 'drawing', label: 'Drawings' }], 'all', k => { kind = k; load(); });
-    win.body.append(UI.appbar({ title: 'Relics', big: true, back: false, actions: [{ icon: 'camera', label: 'Pyre Cam', onClick: () => OS.open('pyrecam') }] }), count, chips, h('div.scroll', grid, h('div', { style: 'height:20px' })));
+    win.body.append(UI.appbar({ title: 'Relics', big: true, back: false, hero: 'relics_gallery', actions: [{ icon: 'camera', label: 'Pyre Cam', onClick: () => OS.open('pyrecam') }] }), count, chips, h('div.scroll', grid, h('div', { style: 'height:20px' })));
 
     async function load() {
       const all = (await Blobs.list()).filter(x => x.kind === 'photo' || x.kind === 'drawing');

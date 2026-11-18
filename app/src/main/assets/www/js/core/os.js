@@ -191,7 +191,8 @@
         shot.style.transform = `scale(${sc})`;
       });
     });
-    layer.appendChild(h('div.recents', { onclick(e) { if (e.target === this || e.target === list) OS.closeRecents(); } },
+    const rbg = Art.get('backgrounds', 'recents');
+    layer.appendChild(h('div.recents', { style: rbg ? `background:linear-gradient(rgba(8,3,3,.82),rgba(8,3,3,.92)),url("${rbg}") center/cover` : null, onclick(e) { if (e.target === this || e.target === list) OS.closeRecents(); } },
       list,
       h('div.rfoot', wins.length ? h('button.btn.tonal', { onclick() { OS.windows.slice().forEach(w => OS.closeWindow(w)); OS.closeRecents(); } }, 'Clear all') : null)));
     layer.classList.remove('hidden');
@@ -470,13 +471,15 @@
   OS.wallpaperStyle = function (el, id, photo) {
     el.className = el.className.replace(/\bwall-\S+/g, '').trim();
     el.style.backgroundImage = '';
+    el.style.backgroundSize = ''; el.style.backgroundPosition = ''; el.style.backgroundRepeat = '';
     U.clear(el);
     const art = Art.wallpaper(id);
+    const raster = url => { el.style.backgroundImage = `url("${url}")`; el.style.backgroundSize = 'cover'; el.style.backgroundPosition = 'center'; el.style.backgroundRepeat = 'no-repeat'; };
     if (id === 'photo' && photo) {
       el.classList.add('wall-photo');
-      el.style.backgroundImage = `url("${photo}")`;
+      raster(photo);
     } else if (art) {
-      el.style.backgroundImage = `url("${art}")`;
+      raster(art);
     } else {
       el.classList.add('wall-' + (id || 'lava'));
       if (id === 'lava' || id === 'bloodmoon' || !id) el.appendChild(OS.spires());

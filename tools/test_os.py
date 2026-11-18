@@ -34,6 +34,7 @@ async def main():
             print('STEP', 'await pg.click(\'button.btn:has-text("Next")\')', flush=True)
             await pg.click('button.btn:has-text("Next")')
             # sign
+            await pg.locator('canvas.sigpad').scroll_into_view_if_needed()
             box = await pg.locator('canvas.sigpad').bounding_box()
             await pg.mouse.move(box['x']+20, box['y']+40); await pg.mouse.down()
             for i in range(40):

@@ -29,7 +29,7 @@ OS.register({
       fill();
       page.onShow = fill;
       return h('div', { style: 'flex:1;display:flex;flex-direction:column;min-height:0;position:relative' },
-        UI.appbar({ title: 'Scribe', big: true, back: false }),
+        UI.appbar({ title: 'Scribe', big: true, back: false, hero: 'scribe_notes' }),
         h('div.searchbox', icon('search', 20), inp),
         h('div.scroll', grid),
         h('button.fab', { onclick() { const n = { id: U.uid(), title: '', body: '', color: 0, t: Date.now() }; Store.update('notes', [], l => { l.push(n); return l; }); stack.push(p => editor(p, n.id, true)); } }, icon('edit', 22), 'Note'));

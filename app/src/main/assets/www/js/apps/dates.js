@@ -28,7 +28,7 @@
         h('div.appbar', h('button.ibtn', { 'aria-label': 'Previous month', onclick() { view.setMonth(view.getMonth() - 1); draw(); } }, icon('back', 22)), title,
           h('button.ibtn', { 'aria-label': 'Today', onclick() { sel = new Date(); view = new Date(); view.setDate(1); draw(); } }, icon('calendar', 22)),
           h('button.ibtn', { 'aria-label': 'Next month', onclick() { view.setMonth(view.getMonth() + 1); draw(); } }, icon('forward', 22))),
-        h('div.scroll', cal, dayTitle, evList, h('div', { style: 'height:90px' })),
+        h('div.scroll', UI.banner('dates_calendar', 100, null, 'Dates'), cal, dayTitle, evList, h('div', { style: 'height:90px' })),
         h('button.fab', { onclick() { edit(null); } }, icon('plus', 22), 'Event'));
       win.listen('events', () => draw());
       win.onIntent = a => { if (a.day) { sel = new Date(a.day); view = new Date(sel.getFullYear(), sel.getMonth(), 1); draw(); } };

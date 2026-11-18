@@ -17,6 +17,7 @@
         btn('back', 'Left', () => shift(-1)), btn('rotate', 'Rotate', rotate), btn('chevD', 'Down', () => { if (!drop()) lock(); }), btn('download', 'Hard drop', hard), btn('forward', 'Right', () => shift(1)));
       U.$$('button', pad).forEach(b => b.style.cssText = 'height:56px;border-radius:16px;border:none;background:var(--surface3);color:var(--text);display:flex;align-items:center;justify-content:center');
       wrap.append(cv, pad, h('button.chip', { onclick: hold }, 'Hold'));
+      GameKit.backdrop(win.body, 'brimblocks');
       win.body.append(UI.appbar({ title: M.name, actions: [{ icon: 'pause', label: 'Pause', onClick: () => { paused = !paused; } }] }), wrap);
       const g = cv.getContext('2d');
       let board, cur, next, held, canHold, score, lines, level, alive, paused, tmr;

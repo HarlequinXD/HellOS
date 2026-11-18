@@ -26,13 +26,13 @@ OS.register({
         cs.forEach(c => {
           const L = c.name[0].toUpperCase();
           if (L !== letter) { letter = L; list.appendChild(UI.section(L)); group = h('div.list'); list.appendChild(group); }
-          group.appendChild(UI.li({ lead: UI.avatar(c.name, 42, c.color), title: c.name, sub: c.circle || c.number, trail: c.fav ? h('span', { style: 'color:var(--accent)' }, icon('star', 16)) : null, onClick: () => stack.push(p => detail(p, c.id)) }));
+          group.appendChild(UI.li({ lead: UI.avatar(c.name, 42, c.color, c.id), title: c.name, sub: c.circle || c.number, trail: c.fav ? h('span', { style: 'color:var(--accent)' }, icon('star', 16)) : null, onClick: () => stack.push(p => detail(p, c.id)) }));
         });
       }
       fill();
       page.onShow = fill;
       return h('div', { style: 'flex:1;display:flex;flex-direction:column;min-height:0;position:relative' },
-        UI.appbar({ title: 'Souls', big: true, back: false }),
+        UI.appbar({ title: 'Souls', big: true, back: false, hero: 'souls_contacts' }),
         h('div', { style: 'padding:0 16px 10px;color:var(--muted);font-size:13px' }, all().length + ' souls bound to this device'),
         h('div.searchbox', icon('search', 20), inp), chips,
         h('div.scroll', list),
@@ -59,7 +59,7 @@ OS.register({
           ] }),
           h('div.scroll',
             h('div', { style: 'display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px 0 20px' },
-              UI.avatar(c.name, 110, c.color),
+              UI.avatar(c.name, 110, c.color, c.id),
               h('div', { style: 'font-size:26px;font-weight:600;text-align:center;padding:0 16px' }, c.name),
               c.circle ? h('div.muted', c.circle) : null),
             h('div', { style: 'display:flex;justify-content:center;gap:24px;padding-bottom:20px' },

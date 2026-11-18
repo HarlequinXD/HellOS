@@ -62,8 +62,19 @@ OS.register({
       if (fake) return;
       const ctx = fakeCanvas.getContext('2d');
       let t = 0;
+      const artUrl = Art.get('backgrounds', 'pyrecam_camera');
+      let artImg = null;
+      if (artUrl) { const im = new Image(); im.onload = () => { artImg = im; }; im.src = artUrl; }
       fake = setInterval(() => {
         t += 0.05;
+        if (artImg) {
+          const s = Math.max(360 / artImg.width, 640 / artImg.height) * (1.04 + Math.sin(t * 0.5) * 0.02);
+          ctx.drawImage(artImg, 180 - artImg.width * s / 2, 320 - artImg.height * s / 2, artImg.width * s, artImg.height * s);
+          for (let i = 0; i < 30; i++) { ctx.fillStyle = `rgba(255,${120 + Math.random() * 100},40,${Math.random()})`; ctx.fillRect(Math.random() * 360, (640 - ((t * 60 + i * 37) % 640)), 2, 2); }
+          ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.font = '600 14px Inter, sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('SPECTRAL FEED · NO CAMERA', 180, 60);
+          return;
+        }
         const g = ctx.createRadialGradient(180, 520 + Math.sin(t) * 20, 30, 180, 400, 500);
         g.addColorStop(0, '#FFB347'); g.addColorStop(0.3, '#E2481F'); g.addColorStop(0.7, '#4A1008'); g.addColorStop(1, '#0B0505');
         ctx.fillStyle = g; ctx.fillRect(0, 0, 360, 640);

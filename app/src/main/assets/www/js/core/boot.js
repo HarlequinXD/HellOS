@@ -4,6 +4,8 @@
   const $ = U.$;
 
   function logo(size) {
+    const art = Art.get('boot', 'logo');
+    if (art) return h('img', { src: art, alt: '', 'aria-hidden': 'true', class: 'glow', style: `width:${size}px;height:${size}px;object-fit:contain` });
     const ns = 'http://www.w3.org/2000/svg';
     const svg = document.createElementNS(ns, 'svg');
     svg.setAttribute('viewBox', '0 0 120 120');
@@ -21,9 +23,9 @@
       const layer = $('#layer-boot');
       layer.classList.remove('hidden');
       U.clear(layer);
-      const art = Art.get('boot', 'logo');
-      const box = h('div.boot',
-        art ? h('img', { src: art, alt: '', style: 'width:160px;height:160px;object-fit:contain' }) : logo(150),
+      const bg = Art.get('boot', 'background');
+      const box = h('div.boot', { style: bg ? `background:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.75)),url("${bg}") center/cover` : null },
+        logo(170),
         h('div.brand', 'HellOS'),
         h('div.tag', isRestart ? 'Rising again…' : 'Abandon all hope'));
       layer.appendChild(box);

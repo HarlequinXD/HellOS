@@ -12,6 +12,8 @@
       const chips = UI.chips(Object.keys(LEVELS).map(k => ({ id: k, label: k })), level, k => { level = k; reset(); });
       wrap.append(hud, board, h('div.muted', { style: 'font-size:12px' }, 'Tap to reveal · long-press to flag'));
       win.body.append(UI.appbar({ title: M.name, actions: [{ icon: 'refresh', label: 'New game', onClick: () => reset() }] }), chips, wrap);
+      const mineImg = GameKit.sprite('hellmines_mine');
+      GameKit.backdrop(win.body, 'hellmines');
       function reset() {
         [cols, rows, mines] = LEVELS[level];
         cells = []; opened = 0; flags = 0; over = false; started = false; clearInterval(timerI);
@@ -59,7 +61,7 @@
         const COL = ['', '#7BB8FF', '#7BD88F', '#FF7A45', '#C89BFF', '#FF5468', '#3FC1A5', '#F3E6DA', '#AD9387'];
         cells.forEach((c, i) => {
           const b = h('button' + (c.open ? '.open' : '') + (c.open && c.mine ? '.boom' : ''), { style: `width:${size}px;height:${size}px;color:${COL[c.n] || ''}`, 'aria-label': c.open ? (c.mine ? 'mine' : String(c.n)) : (c.flag ? 'flagged' : 'hidden'), onclick() { reveal(i); } },
-            c.open ? (c.mine ? icon('skull', size * 0.6) : (c.n || '')) : (c.flag ? h('span', { style: 'color:var(--accent)' }, icon('flag', size * 0.55)) : ''));
+            c.open ? (c.mine ? (GameKit.ready(mineImg) ? h('img', { src: mineImg.src, alt: '', style: `width:${size * 0.8}px;height:${size * 0.8}px;object-fit:contain` }) : icon('skull', size * 0.6)) : (c.n || '')) : (c.flag ? h('span', { style: 'color:var(--accent)' }, icon('flag', size * 0.55)) : ''));
           U.longpress(b, () => flag(i), 380);
           b.addEventListener('contextmenu', e => { e.preventDefault(); flag(i); });
           board.appendChild(b);
