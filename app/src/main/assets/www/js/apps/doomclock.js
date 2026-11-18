@@ -24,28 +24,32 @@
     U.$('#layer-overlay').appendChild(el);
   }
 
-  // system-wide scheduler
-  let lastFireKey = '';
+  // system-wide scheduler. Alarms ring on Hell time (Hell weekdays, Hell minutes);
+  // Hell minutes pass faster than real ones, so every minute since the last tick is checked.
+  let lastHellMin = null;
   OS.onTick(now => {
     if (!Store.get('setupDone', false)) return;
-    // alarms
-    if (now.getSeconds() === 0) {
-      const key = now.getHours() + ':' + now.getMinutes();
-      if (key !== lastFireKey) {
-        const alarms = Store.get('alarms', []);
-        let changed = false;
+    const tot = Math.floor(HellTime.total());
+    if (lastHellMin === null || tot < lastHellMin || tot - lastHellMin > 1440) lastHellMin = tot - 1;
+    if (tot > lastHellMin) {
+      const alarms = Store.get('alarms', []);
+      let changed = false, rang = false;
+      for (let m = lastHellMin + 1; m <= tot && !rang; m++) {
+        const hm = ((m % 1440) + 1440) % 1440, wd = HellTime.date(Math.floor(m / 1440)).weekday;
         alarms.forEach(a => {
-          const isSnooze = a.snoozeUntil && Math.abs(a.snoozeUntil - now.getTime()) < 30000;
-          const matches = a.on && a.h === now.getHours() && a.m === now.getMinutes() && (!a.days || !a.days.length || a.days.indexOf(now.getDay()) >= 0);
+          if (rang) return;
+          const isSnooze = a.snoozeAt && m >= a.snoozeAt;
+          const matches = a.on && a.h * 60 + a.m === hm && (!a.days || !a.days.length || a.days.indexOf(wd) >= 0);
           if (matches || isSnooze) {
-            lastFireKey = key;
-            if (isSnooze) { a.snoozeUntil = 0; changed = true; }
+            rang = true;
+            if (isSnooze) { a.snoozeAt = 0; changed = true; }
             if (matches && (!a.days || !a.days.length)) { a.on = false; changed = true; }
-            fire(a.label || 'Alarm', 'Doom Clock', () => { Store.update('alarms', [], l => { const x = l.find(y => y.id === a.id); if (x) x.snoozeUntil = Date.now() + 5 * 60000 - (Date.now() % 60000); return l; }); });
+            fire(a.label || 'Alarm', 'Doom Clock', () => { Store.update('alarms', [], l => { const x = l.find(y => y.id === a.id); if (x) x.snoozeAt = Math.floor(HellTime.total()) + 5; return l; }); });
           }
         });
-        if (changed) Store.set('alarms', alarms);
       }
+      lastHellMin = tot;
+      if (changed) Store.set('alarms', alarms);
     }
     // timer
     if (timer.running) {
@@ -65,14 +69,15 @@
     timer, sw, fire
   };
 
+  const DAY_LETTERS = HellTime.WEEKDAYS.map(w => w[0]);
   function nextAlarmText(a) {
-    const now = new Date();
+    const now = HellTime.total(), today = HellTime.day();
     for (let d = 0; d < 8; d++) {
-      const t = new Date(now); t.setDate(now.getDate() + d); t.setHours(a.h, a.m, 0, 0);
+      const t = (today + d) * 1440 + a.h * 60 + a.m;
       if (t <= now) continue;
-      if (a.days && a.days.length && a.days.indexOf(t.getDay()) < 0) continue;
-      const mins = Math.round((t - now) / 60000);
-      return 'Rings in ' + (mins >= 60 ? Math.floor(mins / 60) + ' h ' : '') + (mins % 60) + ' min';
+      if (a.days && a.days.length && a.days.indexOf(HellTime.date(today + d).weekday) < 0) continue;
+      const mins = Math.round(t - now);
+      return 'Rings in ' + (mins >= 60 ? Math.floor(mins / 60) + ' h ' : '') + (mins % 60) + ' min (Hell time)';
     }
     return '';
   }
@@ -104,11 +109,11 @@
           const alarms = Store.get('alarms', []).slice().sort((a, b) => a.h * 60 + a.m - (b.h * 60 + b.m));
           if (!alarms.length) list.appendChild(UI.empty('alarm', 'No alarms. Sleep forever.'));
           alarms.forEach(a => {
-            const d = new Date(); d.setHours(a.h, a.m);
-            const days = a.days && a.days.length ? (a.days.length === 7 ? 'Every day' : a.days.map(x => 'SMTWTFS'[x]).join(' ')) : 'Once';
+            const clockStr = U.real.time(new Date(2000, 0, 1, a.h, a.m)), apm = a.h < 12 ? 'AM' : 'PM';
+            const days = a.days && a.days.length ? (a.days.length === 7 ? 'Every day' : a.days.slice().sort().map(x => HellTime.WEEKDAYS[x].slice(0, 3)).join(' ')) : 'Once';
             const row = h('div.alarm-row' + (a.on ? '' : '.off'),
               h('div.grow', { style: 'cursor:pointer', onclick() { editAlarm(a); } },
-                h('div.at', U.time(d), h('span', { style: 'font-size:16px;margin-left:6px;color:var(--muted)' }, Store.settings().time24 ? '' : U.ampm(d))),
+                h('div.at', clockStr, h('span', { style: 'font-size:16px;margin-left:6px;color:var(--muted)' }, Store.settings().time24 ? '' : apm)),
                 h('div.muted', { style: 'font-size:13px' }, (a.label || 'Alarm') + ' · ' + days + (a.on ? ' · ' + nextAlarmText(a) : ''))),
               UI.switch(a.on, v => { Store.update('alarms', [], l => { const x = l.find(y => y.id === a.id); if (x) x.on = v; return l; }); if (v) OS.toast(nextAlarmText(a)); fill(); OS.renderStatus(); }, 'Alarm on'));
             list.appendChild(row);
@@ -122,7 +127,7 @@
           const time = h('input.input', { type: 'time', value: U.pad(a.h) + ':' + U.pad(a.m), style: 'font-size:28px;text-align:center' });
           const label = h('input.input', { value: a.label, placeholder: 'Label' });
           const dayRow = h('div', { style: 'display:flex;gap:6px;justify-content:space-between;margin:12px 0' });
-          function dr() { U.clear(dayRow); 'SMTWTFS'.split('').forEach((ch, i) => dayRow.appendChild(h('button.chip' + (a.days.indexOf(i) >= 0 ? '.on' : ''), { style: 'width:38px;padding:0;justify-content:center', onclick() { a.days = a.days.indexOf(i) >= 0 ? a.days.filter(x => x !== i) : a.days.concat(i); dr(); } }, ch))); }
+          function dr() { U.clear(dayRow); DAY_LETTERS.forEach((ch, i) => dayRow.appendChild(h('button.chip' + (a.days.indexOf(i) >= 0 ? '.on' : ''), { style: 'width:38px;padding:0;justify-content:center', onclick() { a.days = a.days.indexOf(i) >= 0 ? a.days.filter(x => x !== i) : a.days.concat(i); dr(); } }, ch))); }
           dr();
           const p = OS.panel(h('div', { style: 'padding:0 20px 10px' },
             h('h2', { style: 'margin:0 0 14px' }, isNew ? 'New alarm' : 'Edit alarm'),
@@ -145,11 +150,12 @@
         function upd() {
           const now = new Date();
           big.textContent = U.time(now) + (Store.settings().time24 ? '' : ' ' + U.ampm(now));
-          date.textContent = U.dateLong(now);
+          date.textContent = U.dateLong(now) + ', ' + HellTime.date().year + ' AF · ' + HellTime.date().seasonName;
           U.clear(list);
+          const hm = HellTime.min();
           ZONES.forEach(z => {
-            const t = z.off === null ? new Date(now.getTime() + now.getTimezoneOffset() * 60000) : new Date(now.getTime() + z.off * 3600000);
-            list.appendChild(UI.li({ icon: 'globe', title: z.name, sub: z.off === null ? 'Coordinated Mortal Time' : (z.off >= 0 ? '+' : '') + z.off + ' h from you', trail: h('div', { style: 'font-size:24px;font-weight:500;color:var(--text)' }, U.time(t)) }));
+            const txt = z.off === null ? U.real.time(new Date(now.getTime() + now.getTimezoneOffset() * 60000)) : HellTime.clock((hm + z.off * 60 + 1440) % 1440).replace(/(am|pm)$/, '');
+            list.appendChild(UI.li({ icon: 'globe', title: z.name, sub: z.off === null ? 'Coordinated Mortal Time (the real world)' : (z.off >= 0 ? '+' : '') + z.off + ' h from you', trail: h('div', { style: 'font-size:24px;font-weight:500;color:var(--text)' }, txt) }));
           });
         }
         upd();

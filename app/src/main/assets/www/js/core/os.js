@@ -5,7 +5,7 @@
   const $ = U.$;
 
   const OS = {
-    version: '6.11.0',
+    version: '6.12.0',
     build: 'RETRO.GINGERHELL.680.1118',
     apps: {},
     windows: [],
@@ -501,8 +501,9 @@
   let lastMinute = -1, battCount = 0;
   function tick() {
     const now = new Date();
-    if (now.getMinutes() !== lastMinute) {
-      lastMinute = now.getMinutes();
+    const hellMinute = window.HellTime ? Math.floor(HellTime.total()) : now.getMinutes();
+    if (hellMinute !== lastMinute) {
+      lastMinute = hellMinute;
       OS.renderStatus();
       Lock.refresh(true);
       Home.refreshClock();

@@ -336,7 +336,7 @@ OS.register({
         return pageShell('System',
           h('div.list',
             nav('language', 'Language', s.language, async () => { const v = await OS.sheet('Language', ['English (Australia)', 'English (United States)', 'English (United Kingdom)'].map(l => ({ label: l, value: l, checked: s.language === l }))); if (v) { set('language', v); page.rerender(); } }),
-            nav('clock', 'Date & time', (s.time24 ? '24-hour' : '12-hour') + ' · set by the Underworld', () => { set('time24', !s.time24); page.rerender(); Home.render(); }),
+            nav('clock', 'Date & time', (s.time24 ? '24-hour' : '12-hour') + ' · Hell time, set by the Underworld (pace in Almanac)', () => { set('time24', !s.time24); page.rerender(); Home.render(); }),
             nav('keypad', 'Navigation', s.navMode === 'buttons' ? '3 buttons' : 'Gestures', async () => { const v = await OS.sheet('Navigation', [{ label: 'Gestures', value: 'gestures', checked: s.navMode === 'gestures' }, { label: '3 buttons', value: 'buttons', checked: s.navMode === 'buttons' }]); if (v) { set('navMode', v); page.rerender(); } }),
             nav('storage', 'Back up now', 'Soul Vault', async () => { if (!OS.online()) { OS.toast('No Hellnet connection'); return; } OS.toast('Backing up your soul…'); await new Promise(r => setTimeout(r, 1800)); Store.set('lastBackup', Date.now()); Sound.play('success'); OS.toast('Backup complete'); }),
             nav('download', 'System update', 'HellOS ' + OS.version, () => systemUpdate())),
