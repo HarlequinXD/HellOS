@@ -14,7 +14,11 @@
     ['Hellfire','Exposed flames and extreme heat.'],['Frozen solid','Ice and bitter cold in Cocytus.'],['Clear night','Open skies beneath the infernal moon.']
   ];
   CONDS.forEach((c,i)=>c.art=i);
-  function symbol(cond,size=28){const i=cond.art||0;return h('span.weather-symbol',{role:'img','aria-label':cond.n,title:cond.n,style:{width:size+'px',height:size+'px',flex:'0 0 '+size+'px',backgroundPosition:(i%3*50)+'% '+(Math.floor(i/3)*50)+'%'}})}
+  // painted forecast symbol: one square image per condition
+  function symbol(cond, size = 28) {
+    return h('span.weather-symbol', { role: 'img', 'aria-label': cond.n, title: cond.n, style: { width: size + 'px', height: size + 'px' } },
+      h('img', { src: 'art/weather/' + (cond.art || 0) + '.jpg', alt: '' }));
+  }
   function place() { return PLACES[Store.get('omensPlace', 0)] || PLACES[0]; }
   function wx(p, date, hour) {
     const r = U.rng(p.n + U.dayKey(date) + (hour == null ? '' : ':' + hour));

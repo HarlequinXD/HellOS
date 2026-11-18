@@ -131,7 +131,10 @@
       OS.renderNav();
       OS.renderStatus();
       Home.render();
-      if (OS.fg) OS.fg.el.classList.remove('bg');
+      if (OS.fg) {
+        OS.fg.el.classList.remove('bg');
+        if (OS.fg.onShow) { try { OS.fg.onShow(); } catch (e) { console.error(e); } }
+      }
       const fn = pending; pending = null;
       if (fn) fn();
     }, 220);
@@ -146,6 +149,7 @@
     pinPad,
     lock(sound) {
       if (!Store.get('setupDone', false)) return;
+      if (!OS.locked && OS.fg && OS.fg.onHide) { try { OS.fg.onHide(); } catch (e) { console.error(e); } }
       OS.locked = true;
       const hu = document.querySelector('.headsup'); if (hu) hu.remove();
       Shade.close(true);

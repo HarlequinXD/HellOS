@@ -88,13 +88,14 @@
       ], tab, id => { tab = id; draw(); });
       win.body.append(content, bar);
       win.onIntent = a => { if (a.tab) bar.select(a.tab); };
-      let tickUnsub = null;
+      let tickUnsub = null, tabTimer = null;
       function draw() {
         if (tickUnsub) { tickUnsub(); tickUnsub = null; }
+        if (tabTimer) { clearInterval(tabTimer); tabTimer = null; }
         U.clear(content);
         ({ alarm, clock, timer: timerTab, stopwatch })[tab]();
       }
-      win.own(() => { if (tickUnsub) tickUnsub(); });
+      win.own(() => { if (tickUnsub) tickUnsub(); if (tabTimer) clearInterval(tabTimer); });
 
       function alarm() {
         const list = h('div', { style: 'padding-bottom:90px' });
@@ -152,7 +153,7 @@
           });
         }
         upd();
-        win.interval(() => { if (tab === 'clock') upd(); }, 1000);
+        tabTimer = setInterval(upd, 1000);
         const hero = UI.backdrop(h('div', { style: 'margin:0 12px;border-radius:28px;padding:30px 0 26px' }, big, date), 'doomclock_clock', { top: 0.35, bottom: 0.75 });
         content.append(UI.appbar({ title: 'Clock', back: false }), h('div.scroll', hero, list));
       }
@@ -211,9 +212,8 @@
         function btns() { go.textContent = sw.running ? 'Stop' : 'Start'; lapBtn.textContent = sw.running ? 'Lap' : 'Reset'; }
         function drawLaps() { U.clear(laps); sw.laps.forEach((l, i) => laps.appendChild(UI.li({ title: 'Lap ' + (sw.laps.length - i), trail: h('span', { style: 'font-variant-numeric:tabular-nums;color:var(--text)' }, fmt(l - (sw.laps[i + 1] || 0)) + '  ·  ' + fmt(l)) }))); }
         btns(); drawLaps();
-        const raf = win.interval(() => { if (tab === 'stopwatch' && sw.running) disp.textContent = fmt(cur()); }, 33);
+        tabTimer = setInterval(() => { if (sw.running) disp.textContent = fmt(cur()); }, 33);
         content.append(UI.appbar({ title: 'Stopwatch', back: false }), disp, h('div', { style: 'display:flex;justify-content:center;gap:20px;margin:30px 0' }, lapBtn, go), h('div.scroll', laps));
-        void raf;
       }
       draw();
     }

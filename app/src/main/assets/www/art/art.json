@@ -1,5 +1,5 @@
 {
-  "_readme": "Paths are relative to www/art. Optimised copies of the masters in art-source/www/art. null = built-in vector fallback.",
+  "_readme": "Paths are relative to www/art. Optimised copies of the masters in art-source/www/art. null = built-in vector fallback. Interface materials (ui/, weather/, relics/, scenes/) are sliced from art-source/www/art/illustrated and loaded directly.",
   "icons": {
     "calls": "icons/calls.jpg",
     "pacts": "icons/pacts.jpg",
@@ -156,14 +156,5 @@
     "blood": "themes/blood.jpg",
     "void": "themes/void.jpg",
     "soulfire": "themes/soulfire.jpg"
-  },
-  "illustrated": {
-    "environments": "illustrated/environments.png",
-    "relic-tiles": "illustrated/relic-tiles.png",
-    "obsidian-frame": "illustrated/obsidian-frame.png",
-    "panel-surface": "illustrated/panel-surface.png",
-    "controls": "illustrated/controls.png",
-    "weather": "illustrated/weather.png",
-    "panel-palettes": "illustrated/panel-palettes.png"
   }
 }

@@ -65,7 +65,7 @@ OS.register({
     win.own(() => window.removeEventListener('keydown', onKey));
     function onKey(e) {
       if (!win.visible()) return;
-      const map = { '*': '×', '/': '÷', '-': '−', Enter: '=', Backspace: '⌫', Escape: 'C' };
+      const map = { '*': '×', '/': '÷', '-': '−', Enter: '=', Backspace: '⌫' };
       const k = map[e.key] || e.key;
       if (/^[0-9.+−×÷=⌫%^C]$/.test(k)) { e.preventDefault(); press(k); }
     }

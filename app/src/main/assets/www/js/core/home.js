@@ -73,7 +73,7 @@
       const souls = s.souls;
       const widget = h('button.widget', { style: 'text-align:left;color:var(--text);width:calc(100% - 36px)', onclick() { OS.open('hellplay'); } },
         h('div.wtitle', h('span', 'Soul ledger'), icon('skull', 18)),
-        h('div', { style: 'display:flex;align-items:baseline;gap:8px' }, h('span.wbig', String(souls)), h('span', { style: 'font-size:14px;color:var(--muted)' }, 'souls to spend in HellPlay')),
+        h('div', { style: 'display:flex;align-items:baseline;gap:8px' }, h('span.wbig', String(souls)), h('span.muted', { style: 'font-size:14px' }, 'souls to spend in HellPlay')),
         h('div.bar', h('div', { style: { width: Math.min(100, souls / 666 * 100) + '%' } })));
 
       const pinned=homeApps(),pageSize=window.innerHeight<650?4:8;

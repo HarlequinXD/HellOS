@@ -1,26 +1,48 @@
-/* Painted material choices, persisted independently for panels and headers. */
-(function(){
- 'use strict';
- const tones=[
-  {id:'obsidian',name:'Obsidian',pos:'0% 0%',text:'#f4e5d2',muted:'#cfbda9',wash:'#080608bb'},
-  {id:'ember',name:'Oxblood',pos:'50% 0%',text:'#ffebd2',muted:'#dfb8a4',wash:'#240707ad'},
-  {id:'slate',name:'Midnight slate',pos:'100% 0%',text:'#eff3f4',muted:'#c2ced6',wash:'#101b2bb0'},
-  {id:'ash',name:'Ash stone',pos:'0% 100%',text:'#17120f',muted:'#39312c',wash:'#aaa198dc',light:true},
-  {id:'parchment',name:'Parchment',pos:'50% 100%',text:'#28170b',muted:'#574025',wash:'#d3b580dc',light:true},
-  {id:'ivory',name:'Cathedral ivory',pos:'100% 100%',text:'#231b15',muted:'#55483b',wash:'#e6ddcfdc',light:true}
- ];
- function tone(id){return tones.find(t=>t.id===id)||tones[0]}
- function apply(){
-  const s=Store.settings(),p=tone(s.panelTone),head=tone(s.headerTone==='auto'||!s.headerTone?p.id:s.headerTone),root=document.documentElement;
-  root.dataset.surfaceTone=p.id;root.dataset.lightSurfaces=String(!!p.light);
-  for(const [key,value] of Object.entries({'--panel-pos':p.pos,'--panel-text':p.text,'--panel-muted':p.muted,'--surface-wash':p.wash,'--header-pos':head.pos,'--header-text':head.text,'--text':p.text,'--muted':p.muted}))root.style.setProperty(key,value);
- }
- function picker(selected,onChange,headers){
-  const grid=h('div.material-picker');
-  if(headers)grid.appendChild(h('button.material-follow',{type:'button','aria-pressed':String(!selected||selected==='auto'),onclick:()=>onChange('auto')},'Match panels'));
-  for(const t of tones)grid.appendChild(h('button.material-choice',{type:'button','aria-label':t.name,'aria-pressed':String(selected===t.id),style:{backgroundImage:'url("art/illustrated/panel-palettes.png")',backgroundSize:'300% 200%',backgroundPosition:t.pos,color:t.text},onclick:()=>onChange(t.id)},h('span',t.name)));
-  return grid;
- }
- const original=OS.applySettings;OS.applySettings=function(){original.apply(OS,arguments);apply()};
- window.SurfaceTheme={apply,picker,tones};apply();
+/* Panel and header materials (Rites → Display & flame).
+ * Each material is a seamless 256px texture that tiles, so panels of any
+ * shape look right. Text colours are scoped to panels (--panel-text), so the
+ * light materials never make wallpaper-facing text unreadable. */
+(function () {
+  'use strict';
+  const TONES = [
+    { id: 'obsidian', name: 'Obsidian', base: '#151011', text: '#F3E6DA', muted: '#C9B3A6', line: 'rgba(214,160,96,.22)', field: 'rgba(0,0,0,.30)', raise: 'rgba(255,240,220,.05)' },
+    { id: 'ember', name: 'Oxblood', base: '#3B100D', text: '#FFEBD6', muted: '#E2B9A4', line: 'rgba(240,150,110,.26)', field: 'rgba(0,0,0,.28)', raise: 'rgba(255,220,200,.06)' },
+    { id: 'slate', name: 'Midnight slate', base: '#262E37', text: '#EEF2F4', muted: '#BCC9D2', line: 'rgba(170,200,225,.22)', field: 'rgba(0,0,0,.28)', raise: 'rgba(230,240,255,.05)' },
+    { id: 'ash', name: 'Ash stone', base: '#7A6B5E', text: '#140F0C', muted: '#33291F', line: 'rgba(30,20,10,.25)', field: 'rgba(255,255,255,.22)', raise: 'rgba(255,255,255,.08)', light: true },
+    { id: 'parchment', name: 'Parchment', base: '#CDA674', text: '#24150A', muted: '#4E3A22', line: 'rgba(70,40,10,.28)', field: 'rgba(255,248,235,.35)', raise: 'rgba(255,255,255,.10)', light: true },
+    { id: 'ivory', name: 'Cathedral ivory', base: '#D3C5B7', text: '#211912', muted: '#4D4135', line: 'rgba(60,45,30,.24)', field: 'rgba(255,255,255,.40)', raise: 'rgba(255,255,255,.12)', light: true }
+  ];
+  const tone = id => TONES.find(t => t.id === id) || TONES[0];
+  const tex = t => Art.cssUrl('art/ui/panel-' + t.id + '.jpg');
+
+  function apply() {
+    const s = Store.settings();
+    const p = tone(s.panelTone);
+    const hd = tone(!s.headerTone || s.headerTone === 'auto' ? p.id : s.headerTone);
+    const root = document.documentElement;
+    root.dataset.surfaceTone = p.id;
+    root.dataset.lightSurfaces = String(!!p.light);
+    const vars = {
+      '--panel': p.base, '--panel-tex': tex(p), '--panel-text': p.text, '--panel-muted': p.muted,
+      '--panel-line': p.line, '--field': p.field, '--panel-raise': p.raise,
+      '--header': hd.base, '--header-tex': tex(hd), '--header-text': hd.text
+    };
+    for (const k in vars) root.style.setProperty(k, vars[k]);
+  }
+
+  function picker(selected, onChange, headers) {
+    const grid = h('div.material-picker');
+    if (headers) grid.appendChild(h('button.material-follow', { type: 'button', 'aria-pressed': String(!selected || selected === 'auto'), onclick: () => onChange('auto') }, 'Match panels'));
+    TONES.forEach(t => grid.appendChild(h('button.material-choice' + (t.light ? '.light' : ''), {
+      type: 'button', 'aria-label': t.name, 'aria-pressed': String(selected === t.id),
+      style: { backgroundImage: Art.cssUrl('art/ui/swatch-' + t.id + '.jpg'), color: t.text },
+      onclick: () => onChange(t.id)
+    }, h('span', t.name))));
+    return grid;
+  }
+
+  const original = OS.applySettings;
+  OS.applySettings = function () { original.apply(OS, arguments); apply(); };
+  window.SurfaceTheme = { apply, picker, tones: TONES };
+  apply();
 })();

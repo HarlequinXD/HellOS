@@ -5,8 +5,8 @@
   const $ = U.$;
 
   const OS = {
-    version: '6.6.9',
-    build: 'S23.PHONE.669.1118',
+    version: '6.7.0',
+    build: 'S23.ABADDON.670.1118',
     apps: {},
     windows: [],
     fg: null,
@@ -71,7 +71,7 @@
     OS.windows.unshift(win);
     $('#layer-apps').appendChild(win.el);
     OS.focus(win, true);
-    try { app.launch(win, args || {}); GameArt.mount(win); }
+    try { app.launch(win, args || {}); if (window.GameArt) GameArt.mount(win); }
     catch (e) { console.error(e); win.body.appendChild(h('div.empty', 'This app has been possessed: ' + e.message)); }
     return win;
   };

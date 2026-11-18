@@ -46,7 +46,7 @@
         U.clear(board);
         grid.forEach(v => {
           const lvl = v ? Math.log2(v) : 0;
-          board.appendChild(h('div'+(v?'.relic-filled':''), { 'aria-label': v ? String(v)+' '+(NAMES[v]||'Beyond') : 'Empty tile', style: v ? `--tile-x:${(Math.min(10,lvl-1)%4)*100/3}%;--tile-y:${Math.floor(Math.min(10,lvl-1)/4)*100/3}%;flex-direction:column`  : '' },
+          board.appendChild(h('div' + (v ? '.relic' : ''), { 'aria-label': v ? v + ' ' + (NAMES[v] || 'Beyond') : 'Empty tile', style: v ? `--relic:${GameArt.relicUrl(Math.min(10, lvl - 1))};flex-direction:column` : '' },
             v ? h('span', String(v)) : null, v ? h('span', { style: 'font-size:9px;font-weight:600;opacity:.85' }, NAMES[v] || 'Beyond') : null));
         });
       }

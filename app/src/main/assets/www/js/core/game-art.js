@@ -1,49 +1,71 @@
-/* Illustrated game surfaces and bounded, lifecycle-aware effects. */
-(function(){
- 'use strict';
- const load=name=>{const im=new Image();im.src='art/illustrated/'+name+'.png';return im};
- const scenes=load('environments'),tiles=load('relic-tiles');
- const sceneIndex={serpent:0,hellmines:1,damned2048:2,soulflap:3,brimblocks:4,ouija:5};
- const backgrounds={calls:'calls_active',pacts:'pacts_inbox',souls:'souls_contacts',pyrecam:'pyrecam_camera',relics:'relics_gallery',brimstone:'brimstone_seek',lament:'lament_player',doomclock:'doomclock_clock',dates:'dates_calendar',hellscape:'hellscape_map',abyss:'abyss_files',scribe:'scribe_notes',abacus:'abacus_calculator',omens:'omens_forecast',rites:'rites_settings',hellplay:'hellplay_store',paint:'paint_play',torch:'torch_idle',whispers:'whispers_play'};
- const ready=im=>!!(im.complete&&im.naturalWidth);
- function tile(g,index,x,y,w,h,tint){
-  if(!ready(tiles)){g.fillStyle=tint||'#39231d';g.fillRect(x,y,w,h);return}
-  const sw=tiles.naturalWidth/4,sh=tiles.naturalHeight/4;
-  g.drawImage(tiles,(index%4)*sw,Math.floor(index/4)*sh,sw,sh,x,y,w,h);
-  if(tint){g.save();g.globalAlpha=.38;g.fillStyle=tint;g.fillRect(x,y,w,h);g.restore()}
- }
- function background(g,id,w,h){
-  const n=sceneIndex[id];
-  if(ready(scenes)&&n!==undefined){const sw=scenes.naturalWidth/3,sh=scenes.naturalHeight/2;g.drawImage(scenes,(n%3)*sw,Math.floor(n/3)*sh,sw,sh,0,0,w,h)}
-  else {g.fillStyle='#150b10';g.fillRect(0,0,w,h)}
-  g.fillStyle='rgba(8,4,9,.24)';g.fillRect(0,0,w,h);
- }
- function embers(g,w,h,time){
-  if(Store.settings().reduceMotion||window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-  g.save();
-  for(let i=0;i<9;i++){
-   const p=((time/25+i*43)%h),x=(i%2?w-9:9)+Math.sin(time/700+i)*6;
-   g.globalAlpha=.2+Math.sin(time/400+i)*.12;g.fillStyle=i%3?'#ffbd66':'#c489fa';g.beginPath();g.arc(x,h-p,1.2+i%2,0,Math.PI*2);g.fill();
+/* Illustrated game art: painted scenes, relic tiles and ember effects.
+ * Every image is drawn with cover-cropping, so nothing is ever stretched. */
+(function () {
+  'use strict';
+  const GAMES = ['serpent', 'hellmines', 'damned2048', 'soulflap', 'brimblocks', 'ouija'];
+  const cache = {};
+  function img(path) {
+    if (!cache[path]) { const im = new Image(); im.src = path; cache[path] = im; }
+    return cache[path];
   }
-  g.restore();
- }
- function animate(win,draw){
-  let timer,closed=false;
-  function next(){if(closed)return;if(win.visible()&&!document.hidden&&!OS._paused)draw();timer=setTimeout(next,win.visible()?70:400)}
-  timer=setTimeout(next,100);win.own(()=>{closed=true;clearTimeout(timer)});
- }
- function mount(win){
-  const id=win.app.id,key=backgrounds[id]||id+'_play',art=Art.get('backgrounds',key);
-  win.body.classList.add('illustrated-app');
-  if(art){win.body.style.setProperty('--app-scene','url("'+art+'")');if(!win.body.style.backgroundImage)UI.backdrop(win.body,key,{top:.48,bottom:.87})}
-  let bar=win.body.querySelector('.appbar');
-  if(!bar){bar=UI.appbar({title:win.app.name});win.body.insertBefore(bar,win.body.firstChild)}
-  if(bar&&!bar.querySelector('.appbar-emblem')){bar.classList.add('illustrated-bar');const emblem=OS.appIcon(win.app,38);emblem.classList.add('appbar-emblem');bar.insertBefore(emblem,bar.firstChild)}
-  if(sceneIndex[id]!==undefined){
-   win.body.classList.add('illustrated-game');
-   const game=win.body.querySelector('.game');
-   if(game){game.setAttribute('data-game-art',id);const caption=h('div.game-caption',h('span','THE INFERNAL ARCADE'),h('strong',win.app.name));game.insertBefore(caption,game.firstChild)}
+  const ready = im => !!(im && im.complete && im.naturalWidth);
+  const scenePath = id => 'art/scenes/' + id + '.jpg';
+  const relicPath = i => 'art/relics/' + i + '.jpg';
+
+  // draw an image like CSS background-size: cover
+  function cover(g, im, x, y, w, h) {
+    const s = Math.max(w / im.naturalWidth, h / im.naturalHeight);
+    const sw = w / s, sh = h / s;
+    g.drawImage(im, (im.naturalWidth - sw) / 2, (im.naturalHeight - sh) / 2, sw, sh, x, y, w, h);
   }
- }
- window.GameArt={tile,background,embers,animate,mount,sceneIndex};
+
+  function background(g, id, w, h) {
+    const im = img(scenePath(id));
+    if (ready(im)) cover(g, im, 0, 0, w, h);
+    else { g.fillStyle = '#150b10'; g.fillRect(0, 0, w, h); }
+    g.fillStyle = 'rgba(8, 4, 9, .30)';
+    g.fillRect(0, 0, w, h);
+  }
+
+  function tile(g, index, x, y, w, h, tint) {
+    const im = img(relicPath(index));
+    if (!ready(im)) { g.fillStyle = tint || '#39231d'; g.fillRect(x, y, w, h); return; }
+    g.drawImage(im, x, y, w, h); // relic tiles are square, as are the cells they fill
+    if (tint) { g.save(); g.globalAlpha = 0.38; g.fillStyle = tint; g.fillRect(x, y, w, h); g.restore(); }
+  }
+
+  function embers(g, w, h, time) {
+    if (Store.settings().emberSaver || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+    g.save();
+    for (let i = 0; i < 9; i++) {
+      const p = (time / 25 + i * 43) % h, x = (i % 2 ? w - 9 : 9) + Math.sin(time / 700 + i) * 6;
+      g.globalAlpha = 0.2 + Math.sin(time / 400 + i) * 0.12;
+      g.fillStyle = i % 3 ? '#ffbd66' : '#c489fa';
+      g.beginPath(); g.arc(x, h - p, 1.2 + i % 2, 0, Math.PI * 2); g.fill();
+    }
+    g.restore();
+  }
+
+  // redraw loop that sleeps while the game is hidden, locked or paused
+  function animate(win, draw) {
+    let timer, closed = false;
+    function next() {
+      if (closed) return;
+      if (win.visible() && !document.hidden) draw();
+      timer = setTimeout(next, win.visible() ? 70 : 400);
+    }
+    timer = setTimeout(next, 100);
+    win.own(() => { closed = true; clearTimeout(timer); });
+  }
+
+  // HTML boards (2048, mines, ouija) pick up their scene through --scene
+  function mount(win) {
+    const id = win.app.id;
+    if (GAMES.indexOf(id) < 0) return;
+    win.body.classList.add('illustrated-game');
+    win.body.style.setProperty('--scene', Art.cssUrl(scenePath(id)));
+    GAMES.forEach(g => img(scenePath(g)));
+  }
+
+  window.GameArt = { tile, background, embers, animate, mount, relicUrl: i => Art.cssUrl(relicPath(i)), img, ready, cover };
 })();

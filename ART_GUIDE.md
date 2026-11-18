@@ -44,10 +44,18 @@ HellOS ships with the **HellOS Graphic Art Pack** made by ChatGPT. Everything is
 - Contacts you create yourself use initials, because art is matched by contact id, not by name.
 
 
-### 6.6.9 selectable materials and forecast artwork
+## Interface materials (sliced from `art-source/www/art/illustrated/`)
 
-`art/illustrated/panel-palettes.png` is a 3-column × 2-row material atlas. Row 1: Obsidian, Oxblood leather, Midnight slate. Row 2: Ash stone, Parchment, Cathedral ivory. `surface-theme.js` selects a single cell with a 300% × 200% CSS background. Do not use the entire atlas as one panel background. Panel and header choices are independent, persisted in settings, with text colours per material.
+ChatGPT's interface art arrived as large atlases. The APK ships single images cut from them, so nothing has to be stretched or cropped out of an atlas at run time:
 
-`art/illustrated/weather.png` is a 3 × 3 atlas. Row 1: sulphur haze, brimstone showers, ember storm. Row 2: clear scorching sun, ash fall, blood rain. Row 3: hellfire, frozen solid, clear night. `omens.js` selects cells for forecasts and the symbol guide; the launcher and lock screen use the current symbol. Keep the symbol containers square.
+| Folder | From | Used for |
+|---|---|---|
+| `art/ui/panel-<tone>.jpg` | `panel-palettes.png` | Seamless 256 px tiles for the six panel materials (Obsidian, Oxblood, Midnight slate, Ash stone, Parchment, Cathedral ivory). They **tile**, so a panel of any shape looks right. |
+| `art/ui/swatch-<tone>.jpg` | `panel-palettes.png` | Picker cards in Rites → Display & flame |
+| `art/ui/panel-ornate.jpg` | `panel-surface.png` | Carved slab behind dialogs on dark materials (cover-cropped) |
+| `art/ui/frame.png` | `obsidian-frame.png` | Painted frame on dialogs, sheets, the home widget and game boards (border-image, rails repeat) |
+| `art/weather/0–8.jpg` | `weather.png` | Omens symbols: haze, brimstone showers, ember storm, scorching sun, ash fall, blood rain, hellfire, frozen, clear night |
+| `art/relics/0–15.jpg` | `relic-tiles.png` | 0–10 Damned 2048 ranks, 11 mine plate, 12 flag, 13 serpent scales, 14 magma block, 15 empty stone |
+| `art/scenes/<game>.jpg` | `environments.png` | Painted boards for Serpent, Hellmines, Damned 2048, Soul Flap, Brimblocks, Ouija (drawn cover-style) |
 
-App-icon pseudo-element frame overlays are disabled in phone.css; original painted icon images and notification badges remain. Press feedback is event-driven in PhoneUI and has no continuous animation loop.
+To replace one, edit the master in `art-source/`, re-export the slice at the same size and name, and push.

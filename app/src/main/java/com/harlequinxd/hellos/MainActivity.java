@@ -39,6 +39,7 @@ public class MainActivity extends Activity {
     private WebView web;
     private FrameLayout root;
     private PermissionRequest pendingRequest;
+    private int safeTop = 0, safeBottom = 0; // display-cutout insets in CSS px
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -84,6 +85,11 @@ public class MainActivity extends Activity {
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
                 return loader.intercept(request.getUrl());
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                pushInsets(); // the page may load after the first insets pass
             }
 
             @Override
@@ -136,6 +142,14 @@ public class MainActivity extends Activity {
         pendingRequest = null;
     }
 
+    /** Hands the cutout insets to the OS as CSS variables. */
+    private void pushInsets() {
+        if (web == null) return;
+        web.evaluateJavascript("(function(r){r.style.setProperty('--native-safe-top','" + safeTop + "px');"
+                + "r.style.setProperty('--native-safe-bottom','" + safeBottom + "px');"
+                + "if(window.PhoneUI)PhoneUI.refresh();})(document.documentElement)", null);
+    }
+
     void goImmersive() {
         Window w = getWindow();
         if (Build.VERSION.SDK_INT >= 30) {
@@ -154,9 +168,9 @@ public class MainActivity extends Activity {
                 int ime = insets.isVisible(WindowInsets.Type.ime()) ? insets.getInsets(WindowInsets.Type.ime()).bottom : 0;
                 v.setPadding(0, 0, 0, ime);
                 float density = getResources().getDisplayMetrics().density;
-                int top = Math.round(insets.getInsets(WindowInsets.Type.displayCutout()).top / density);
-                int bottom = Math.round(insets.getInsets(WindowInsets.Type.displayCutout()).bottom / density);
-                web.evaluateJavascript("document.documentElement.style.setProperty('--native-safe-top','" + top + "px');document.documentElement.style.setProperty('--native-safe-bottom','" + bottom + "px');window.PhoneUI&&PhoneUI.refresh()", null);
+                safeTop = Math.round(insets.getInsets(WindowInsets.Type.displayCutout()).top / density);
+                safeBottom = Math.round(insets.getInsets(WindowInsets.Type.displayCutout()).bottom / density);
+                pushInsets();
                 return WindowInsets.CONSUMED;
             });
             root.requestApplyInsets();
