@@ -172,7 +172,7 @@
     ['friends', / friends | best friend | bestie | who do you hang out with | who do you know /],
     ['enemies', / enemy | enemies | rival | who do you hate | who do you not like /],
     ['hobby', / hobby | hobbies | for fun | free time | day off | weekend | what do you like doing | what do you like to do | what are you into | interests /],
-    ['fav', / favourite ([a-z]+) | favourites /],
+    ['fav', / favourite ([a-z]+) | favourites | what (?:kind of |sort of )?(?:music|food|games?|drinks?|colou?r|animals?|places?) do you (?:like|listen to|eat|play|drink|love) /],
     ['likes', / what do you like | what do you love | what makes you happy /],
     ['dislikes', / what do you hate | what do you dislike | what annoys you | pet peeve | what do you not like /],
     ['quirk', / weird thing about you | something weird | fun fact about you | something about you | quirk /],
@@ -211,6 +211,7 @@
     else if (/ tonight | this evening /.test(t)) res.when = 'tonight';
     for (const [id, re] of INTENTS) {
       if (id === 'person') { if (res.person && / (who is|do you know|what do you think|what about|have you seen|did you see|where is|what is .* doing|how is|tell me about|know|is .* (nice|okay|cool|mean)) /.test(t)) res.intents.push(id); continue; }
+      if (id === 'judge') { const q = evalQ(t) || (PLAYER_DOING.test(t) && /\?|any good|is it/.test(t) ? {} : null); if (q && !(q.name && (R.findByName(' ' + q.name + ' ').length || /^(you|me)$/.test(q.name)))) res.intents.push(id); continue; }
       if (id === 'place') { if (res.place && / (have you been|ever been|been to|what do you think|like|go to|is .* (good|nice|fun)|what is|tell me about) /.test(t)) res.intents.push(id); continue; }
       if (re.test(t)) res.intents.push(id);
     }
@@ -638,6 +639,8 @@
   H.enemies = c => { const g = guarded(c); if (g) return g; return c.p.rivals.length ? E('{Ugh, [n].|[n]. Don\'t get me started.|Definitely [n].}', { n: R.get(c.p.rivals[0]).name }) : E('{Nobody really.|I get along with most people.|No one, I\'m delightful.}'); };
   H.hobby = c => E('{I\'m into|I love|In my free time I do|When I\'m not working it\'s|Mostly} [a] and [b]{.|!|. Wanna join sometime?|. Keeps me sane.|. Don\'t judge.|, mostly.}', { a: c.p.hobbies[0][0], b: c.p.hobbies[1][0] });
   H.fav = (c, d, t) => {
+    const w = t.match(/ what (?:kind of |sort of )?(music|food|game|games|drink|drinks|colour|color|animal|animals|place|places) do you /);
+    if (w) t = ' favourite ' + w[1].replace(/s$/, '').replace('color', 'colour') + ' ';
     const m = t.match(/ favourite ([a-z]+) /);
     if (!m || / favourites /.test(t)) return E('{Favourite food is [f], drink is [d], music is [m].|[f], [d] and [m]. In that order.}', { f: c.p.fav.food, d: c.p.fav.drink, m: c.p.fav.music });
     const k = FAV_KEYS[m[1]];
@@ -1292,7 +1295,219 @@
   // ---------------------------------------------------------------- crisis (out of character, always)
   const CRISIS = / (kill myself|want to die|wanna die|end it all|end my life|suicide|suicidal|self harm|hurt myself|cut myself) /;
 
+  // ---------------------------------------------------------------- "is it good?": opinions on the thing just mentioned
+  // Every reply remembers the last thing it mentioned (a song genre, food, game, hobby, place,
+  // festival, the weather, their work). "Is it good?", "do you like it?", "how was it?" then get
+  // an opinion on THAT. The player can also say what they're doing ("I'm listening to doom metal")
+  // and ask the same.
+  const GAMES = ['serpent', 'hellmines', 'damned 2048', 'soul flap', 'brimblocks', 'ouija'];
+  const objOf = act => act.replace(/^(\w+ )(?:(?:a|an|the|my|their|some|up|out|for|with|at|in|on|to) )*/, '').replace(/ \(.*\)$/, '').replace(/ (at|in|on|from|with|for|to) .*$/, '').trim();
+  function thingsOf(p) {
+    const L = [];
+    const add = (name, kind) => { if (name && name.length > 2) L.push({ name: String(name), kind }); };
+    add(p.fav.food, 'food'); add(p.fav.drink, 'drink'); add(p.fav.music, 'music'); add(p.fav.game, 'game');
+    p.hobbies.forEach(h => add(h[0], 'hobby'));
+    p.likes.concat(p.dislikes).forEach(x => add(x, 'thing'));
+    R.MUSIC.forEach(x => add(x, 'music')); R.FOODS.forEach(x => add(x, 'food')); GAMES.forEach(x => add(x, 'game'));
+    ['lava lattes', 'lava latte', 'ember ale', 'frost mead', 'sulphur soda', 'styx tea', 'black coffee', 'bloody marys', 'hot chocolate'].forEach(x => add(x, 'drink'));
+    Object.keys(R.PLACES).forEach(k => add(R.PLACES[k].n.replace(/^the /, ''), 'place:' + k));
+    HellTime.FESTIVALS.forEach(f => add(f.name.replace(/^The /, ''), 'festival:' + f.id));
+    if (p.job.title) add(p.job.title, 'job');
+    // whatever they did or saw today: "sold pickled eyeballs" -> "pickled eyeballs"
+    R.log(p).forEach(b => { const o = objOf(b.act); add(o, b.kind === 'work' ? 'work' : b.kind === 'hobby' ? 'hobby' : 'thing'); if (b.incident) add(objOf(b.incident), 'incident'); });
+    add(objOf(R.world().headline), 'news');
+    return L;
+  }
+  function lastThing(p, text) {
+    const low = text.toLowerCase();
+    let best = null, at = -1;
+    thingsOf(p).forEach(x => { const i = low.lastIndexOf(x.name.toLowerCase()); if (i > at || (i === at && best && x.name.length > best.name.length)) { at = i; best = x; } });
+    // weather words
+    const w = HellWeather.now(p.circle).cond;
+    const wi = low.lastIndexOf(w.say.toLowerCase().replace(/^an? /, ''));
+    if (wi > at) { best = { name: w.say, kind: 'weather' }; at = wi; }
+    return at >= 0 ? best : null;
+  }
+  // remember everything a reply mentioned (newest last) and what "it" means now
+  function noteThings(p, st, text) {
+    const low = text.toLowerCase(), now = Date.now();
+    const hits = thingsOf(p).map(x => ({ x, i: low.lastIndexOf(x.name.toLowerCase()) })).filter(h => h.i >= 0).sort((a, b) => a.i - b.i || a.x.name.length - b.x.name.length);
+    const w = HellWeather.now(p.circle).cond, wi = low.lastIndexOf(w.say.toLowerCase().replace(/^an? /, ''));
+    if (wi >= 0) hits.push({ x: { name: w.say, kind: 'weather' }, i: wi });
+    if (!hits.length) return;
+    st.things = (st.things || []).filter(t0 => now - t0.t < 3 * 3600000);
+    hits.forEach(h => { st.things = st.things.filter(t0 => t0.name !== h.x.name); st.things.push(Object.assign({}, h.x, { owner: 'them', t: now })); });
+    st.things = st.things.slice(-12);
+    const last = hits.reduce((a, b) => (b.i > a.i || (b.i === a.i && b.x.name.length > a.x.name.length) ? b : a));
+    st.thing = Object.assign({}, last.x, { owner: 'them', t: now });
+  }
+  const PLAYER_DOING = / i am (?:currently |just |now )?(listening to|playing|watching|reading|eating|drinking|having|trying|doing|at|going to|learning|making|cooking|building) (?:a |an |the |some )?([a-z0-9' ]{2,30}?)(?: right now| rn| now| at the moment)? (?:\? |and |is it |it is |what |do you |have you |$)/;
+  function guessKind(name) {
+    const n = name.toLowerCase();
+    if (R.MUSIC.some(x => n.indexOf(x) >= 0) || /metal|rock|jazz|song|album|music|band|choir|opera|rap|pop/.test(n)) return 'music';
+    if (R.FOODS.some(x => n.indexOf(x) >= 0) || /pizza|cake|soup|taco|wings|noodle|bread|burger|food|toast|sorbet/.test(n)) return 'food';
+    if (GAMES.some(x => n.indexOf(x) >= 0) || /game|level|boss/.test(n)) return 'game';
+    const pl = R.findPlace(n); if (pl) return 'place:' + pl;
+    return 'thing';
+  }
+  function scoreFor(p, th) {
+    const n = th.name.toLowerCase();
+    if (th.kind === 'weather') return HellWeather.now(p.circle).cond.bad ? -2 : (U.hash(p.id + n) % 3) - 1;
+    if (th.kind === 'job' || th.kind === 'work') return p.traits.warmth > 0.6 ? 0 : -1;
+    if (th.kind === 'incident') return (U.hash(p.id + n) % 3) - 1;
+    if (th.kind.indexOf('festival') === 0) return 1 + (U.hash(p.id + n) % 2);
+    if (th.kind.indexOf('place') === 0 && p.fav.place.toLowerCase().indexOf(n) >= 0) return 2;
+    if ([p.fav.food, p.fav.drink, p.fav.music, p.fav.game].some(x => x.toLowerCase() === n) || p.hobbies.some(h => h[0] === n)) return 2;
+    if (p.likes.indexOf(th.name) >= 0 || sharesTaste(p, n)) return 2;
+    if (p.dislikes.indexOf(th.name) >= 0 || hatesIt(p, n)) return -2;
+    return (U.hash(p.id + ':' + n) % 5) - 2;
+  }
+  const VERDICT = {
+    music: {
+      2: ['{It\'s incredible.|So good.|Best thing ever recorded.|Oh, it\'s amazing.} {The riffs are heavier than a boulder.|I play it after every shift.|Perfect for screaming along to.|It sounds like the Lake of Fire feels.}'],
+      1: ['{It\'s pretty good.|Yeah, it\'s good.|Not bad at all.} {Grows on you.|Good for the commute.|Some bangers in there.}'],
+      0: ['{It\'s alright.|Eh, it\'s fine.|Background noise, mostly.} {Not my favourite.|Depends on my mood.}'],
+      '-1': ['{Not really my thing.|It\'s a bit much.|Meh.} {I prefer [mine].|Too samey for me.}'],
+      '-2': ['{Honestly? No.|It\'s awful.|Please, no.} {It sounds like a choir falling down stairs.|I\'d rather listen to harps.|Give me [mine] any day.}']
+    },
+    food: {
+      2: ['{So good.|It\'s the best.|Amazing.|Hellishly good.} {Burns in all the right ways.|I could eat it every day.|Get it from [pl].}'],
+      1: ['{Pretty tasty.|Yeah, it\'s good.|Not bad.} {Bit spicy.|Better hot.}'],
+      0: ['{It\'s food.|It\'s fine.|Edible.} {Fills the hole.|Nothing special.}'],
+      '-1': ['{Not a fan.|Bit gross, honestly.} {Too bland. Or too spicy. One of those.|I\'ll stick to [mine].}'],
+      '-2': ['{Disgusting.|Absolutely not.|Ew.} {Last time I had it I regretted it for a week.|Give me [mine] instead.}']
+    },
+    game: {
+      2: ['{Addictive.|So good.|I\'m obsessed.} {My high score is [hs].|I play it on every break.|I\'ve lost whole nights to it.}'],
+      1: ['{It\'s fun.|Pretty good.} {Bit hard though.|Good for killing time. Which we have a lot of.}'],
+      0: ['{It\'s alright.|It\'s a game.} {Passes the time.}'],
+      '-1': ['{Not really.|Kind of boring.} {I\'m better at [mine].}'],
+      '-2': ['{I hate it.|Rage quit it.|Terrible.} {It\'s rigged.|Never again.}']
+    },
+    hobby: {
+      2: ['{Love it.|Best part of my week.|So fun.} {Keeps me sane.|I\'m actually getting good at it.|You should try it.}'],
+      1: ['{It\'s fun.|Yeah, I enjoy it.} {Good way to unwind.}'], 0: ['{It\'s okay.|Something to do.}'],
+      '-1': ['{Not my thing.|Bit dull.}'], '-2': ['{Hated it.|Never again.}']
+    },
+    place: {
+      2: ['{Love it there.|Best place in Hell.|It\'s great.} [info]'], 1: ['{It\'s nice.|Pretty good.} [info]'],
+      0: ['{It\'s fine.|It\'s okay.} [info]'], '-1': ['{Not great.|Bit grim.} [info]'], '-2': ['{Awful place.|I avoid it.} [info]']
+    },
+    festival: {
+      2: ['{The best night of the year!|Love it.|So good.} [info]'], 1: ['{It\'s fun!|Pretty good.} [info]'],
+      0: ['{It\'s alright.} [info]'], '-1': ['{Bit crowded.} [info]'], '-2': ['{Too loud. Too many imps.}']
+    },
+    weather: {
+      2: ['{Honestly? Lovely.|I like it like this.}'], 1: ['{Not bad out, actually.|Could be worse.}'], 0: ['{It\'s weather.|Same old.}'],
+      '-1': ['{Not great.|Bit miserable.} {Bring a cloak.}'], '-2': ['{It\'s [n] out there.|It\'s awful out there.|Miserable.} {Stay inside.|I\'m not going anywhere in this.}']
+    },
+    incident: {
+      2: ['{Honestly? Best part of my day.|Kind of amazing, actually.}'], 1: ['{It was alright, actually.|Funnier than it sounds.}'], 0: ['{It was... a thing.|Weird more than good or bad.}'],
+      '-1': ['{Not great.|Could have gone better.}'], '-2': ['{Awful.|Worst part of my day.}']
+    },
+    news: {
+      2: ['{Best news all week.|Love it.}'], 1: ['{Could be good.|About time.}'], 0: ['{Eh, it\'s news.|Don\'t care either way.}'], '-1': ['{Not great.|Typical Hell.}'], '-2': ['{Terrible.|Disaster.}']
+    },
+    drink: {
+      2: ['{So good.|The best.} {I\'d drink it all day.|Hot enough to strip paint.}'], 1: ['{Pretty good.|Not bad.}'], 0: ['{It\'s fine.|It\'s a drink.}'], '-1': ['{Not for me.}'], '-2': ['{Disgusting.|Tastes like the Styx.}']
+    },
+    job: {
+      2: ['{Honestly I love it.|It\'s good!}'], 1: ['{It\'s alright.|Could be worse.}'], 0: ['{It\'s work.|It pays. Barely.|It\'s a job.} {Don\'t ask.|Some days are fine.}'],
+      '-1': ['{Good? It\'s work.|Not really.} {My boss is a nightmare.|The hours are eternal.}'], '-2': ['{It\'s hell. Literally.|I hate it.}']
+    },
+    thing: {
+      2: ['{Love it.|It\'s great.|So good.} {Can\'t get enough.|Big fan.}'], 1: ['{It\'s good.|Pretty decent.}'], 0: ['{It\'s okay.|Meh.|Never really thought about it.}'],
+      '-1': ['{Not a fan.|Not really.}'], '-2': ['{Hate it.|It\'s the worst.|Absolutely not.}']
+    }
+  };
+  function verdict(c, th, owner, t) {
+    const p = c.p;
+    const score = owner === 'you' ? (sharesTaste(p, th.name) ? 2 : hatesIt(p, th.name) ? -2 : (U.hash(p.id + ':' + th.name.toLowerCase()) % 5) - 2) : scoreFor(p, th);
+    const base0 = th.kind.split(':')[0], extra = th.kind.split(':')[1];
+    const base = base0 === 'work' ? 'job' : base0;
+    const bank = (VERDICT[base] || VERDICT.thing)[String(score)];
+    const mine = base === 'music' ? p.fav.music : base === 'food' ? p.fav.food : base === 'game' ? p.fav.game : p.fav.food;
+    const info = base === 'place' ? (PLACE_INFO[extra] || '') : base === 'festival' ? ((HellTime.FESTIVALS.find(f => f.id === extra) || {}).blurb || '').split('. ')[0] + '.' : '';
+    const pl = R.PLACES[pick(['pizza', 'night_market', 'slop', 'rage_cafe'])].n;
+    let s = E(bank, { mine, info, pl, hs: 600 + U.hash('hs' + p.id) % 9000, n: th.name });
+    const askedBad = new RegExp(' (' + NEG_ADJ + '|hate|mind) ').test(t || '');
+    if (owner !== 'you') {
+      if (askedBad) s = (score >= 1 ? E('{Bad? No way!|What? No!|Bad?! Wash your mouth out.|Absolutely not bad.}') : score <= -1 ? E('{Yeah, honestly.|Pretty bad, yeah.|You said it.|Bad is generous.}') : E('{Not bad, not good.|Bad? Eh, it\'s fine.}')) + ' ' + s;
+      else if (/ (good|great|fun|nice|worth it|tasty|any good) /.test(t || '') && score <= -1) s = E('{Good? No.|Not really.|Honestly? No.}') + ' ' + s;
+    }
+    if (owner === 'you') s = (score >= 1 ? E('{Ooh, [x]? Good choice.|[x]! Nice.|You\'re into [x]? Respect.}', { x: th.name }) : score <= -1 ? E('{[x]? Really?|Hm, [x]. Okay.|[x]... you do you.}', { x: th.name }) : E('{[x], huh?|Oh, [x].}', { x: th.name })) + ' ' + s;
+    c.ctx = { type: 'opinion', topic: th.name, score };
+    if (window.Journal) Journal.person(p.id, 'opinion:' + th.name, (score > 0 ? 'Likes ' : score < 0 ? 'Dislikes ' : 'Doesn’t care much about ') + th.name, p.id);
+    return s;
+  }
+  // ---- any way of asking "is it good?" about anything, named or not
+  const POS_ADJ = 'good|great|fun|nice|decent|worth it|cool|okay|ok|alright|fine|tasty|delicious|enjoyable|interesting|amazing|the best|fire|lit|goated|sick|dope|underrated|any good|good or bad|good or not|bad or good';
+  const NEG_ADJ = 'bad|terrible|awful|gross|boring|scary|overrated|trash|mid|cringe|the worst|lame|rubbish|garbage';
+  const ADJ = '(?:even |actually |really |that |very |so |any )?(' + POS_ADJ + '|' + NEG_ADJ + ')';
+  const X = "((?:the |a |an |some |your |that |this )?[a-z0-9' ]{1,32}?)";
+  const EVAL_RES = [
+    new RegExp(' (?:is|are|was|were|isn t|aren t) ' + X + ' ' + ADJ + ' '),                                  // is doom metal good / is it bad
+    new RegExp('^ ' + X + ' (?:is |are |was |s )?' + ADJ + ' (?:right |though |or not |or what |then |too |lol )?(?:[?!] )*$'), // doom metal any good? / it good?
+    new RegExp(' (?:do|did|would|will) you (?:like|enjoy|love|hate|rate|recommend|reckon|dig|fancy|mind|rate) ' + X + ' (?:[?!] |$|then |though |at all |much |or not )'), // do you like it / would you recommend lava lattes
+    new RegExp(' how (?:is|was|are|were|do you find|did you find|would you rate) ' + X + ' (?:[?!] |$|then |though )'), // how was it / how is the lake of fire
+    new RegExp(' what (?:is|was|are|were) ' + X + ' like '),                                                // what is it like
+    new RegExp(' (?:what do you think (?:of|about)|thoughts on|how do you feel about|your opinion on|opinion of|your take on|rate|how about|what about|are you a fan of|are you into) ' + X + ' (?:[?!] |$|then |though )'),
+    new RegExp(' (?:is|was) ' + X + ' worth (?:it|trying|going|the hype|a try) '),
+    new RegExp(' should i (?:try|listen to|watch|play|eat|go to|get|buy|visit|drink|check out|read) ' + X + ' (?:[?!] |$)')
+  ];
+  const PRON = /^(?:the |that |this )?(it|that|this|they|them|those|these|one|that one|this one|there|it s|thats)$/;
+  const SKIP = /^(you|your|yourself|me|myself|i|we|us|life|hell|work|job|boss|everything|things|stuff|it going|that going|day|week|shift|night|morning|evening|family|mood|health|weather|the weather|today|tomorrow|yesterday|business|everyone|everybody|u|ya|so|very|really|what|how|who|not|going|happening|up|this one|that one)$/;
+  function evalQ(t) {
+    for (const re of EVAL_RES) {
+      const m = t.match(re); if (!m) continue;
+      if (re === EVAL_RES[1] && !/[?]| right | though | or not /.test(t)) continue;
+      const raw = (m[1] || '').trim();
+      if (/^(your|ur|my|i|i am|im|we|we are|you|you are|u|u r|everything|all|so|very|pretty|also|not|he|she|he is|she is)( |$)/.test(raw)) continue;
+      let name = (m[1] || '').trim().replace(/^(the|a|an|some|your|that|this) /, '').trim();
+      if (!name) continue;
+      const pol = m[2] ? (new RegExp('^(?:' + NEG_ADJ + ')$').test(m[2]) ? 'bad' : 'good') : (/ (hate|mind) /.test(t) ? 'bad' : 'good');
+      if (PRON.test(name) || PRON.test((m[1] || '').trim())) return { pron: true, pol };
+      if (SKIP.test(name) || name.split(' ').length > 5) continue;
+      return { name, pol };
+    }
+    return null;
+  }
+  // was this something they mentioned recently? (fuzzy: any shared word)
+  function recentThing(st, name) {
+    const words = name.toLowerCase().split(' ').filter(w => w.length > 2).map(w => w.replace(/s$/, ''));
+    const list = (st.things || []).slice().reverse();
+    return list.find(x => x.name.toLowerCase() === name.toLowerCase()) || (words.length ? list.find(x => { const n = x.name.toLowerCase(); return words.every(w => n.indexOf(w) >= 0); }) : null) || null;
+  }
+  H.judge = (c, d, t) => {
+    const st = c.st;
+    // "I'm listening to X, is it good?" in one message
+    const pd = t.match(PLAYER_DOING);
+    if (pd) { const name = clean(pd[2], 5); return verdict(c, { name, kind: guessKind(name) }, 'you', t); }
+    const q = evalQ(t);
+    if (!q) return null;
+    if (q.pron) {
+      const th = st.thing && Date.now() - st.thing.t < 30 * 60000 ? st.thing : null;
+      if (!th) return no(c, E('{Is what good?|What, sorry?|Which thing?|Lost you there. What\'s good?}'));
+      return verdict(c, th, th.owner, t);
+    }
+    const known = recentThing(st, q.name);
+    if (known && Date.now() - known.t < 60 * 60000) return verdict(c, Object.assign({}, known, { name: known.name }), known.owner, t);
+    const own = thingsOf(c.p).find(x => x.name.toLowerCase() === q.name.toLowerCase());
+    return verdict(c, own || { name: q.name, kind: guessKind(q.name) }, own ? 'them' : 'none', t);
+  };
+  // the player says what they're doing (no question): react, and remember what "it" is
+  H.player_doing = (c, d, t) => {
+    const pd = t.match(PLAYER_DOING); if (!pd) return null;
+    const name = clean(pd[2], 5), kind = guessKind(name);
+    remember(c.st, 'doing', pd[1] + ' ' + name);
+    c.st.thing = { name, kind, owner: 'you', t: Date.now() };
+    const score = sharesTaste(c.p, name) ? 2 : hatesIt(c.p, name) ? -2 : 0;
+    return score > 0 ? E('{Ooh, [x]! Love that.|[x]? You have taste.|[x]! Same, honestly.}', { x: name }) : score < 0 ? E('{[x]? Ew.|Oh no, [x].|[x]... why?}', { x: name }) : E('{Oh nice, [x].|[x], huh? How is it?|Ooh, [x]. Any good?|[x]? Fun.}', { x: name });
+  };
+
   const LIVING_INTENTS = [
+    ['judge', null],
+    ['player_doing', PLAYER_DOING],
     ['plan_check', / are we still on | still meeting | our plans | are we meeting | what are our plans | still on for /],
     ['cancel', / can not make it | cancel | rain check | not coming | something came up | have to bail | need to bail | can not come /],
     ['arrive', / i am here | here now | just got here | i have arrived | arrived | i am outside | omw | on my way | coming now | almost there | where are you sitting /],
@@ -1309,14 +1524,11 @@
     ['miss', / i miss you | i missed you | miss me /],
     ['mad_at_me', / are you mad at me | are you angry at me | are we okay | are we good | you still mad /],
     ['whats_wrong', / what is wrong | what is the matter | are you sad | you seem (?:down|sad|off) /],
-    ['opinion', TOPIC_RE]
   ];
 
   (function () {
     const iPerson = INTENTS.findIndex(x => x[0] === 'person');
-    INTENTS.splice(iPerson, 0, ...LIVING_INTENTS.filter(x => x[0] !== 'opinion'), ...SMALL_INTENTS);
-    const iPlace = INTENTS.findIndex(x => x[0] === 'place');
-    INTENTS.splice(iPlace + 1, 0, LIVING_INTENTS.find(x => x[0] === 'opinion'));
+    INTENTS.splice(iPerson, 0, ...LIVING_INTENTS, ...SMALL_INTENTS);
 
   })();
   const CTX = {
@@ -1398,6 +1610,8 @@
         else if (out.length < 3 && !st.pending && !/bye|insult|invite|cancel/.test(main || '')) { const q = maybeAsk(c); if (q) out.push(q); }
       }
     }
+    // what did this reply just talk about? ("is it good?" will refer to it)
+    if (out.length && !/^(judge|player_doing)$/.test(d.intents[0] || '')) noteThings(p, st, out.filter(Boolean).join(' '));
     st.last.push(lt); if (st.last.length > 6) st.last.shift();
     st.talks++; st.seen = now;
     save();
@@ -1434,6 +1648,7 @@
     let s = null, tries = 0;
     while (!s && tries++ < 5) s = pick(opts)();
     if (!s) return null;
+    noteThings(p, st, s);
     const incB = R.log(p).find(b => b.incident && s.indexOf(fp(b.incident)) >= 0);
     if (incB) st.ctx = { type: 'incident', inc: incB.incident, t: Date.now() };
     if (window.Journal) {
