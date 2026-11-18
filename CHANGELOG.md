@@ -1,5 +1,15 @@
 # HellOS changelog
 
+## 6.9.1 — residents have phones
+- Messages to residents now go **Sending → Delivered → Read 6:03pm**, with a Hellnet delay (usually a few seconds, sometimes a minute).
+- Their phone **buzzes** in their pocket, bag, jacket, hand, on the desk or on the charger, and you see it happen ("📳 Vex’s phone goes off in his pocket", "Vex pulls his phone out of his pocket…", "Vex is reading…", then typing).
+- Whether they answer now depends on **what they're doing** (home, lunch, work, out with friends, asleep), how much they like you and how glued to their phone they are. Some keep it on silent. Busy residents finish up first, sneak a look, or wait until they're free (lunch break, end of shift, waking up). Light sleepers wake up grumpy.
+- Messages you send while they're away pile up and they answer them together, often starting with "sorry, was at work" or "omg sorry, just saw this".
+- If they've just been texting you they still have the phone in hand and reply quickly.
+- Gifts of souls arrive the same way; they react when they see them.
+- Calls: busy, asleep or annoyed residents may not pick up (or decline). They text back about the missed call once they're free.
+- Everything is saved, so replies still come after you close the app.
+
 ## 6.9.0 — the 666 residents of Hell
 - **666 residents**, each with their own procedural pixel portrait (new hair styles, horns, halos, glasses, crowns, scars, third eyes and more), species, job and shift, home circle, hobbies, favourites, backstory, sin, dream, fear, quirk and secret, plus friends, rivals, partners and siblings among each other. Lucien, Vex, Charon, Mortis, Morgana and Beelzebub are six of them.
 - **Daily lives on the real clock:** sleep, breakfast, commute, work, lunch, hobbies, errands, evenings out with friends (both sides agree on every meet-up), run-ins with rivals and one odd thing a day. Everything is deterministic, so it costs no storage.

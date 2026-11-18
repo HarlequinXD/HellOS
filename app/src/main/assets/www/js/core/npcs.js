@@ -134,20 +134,26 @@
     send(contactId, text) {
       const c = Chat.contact(contactId);
       const ok = OS.cellular();
-      Chat.push(contactId, { from: 'me', text, status: ok ? 'sent' : 'failed' });
-      if (!ok) { OS.toast('Not delivered. Descent mode is on.'); return; }
       const res = residentOf(c);
-      if (res && window.Mind) {
-        // a resident of Hell: their own mind answers (or ignores you)
-        const r = Mind.reply(res.id, text);
-        if (!r || !r.msgs.length) return;
-        Chat.deliver(contactId, r.msgs, r.delay);
+      const mid = U.uid();
+      Chat.push(contactId, { id: mid, from: 'me', text, status: !ok ? 'failed' : res && window.Phones ? 'sending' : 'sent' });
+      if (!ok) { OS.toast('Not delivered. Descent mode is on.'); return; }
+      if (res && window.Phones) {
+        // a resident of Hell: it reaches their phone, and they answer when they get to it
+        Phones.receive(contactId, res.id, mid, text);
         return;
       }
       const npcId = c && c.npc;
       const reply = npcId ? replyFor(npcId, text) : (Math.random() < 0.5 ? U.pick(['…', 'who is this?', 'the line crackles with static', '👁️', 'stop texting the dead']) : null);
       if (!reply) return;
       Chat.deliver(contactId, [reply], 1200 + Math.random() * 2500);
+    },
+    setStatus(contactId, ids, status, t) {
+      Store.update('threads', {}, th => {
+        const tr = th[contactId]; if (!tr) return th;
+        tr.msgs.forEach(m => { if (m.id && ids.indexOf(m.id) >= 0 && m.status !== 'failed') { m.status = status; if (status === 'read') m.readAt = t || Date.now(); } });
+        return th;
+      });
     },
     // show "typing…" then each bubble in turn
     _busy: {},

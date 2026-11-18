@@ -154,7 +154,7 @@
     ['tomorrow', / tomorrow | what are your plans | any plans | what is the plan /],
     ['tonight', / tonight | this evening | later today /],
     ['yesterday', / yesterday | last night /],
-    ['where_now', / where are you | where (?:are|r) you at | where you at | where is you /],
+    ['where_now', / where are you | (?:are )?you at (?:work|home|the [a-z]+) | you still at | where (?:are|r) you at | where you at | where is you /],
     ['doing_now', / what are you doing | what are you up to | what you up to | what you doing | are you busy | you busy | doing anything /],
     ['where_went', / where (?:did|have) you (?:go|been|went)| where have you been /],
     ['who_seen', / who (?:did|have) you (?:see|meet|hang|talk|chat)| see anyone | meet anyone | hang out with anyone /],
@@ -838,6 +838,26 @@
     return split(p, style(p, s, c.tr));
   }
 
+  // first line of a reply that took a while
+  function late(rid, mins, kind, grumpy) {
+    const p = R.get(rid), st = state(rid), tr = tier(st.aff).id;
+    if (tr === 'hate') return null;
+    let s;
+    if (grumpy) s = E('{You woke me up.|Ugh, it\'s the middle of the night.|Do you know what time it is?|*yawn* You woke me.}');
+    else if (tr === 'dislike') s = chance(0.5) ? E('{Saw this earlier.|Yeah, I saw it.}') : null;
+    else {
+      const why = { work: '{was at work|was on shift|work was crazy|my boss was watching}', social: '{was out with friends|was out|was hanging out with someone}', sleep: '{was asleep|just woke up|was sleeping}', hobby: '{was busy|was in the middle of something|got distracted}', commute: '{was on the road|was travelling}', clash: '{was dealing with something|had a whole situation going on}', errand: '{was running errands|was out}' }[kind] || '{didn\'t see this|phone was on silent|phone was in my bag}';
+      s = E((mins > 120 ? '{Omg, sorry|So sorry|Sorry sorry}' : '{Sorry|Oops, sorry|Ah sorry}') + ', ' + why + '{.|!|, just saw this.}');
+    }
+    return s ? style(p, s, tr) : null;
+  }
+  function callback(rid) {
+    const p = R.get(rid), st = state(rid), tr = tier(st.aff).id;
+    if (tr === 'hate' || (tr === 'dislike' && chance(0.6))) return null;
+    return split(p, style(p, E('{Saw your missed call|You called?|Sorry I missed your call}{, what\'s up?|. Everything okay?|. Was busy. What\'s up?}'), tr));
+  }
+  function bumpRid(rid, d) { bump(state(rid), d); save(); }
+
   function stats() {
     let total = 0; const per = {};
     const all = new Set(SEEN);
@@ -846,5 +866,5 @@
     return { total, templates: all.size };
   }
 
-  window.Mind = { reply, ambient, callLines, gift, state, tier, save, stats, norm, extract, detect, expand: E, count: s => count(parse(s)), TIERS };
+  window.Mind = { late, callback, bump: bumpRid, reply, ambient, callLines, gift, state, tier, save, stats, norm, extract, detect, expand: E, count: s => count(parse(s)), TIERS };
 })();

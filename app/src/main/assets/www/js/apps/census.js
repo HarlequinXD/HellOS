@@ -94,11 +94,11 @@ OS.register({
         if (v > Store.settings().souls) { OS.toast('Not enough souls. Win some in HellPlay.'); return; }
         Store.setting('souls', Store.settings().souls - v);
         const cid = Chat.bind(id);
-        Chat.push(cid, { from: 'me', text: '🔥 Sent you ' + v + ' souls', status: 'sent' });
-        const msgs = Mind.gift(id, v);
-        Chat.deliver(cid, msgs, 900);
+        const mid = U.uid();
+        Chat.push(cid, { id: mid, from: 'me', text: '🔥 Sent you ' + v + ' souls', status: 'sending' });
+        Phones.receive(cid, id, mid, '', v);
         Sound.play('success');
-        OS.toast(v + ' souls sent to ' + p.first);
+        OS.toast(v + ' souls sent. ' + p.first + ' will see them when they check their phone.');
         draw();
       }
       function entry(b) {
