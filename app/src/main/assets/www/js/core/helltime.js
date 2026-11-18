@@ -104,7 +104,36 @@
     },
     weekend(wd) { return wd === 5 || wd === 6; }
   };
+  // the Hell moment of any real timestamp (Date or ms)
+  HellTime.of = real => { const s0 = st(); const t = real instanceof Date ? real.getTime() : +real; return s0.gameAnchor + (t - s0.realAnchor) / 60000 * s0.speed; };
+  HellTime.dayOf = real => Math.floor(HellTime.of(real) / 1440);
+  HellTime.minOf = real => Math.floor(((HellTime.of(real) % 1440) + 1440) % 1440);
   window.HellTime = HellTime;
+
+  // ---------------------------------------------------------------- the whole OS tells Hell time
+  // U's date and time helpers now show Hell time for any real timestamp:
+  // status bar, lock screen, home clock, message and call times, notifications, "5 min ago".
+  const pad = n => String(n).padStart(2, '0');
+  U.real = { time: U.time, ampm: U.ampm, dateLong: U.dateLong, dateShort: U.dateShort, ago: U.ago, dayKey: U.dayKey, sameDay: U.sameDay };
+  U.time = function (d, h24) {
+    const m = HellTime.minOf(d == null ? Date.now() : d);
+    if (h24 === undefined) h24 = !!(window.Store && Store.settings().time24);
+    const hh = Math.floor(m / 60), mm = m % 60;
+    return h24 ? pad(hh) + ':' + pad(mm) : (hh % 12 || 12) + ':' + pad(mm);
+  };
+  U.ampm = d => HellTime.minOf(d == null ? Date.now() : d) < 720 ? 'AM' : 'PM';
+  U.dateLong = d => HellTime.label(HellTime.dayOf(d == null ? Date.now() : d));
+  U.dateShort = d => HellTime.short(HellTime.dayOf(d == null ? Date.now() : d));
+  U.dayKey = d => 'h' + HellTime.dayOf(d == null ? Date.now() : d);
+  U.sameDay = (a, b) => HellTime.dayOf(a) === HellTime.dayOf(b);
+  U.ago = t => {
+    const mins = (HellTime.total() - HellTime.of(t));
+    if (mins < 1) return 'now';
+    if (mins < 60) return Math.round(mins) + ' min';
+    if (mins < 1440 && HellTime.dayOf(t) === HellTime.day()) return Math.round(mins / 60) + ' h';
+    const days = HellTime.day() - HellTime.dayOf(t);
+    return days <= 1 ? 'yesterday' : days < 28 ? days + ' days' : HellTime.short(HellTime.dayOf(t));
+  };
 
   // a heads-up when a new Hell day (and any festival) begins
   let lastDay = null;

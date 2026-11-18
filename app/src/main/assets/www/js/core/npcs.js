@@ -215,14 +215,13 @@
         { id: U.uid(), title: 'Things to atone for', body: '- Ate the last slice of cursed garlic bread\n- Ignored Mortis for a week\n- Signed Lucien’s contract without reading', color: 0, t: now - 86400000 },
         { id: U.uid(), title: 'Escape plan', body: 'Step 1: find the exit.\nStep 2: there is no step 2.', color: 2, t: now - 3600000 }
       ]);
-      const today = new Date(); today.setHours(15, 0, 0, 0);
-      const tomorrow = new Date(today.getTime() + 86400000); tomorrow.setHours(18, 0, 0, 0);
+      const hd = HellTime.day(), ht = HellTime.total();
       Store.set('events', [
-        { id: U.uid(), title: 'Torment orientation', time: today.getTime(), note: 'Bring a pen', notified: today.getTime() < now },
-        { id: U.uid(), title: 'Ferry with Charon', time: tomorrow.getTime(), note: 'Acheron Dock, one coin', notified: false }
+        { id: U.uid(), title: 'Torment orientation', hell: hd * 1440 + 15 * 60, note: 'Bring a pen', notified: hd * 1440 + 15 * 60 < ht },
+        { id: U.uid(), title: 'Ferry with Charon', hell: (hd + 1) * 1440 + 18 * 60, note: 'Acheron Dock, one coin', notified: false }
       ]);
       Store.set('alarms', [
-        { id: U.uid(), h: 6, m: 6, label: 'Rise and burn', on: false, days: [1, 2, 3, 4, 5] },
+        { id: U.uid(), h: 6, m: 6, label: 'Rise and burn', on: false, days: [0, 1, 2, 3, 4] },
         { id: U.uid(), h: 13, m: 13, label: 'Midday torment', on: false, days: [] }
       ]);
       Store.set('vfs', Seed.vfs());

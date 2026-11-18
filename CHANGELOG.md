@@ -1,5 +1,14 @@
 # HellOS changelog
 
+## 6.12.0 — the whole OS runs on Hell time
+- The status bar, lock screen, home clock, notification shade, message times ("Read 8:12"), call log, notifications and "5 min ago" labels all show **Hell time and the Hell date**, not the real clock.
+- **Doom Clock:** alarms ring at Hell times on Hell weekdays (Moltenday to Doomday), snooze is 5 Hell minutes, and "rings in…" counts Hell time. The world clock shows the circles relative to Hell time, plus real Earth time for reference. Timer and stopwatch still measure real seconds.
+- **Dates** is now a Hell calendar: 28-day months, the Six Nameless Days, festivals and rest days marked, your plans with residents listed, and events set in Hell time. Older events are converted.
+- **Omens** forecasts by Hell hour and Hell weekday, and the seasons change the temperature (the Searing is hot, the Hollow Frost is cold).
+- Change the pace of time in Almanac; Rites → Date & time points there.
+- **One in-game weather system** (`js/core/weather.js`) driven by Hell time, the season and the circle: Omens, the home and lock screen widgets, the Almanac and what residents say all show the same weather. Each circle has its own (Cocytus is always frozen, the Lake of Fire is always hot), the weather changes through the day, and seasons bring their own: ember storms in the Kindling, hellfire in the Searing, ashfall and blood rain in the Ashfall, black frost and cinder sleet in the Hollow Frost.
+- **Weather changes residents' days:** in storms, blood rain, hellfire or black frost they skip outdoor hobbies (the Lake of Fire, Styx Marsh, the Burning Sands…), move meet-ups indoors, and are a bit grumpier. Ask them about the weather and they describe their own circle's, plus what Omens says is coming.
+
 ## 6.11.0 — conversations that feel alive
 - **Follow-ups:** "why?", "how?", "what happened?", "who?", "where?", "really?", "tell me more", "oh no", "same" now build on what the resident just said: the story behind their weird day, why they hate their rival, what their boss is like, more about a friend or a place, why they like or hate something.
 - **Plans with you:** ask a resident to hang out ("wanna grab dinner tonight at the Night Market?", "meet me at the Lake of Fire tomorrow at 8", "come to the Great Broil"). They say yes, no, or offer another time if they're working or asleep, depending on how much they like you. The plan goes into their day (Census shows it), they text "I'm here!" when they arrive, and you reply "I'm here" or "omw" to show up. Turn up and they like you more; stand them up and they won't forget. "Are we still on?" and "I can't make it" work too, and residents who like you sometimes invite you.

@@ -4,7 +4,7 @@
   const $ = U.$;
   const DOCK = ['calls', 'pacts', 'brimstone', 'pyrecam'];
   const DEFAULT_HOME = ['relics', 'souls', 'census', 'grimoire', 'almanac', 'lament', 'doomclock', 'hellscape', 'hellplay', 'scribe', 'rites'];
-  let drawer = null, clockEl = null, dateEl = null;
+  let drawer = null, clockEl = null, dateEl = null, wxEl = null, wxKey = '';
 
   function homeApps() {
     const list = Store.settings().homeApps || DEFAULT_HOME;
@@ -64,9 +64,9 @@
       const s = Store.settings();
       const now = new Date();
       clockEl = h('div.big-clock', U.time(now));
-      dateEl = h('div.date', U.dateShort(now) + (window.HellTime ? '  ⛧ ' + HellTime.short() + ' ' + HellTime.clock() : ''));
+      dateEl = h('div.date', U.dateLong(now) + (window.HellTime ? ', ' + HellTime.date().year + ' AF' : ''));
       const glance = h('div.glance', {role:'button',tabindex:'0','aria-label':'Open Clock'}, clockEl, dateEl,
-        h('div.line', (window.Omens?Omens.currentSymbol(18):icon('flame',16)), h('span', window.Omens ? Omens.summary() : '')));
+        (wxEl = h('div.line', (window.Omens?Omens.currentSymbol(18):icon('flame',16)), h('span', window.Omens ? Omens.summary() : ''))));
       glance.addEventListener('click', () => OS.open('doomclock'));
       glance.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();OS.open('doomclock')}});
 
@@ -131,7 +131,8 @@
     refreshBadges() { if (!OS.fg) Home.render(); },
     refreshClock() {
       if (clockEl) clockEl.textContent = U.time(new Date());
-      if (dateEl) dateEl.textContent = U.dateShort(new Date()) + (window.HellTime ? '  ⛧ ' + HellTime.short() + ' ' + HellTime.clock() : '');
+      if (wxEl && window.Omens) { const k = Omens.summary(); if (k !== wxKey) { wxKey = k; U.clear(wxEl); wxEl.append(Omens.currentSymbol(18), h('span', k)); } }
+      if (dateEl) dateEl.textContent = U.dateLong(new Date()) + (window.HellTime ? ', ' + HellTime.date().year + ' AF' : '');
     },
     DOCK, DEFAULT_HOME
   };

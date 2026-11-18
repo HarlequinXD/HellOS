@@ -1,8 +1,8 @@
 /* Omens: weather for the nine circles. Forecasts are deterministic per day and place. */
 (function () {
   const PLACES = [
-    { n: 'Wrath (Fifth Circle)', base: 38 }, { n: 'Limbo', base: 14 }, { n: 'Lust', base: 31 }, { n: 'Gluttony', base: 22 },
-    { n: 'Greed', base: 34 }, { n: 'City of Dis', base: 52 }, { n: 'Lake of Fire', base: 66 }, { n: 'Lake Cocytus', base: -40 }
+    { n: 'Wrath (Fifth Circle)', c: 4 }, { n: 'Limbo', c: 0 }, { n: 'Lust', c: 1 }, { n: 'Gluttony', c: 2 },
+    { n: 'Greed', c: 3 }, { n: 'City of Dis', c: 5 }, { n: 'Lake of Fire', c: 6 }, { n: 'Lake Cocytus', c: 8 }, { n: 'Malebolge (Fraud)', c: 7 }
   ];
   const CONDS = [
     { n: 'Sulphur haze', i: 'cloud' }, { n: 'Brimstone showers', i: 'rain' }, { n: 'Ember storm', i: 'bolt' },
@@ -20,18 +20,11 @@
       h('img', { src: Art.get('weather', String(cond.art || 0)), alt: '' }));
   }
   function place() { return PLACES[Store.get('omensPlace', 0)] || PLACES[0]; }
-  function wx(p, date, hour) {
-    const r = U.rng(p.n + U.dayKey(date) + (hour == null ? '' : ':' + hour));
-    const day = U.rng(p.n + U.dayKey(date));
-    const dayBase = p.base + Math.round((day() - 0.5) * 10);
-    const temp = hour == null ? dayBase : Math.round(dayBase - 6 + 10 * Math.sin((hour - 9) / 24 * Math.PI * 2) * 0.6 + (r() - 0.5) * 3);
-    let cond = p.base < 0 ? { n: 'Frozen solid', i: 'cloud', art:7 } : CONDS[Math.floor((hour == null ? day() : (day() * 0.7 + r() * 0.3)) * CONDS.length)];
-    if(cond.art===3&&hour!=null&&(hour<6||hour>=19))cond={n:'Clear night',i:'moon',art:8};
-    return { temp, cond, hi: dayBase + 4, lo: dayBase - 7, sulphur: Math.round(day() * 10), screams: Math.round(10 + day() * 60) };
-  }
+  // the one in-game weather system (weather.js), by circle, Hell day and Hell hour
+  function wx(p, n, hour) { return HellWeather.at(p.c, n, hour); }
   window.Omens = {
-    currentSymbol(size){return symbol(wx(place(),new Date(),new Date().getHours()).cond,size)},
-    summary() { const p = place(); const w = wx(p, new Date(), new Date().getHours()); return w.temp + '° · ' + w.cond.n; }
+    currentSymbol(size){return symbol(wx(place(),HellTime.day(),Math.floor(HellTime.min()/60)).cond,size)},
+    summary() { const p = place(); const w = wx(p, HellTime.day(), Math.floor(HellTime.min() / 60)); return w.temp + '° · ' + w.cond.n; }
   };
 
   OS.register({
@@ -49,20 +42,19 @@
         U.clear(wrap);
         const p = place();
         if (!OS.online()) { wrap.append(UI.appbar({ title: 'Omens', back: false }), UI.offline(draw, 'Omens')); return; }
-        const now = new Date();
-        const w = wx(p, now, now.getHours());
-        const d = wx(p, now);
+        const today = HellTime.day(), hr = Math.floor(HellTime.min() / 60);
+        const w = wx(p, today, hr);
+        const d = wx(p, today);
         const hours = h('div.wx-hours');
         for (let i = 0; i < 12; i++) {
-          const t = new Date(now.getTime() + i * 3600000); t.setMinutes(0);
-          const x = wx(p, t, t.getHours());
-          hours.appendChild(h('div', h('span', i === 0 ? 'Now' : U.time(t).replace(/:00$/, '') + (Store.settings().time24 ? '' : U.ampm(t).toLowerCase())), symbol(x.cond,32), h('span', x.temp + '°')));
+          const H2 = hr + i, n = today + Math.floor(H2 / 24), hh = H2 % 24;
+          const x = wx(p, n, hh);
+          hours.appendChild(h('div', h('span', i === 0 ? 'Now' : (Store.settings().time24 ? String(hh).padStart(2, '0') : (hh % 12 || 12) + (hh < 12 ? 'am' : 'pm'))), symbol(x.cond,32), h('span', x.temp + '°')));
         }
         const week = h('div.list.wx-week');
         for (let i = 0; i < 7; i++) {
-          const t = new Date(now.getTime() + i * 86400000);
-          const x = wx(p, t);
-          week.appendChild(h('div.li', h('div', { style: 'width:47px;flex-shrink:0;font-weight:600' }, i === 0 ? 'Today' : U.DAYS[t.getDay()].slice(0, 3)), h('div', { style: 'color:var(--accent)' }, symbol(x.cond,28)), h('div.grow.muted', { style: 'font-size:12px;padding-left:4px;min-width:0' }, x.cond.n), h('div', x.hi + '° / ' + x.lo + '°')));
+          const x = wx(p, today + i);
+          week.appendChild(h('div.li', h('div', { style: 'width:47px;flex-shrink:0;font-weight:600' }, i === 0 ? 'Today' : HellTime.date(today + i).weekdayName.slice(0, 3)), h('div', { style: 'color:var(--accent)' }, symbol(x.cond,28)), h('div.grow.muted', { style: 'font-size:12px;padding-left:4px;min-width:0' }, x.cond.n), h('div', x.hi + '° / ' + x.lo + '°')));
         }
         const stat = (l, v) => h('div.card', { style: 'flex:1;min-width:140px' }, h('div.muted', { style: 'font-size:12px' }, l), h('div', { style: 'font-size:22px;font-weight:700;margin-top:4px' }, v));
         wrap.append(
