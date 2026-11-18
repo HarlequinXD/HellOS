@@ -291,6 +291,7 @@
     const friend = p.friends.length ? Residents.get(p.friends[0]).first : 'someone at the Pit';
     const line = Mind.expand(['{Hey,|Hi,|Um, hi.} {is this the new HellOS number|is this the soul with the new phone}? {I\'m [n]|It\'s [n] here}{.|!} {[f] gave me your number.|Got your number from [f].|Found your number on The Pit.}', '{Wrong number, sorry|Oops, wrong soul}{.|!} {I\'m [n] btw.|This is [n]. Hi I guess.}', '{Hello|Hey}{, stranger|}. {I\'m [n], from [h].|[n] here. I live in [h].} {Thought I\'d say hi.|We should be friends. Or enemies. Your choice.}'], { n: p.name, f: friend, h: p.home });
     Chat.deliver(c.id, [line], 0);
+    if (window.Journal) { Journal.person(p.id, 'name', 'Name: ' + p.name, p.id); Journal.person(p.id, 'home', 'Lives in ' + p.home, p.id); }
   }
 
   window.Chat = Chat;

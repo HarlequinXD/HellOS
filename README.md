@@ -26,6 +26,8 @@ The APK is signed with the fixed key in `keystore/`, so new builds install over 
 | Calls | Keypad with tones, recents, favourites, contacts. Characters answer and talk; 666 is the Hell Hotline. Incoming calls happen on their own. |
 | Pacts | Messaging. Every resident of Hell answers in their own texting style, remembers what you tell them, likes or dislikes you, and texts you on their own. Tap their bubble to hear their voice. |
 | Souls | Contacts: add, edit, star, delete, circles. |
+| Grimoire | Your memory: everything residents have told you about themselves, each other, places and the world, with who told you and when, plus your own notes. |
+| Almanac | Hell's own calendar and clock: 6666 AF, four seasons, festivals, a 7-day week and the pace of Hell time. |
 | Census | All 666 residents of Hell: portrait, what they are doing right now, the record of their day and the last week, lore, personality, friends and rivals, and how much they like you. |
 | Pyre Cam | Uses the real camera, with hellish filters, a timer, a grid and front/back switching. |
 | Relics | Gallery: view, swipe, delete, set as wallpaper. |

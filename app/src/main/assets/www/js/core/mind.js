@@ -59,7 +59,7 @@
   function T(name, list) { SAID.push([name, list]); return list; }
 
   // ================================================================ state
-  function minds() { return Store.get('minds', {}); }
+  function minds() { let m = Store.get('minds', null); if (!m) { m = {}; Store.set('minds', m); } return m; }
   function state(rid) {
     const all = minds();
     if (!all[rid]) {
@@ -182,6 +182,9 @@
     ['weather', / weather | raining | hot today | cold today | sky /],
     ['news', / news | what is happening | what is going on | heard anything | gossip | hear about /],
     ['joke', / joke | make me laugh | something funny | funny /],
+    ['date', / what day is it | what is the date | what is today | today s date | the date | what month | what year | what day /],
+    ['season', / season | what time of year /],
+    ['festival', / festivals? | holidays? | celebrat\w* | party tonight | anything on | next event | events? /],
     ['time', / what time | the time /],
     ['love', / i love you | love you | i adore you /],
     ['flirt', / date me | go out with me | marry me | kiss | you are (?:so |really |very )?(?:cute|hot|pretty|beautiful|handsome|gorgeous|sexy) | wanna date | be my /],
@@ -292,6 +295,7 @@
       case 'hobby': return E('{Just|Currently|Right now I\'m} at [where]. {I [act].|Spent a while here already, I [act].}', { where, act });
       case 'social': return E('{Out with|Hanging with|With} [w] at [where]{. We [what].|. We\'re having fun.|!}', { w, where, what: act.replace(/ with .*$/, '') });
       case 'errand': return E('{Running errands|Out and about|Doing chores} at [where]. {I [act].|}', { where, act });
+      case 'festival': return E('{At|Out at|Celebrating at} [where] for [f]{!|. Happy [f]!|. It\'s packed.}', { where, f: (HellTime.festival() || { name: 'the festival' }).name });
       case 'clash': return E('{Dealing with|Trying to avoid} [w] at [where]. {Don\'t ask.|It\'s getting heated.|Ugh.}', { w, where });
       default: return E('{Just|Chilling|Hanging out|Lounging|Relaxing} at home{. I [act].|, nothing exciting.| in [hood].|. Quiet day.|. I just [act].}', { act, hood: p.home });
     }
@@ -342,8 +346,9 @@
     return { p, st, nb, tl, tr: tr.id, pname: name ? name.v : '', world: R.world(), pet: petName(p, tr.id) };
   }
   const coldTier = c => c.tr === 'hate' || c.tr === 'dislike';
-  function guarded(c, base) { if (c.tr === 'hate' && chance(0.6)) return E(REFUSE, { pet: c.pet }); if (c.tr === 'dislike' && chance(0.3)) return E(REFUSE, { pet: c.pet }); return null; }
-  function idk(c) { return E(IDK, { pet: c.pet }); }
+  function guarded(c, base) { if ((c.tr === 'hate' && chance(0.6)) || (c.tr === 'dislike' && chance(0.3))) { c.refused = true; return E(REFUSE, { pet: c.pet }); } return null; }
+  function idk(c) { c.refused = true; return E(IDK, { pet: c.pet }); }
+  const no = (c, s) => { c.refused = true; return s; };
 
   function relationTo(p, q) {
     if (p.partner === q.id) return 'partner';
@@ -518,10 +523,10 @@
   H.where_now = c => guarded(c) || E('{I\'m at [w]|At [w] right now|Currently at [w]|[w]|Right now? [w]|I\'m over at [w]|Stuck at [w]}{.|!|, why?|, how about you?|, where are you?|. Come say hi.|. Why, you stalking me?}', { w: c.nb.kind === 'commute' ? 'on my way somewhere' : c.nb.where });
   H.doing_now = c => guarded(c) || nowPhrase(c.p, c.nb);
   H.day = c => guarded(c) || summarise(c.p, R.log(c.p), c.tl.mood, 'present');
-  H.yesterday = c => guarded(c) || summarise(c.p, R.log(c.p, Date.now() - 86400000), R.day(c.p, Date.now() - 86400000).mood, 'past');
+  H.yesterday = c => guarded(c) || summarise(c.p, R.log(c.p, HellTime.day() - 1), R.day(c.p, HellTime.day() - 1).mood, 'past');
   H.tomorrow = c => {
     const g = guarded(c); if (g) return g;
-    const d = R.day(c.p, Date.now() + 86400000);
+    const d = R.day(c.p, HellTime.day() + 1);
     const work = d.find(b => b.kind === 'work' && b.s > 0);
     const soc = d.find(b => b.kind === 'social'), hob = d.find(b => b.kind === 'hobby');
     let s = work ? E('{I\'m working|Work|I\'ve got a shift} {at [w] |}from [s] to [e]{.|, ugh.|. Thrilling.}', { w: R.placeName(c.p, work.place), s: R.fmt(work.s), e: R.fmt(d.filter(b => b.kind === 'work').slice(-1)[0].e) }) : E('{Day off!|No work tomorrow.|I\'m off tomorrow.}');
@@ -531,7 +536,7 @@
   };
   H.tonight = c => {
     const g = guarded(c); if (g) return g;
-    const m = new Date().getHours() * 60 + new Date().getMinutes();
+    const m = HellTime.min();
     const later = c.tl.filter(b => b.e > m && b.s >= Math.max(m, 16 * 60) && b.kind !== 'sleep');
     const soc = later.find(b => b.kind === 'social');
     if (soc) return E('{I\'m|I\'ll be} {meeting|hanging out with} [n] at [w] {around|at} [t]{.|!}', { n: R.get(soc.with).name, w: R.placeName(c.p, soc.place), t: R.fmt(soc.s) });
@@ -540,15 +545,15 @@
   };
   H.where_went = (c, d) => {
     const g = guarded(c); if (g) return g;
-    const lg = R.log(c.p, d.when === 'yesterday' ? Date.now() - 86400000 : Date.now());
+    const lg = R.log(c.p, d.when === 'yesterday' ? HellTime.day() - 1 : HellTime.day());
     const places = [...new Set(lg.filter(b => b.place !== 'home' && b.place !== 'transit').map(b => b.where))];
     if (!places.length) return E('{Nowhere|Didn\'t go anywhere|Stayed home}{.|, honestly.|. Lazy day.}');
-    if (c.p.traits.honesty < 0.2 && chance(0.4)) return E('{Just|Only} {the library|church... I mean, the Heretic Chapel|nowhere interesting}. {...Okay fine,|Fine, actually} I went to [l].', { l: places.join(' and ') });
+    if (c.p.traits.honesty < 0.2 && chance(0.4)) return no(c, E('{Just|Only} {the library|church... I mean, the Heretic Chapel|nowhere interesting}. {...Okay fine,|Fine, actually} I went to [l].', { l: places.join(' and ') }));
     return E('{I went to|I was at|Been to} [l]{.|. Busy day.}', { l: places.slice(0, 3).join(', ').replace(/, ([^,]*)$/, ' and $1') });
   };
   H.who_seen = (c, d) => {
     const g = guarded(c); if (g) return g;
-    const lg = R.log(c.p, d.when === 'yesterday' ? Date.now() - 86400000 : Date.now());
+    const lg = R.log(c.p, d.when === 'yesterday' ? HellTime.day() - 1 : HellTime.day());
     const w = lg.filter(b => b.with != null);
     if (!w.length) return E('{Nobody really|No one special|Just coworkers|Honestly no one}{.|. Lonely day.}');
     return w.map(b => b.kind === 'clash' ? E('{Ran into|Bumped into} [n] at [w]{, ugh.|. We don\'t get along.}', { n: R.get(b.with).name, w: b.where }) : E('{I saw|I was with|Hung out with} [n] at [w]{.|!}', { n: R.get(b.with).name, w: b.where })).join(' ');
@@ -558,7 +563,7 @@
     const knows = rel !== 'stranger' && rel !== 'neighbour';
     const n = q.first === c.p.first ? q.name : q.first;
     if (/ (where is|what is .* doing|have you seen|did you see|is .* (okay|ok)) /.test(t)) {
-      const lg = R.log(c.p, d.when === 'yesterday' ? Date.now() - 86400000 : Date.now());
+      const lg = R.log(c.p, d.when === 'yesterday' ? HellTime.day() - 1 : HellTime.day());
       const met = lg.find(b => b.with === q.id);
       if (met) return E('{Yeah, I saw [n] at [w]|I was with [n] at [w]|Ran into [n] at [w]}{.|!|, earlier.}', { n, w: met.where });
       if (knows || c.p.traits.gossip > 0.65) { const qn = R.now(q); return E('{Last I heard|I think|Pretty sure} [n] is {at|over at} [w]{.|. Last I heard they [a].}', { n, w: qn.where, a: lc(qn.act) }); }
@@ -586,29 +591,29 @@
   H.how_are = c => {
     const m = c.tl.mood;
     const base = E('{I\'m|Doing|Feeling|Honestly,|Eh,|Oh,} [adj]{.|, thanks.|, you?|. Could be worse. I could be in Heaven.|, thanks for asking.|. How about you?|, all things considered.}', { adj: gen(parse(m >= 2 ? '{great|really good|pretty good|amazing|on fire (literally)|fantastic}' : m >= 0 ? '{fine|okay|alright|not bad|surviving|decent|same as ever}' : '{meh|tired|not great|kind of rubbish|cranky|grumpy|over it}'), {}) });
-    const inc = c.tl.find(b => b.incident && b.s <= new Date().getHours() * 60);
+    const inc = c.tl.find(b => b.incident && b.s <= HellTime.min());
     return base + (inc && chance(0.5) ? E(' {I [i] today.|Earlier I [i].}', { i: fp(inc.incident) }) : '');
   };
   H.secret = c => {
     if (c.tr === 'close' || c.tr === 'devoted') return E('{Okay. Don\'t tell anyone, but|Fine, only because it\'s you:|Promise you won\'t laugh?} I [s].', { s: fp(c.p.lore.secret, true) });
-    if (c.tr === 'like') return E('{Maybe one day.|Ask me again when we\'re closer.|Hmm, not yet. Earn it.}');
-    return E('{Nice try.|Ha. No.|We\'re not there yet.|Secrets are for friends.}');
+    if (c.tr === 'like') return no(c, E('{Maybe one day.|Ask me again when we\'re closer.|Hmm, not yet. Earn it.}'));
+    return no(c, E('{Nice try.|Ha. No.|We\'re not there yet.|Secrets are for friends.}'));
   };
-  H.fear = c => guarded(c) || (c.tr === 'wary' ? E('{Why, so you can use it against me?|Nothing. I fear nothing.}') : E('{Honestly?|Don\'t laugh, but|Promise not to tell?} {[f].|I\'m scared of [f].|[f]. Every time.}', { f: c.p.lore.fear }));
+  H.fear = c => guarded(c) || (c.tr === 'wary' ? no(c, E('{Why, so you can use it against me?|Nothing. I fear nothing.}')) : E('{Honestly?|Don\'t laugh, but|Promise not to tell?} {[f].|I\'m scared of [f].|[f]. Every time.}', { f: c.p.lore.fear }));
   H.dream = c => guarded(c) || E('{One day I want to|My dream is to|I really want to|Someday I\'ll} [d]{.|!|. Don\'t laugh.}', { d: fp(c.p.lore.dream) });
   H.origin = c => {
     const g = guarded(c); if (g) return g;
     const L = c.p.lore;
-    if (c.tr === 'wary' && chance(0.5)) return E('{That\'s personal.|We don\'t ask that down here.|Long story. Maybe later.}');
+    if (c.tr === 'wary' && chance(0.5)) return no(c, E('{That\'s personal.|We don\'t ask that down here.|Long story. Maybe later.}'));
     if (!L.origin) return E('{I\'m from here.|Born and raised in Hell.|I\'m a local.} I [h]{.|!}', { h: fp(L.how) });
-    if (c.p.traits.honesty < 0.25 && chance(0.5)) return E('{I\'m from [o]. I was framed. Totally innocent.|[o]. And I didn\'t do it. ...Okay, I} [h]{.|. Happy?}', { o: L.origin, h: fp(L.how) });
+    if (c.p.traits.honesty < 0.25 && chance(0.5)) return no(c, E('{I\'m from [o]. I was framed. Totally innocent.|[o]. And I didn\'t do it. ...Okay, I} [h]{.|. Happy?}', { o: L.origin, h: fp(L.how) }));
     return E('{I\'m from [o].|Originally? [o].|I lived in [o].} {I ended up down here because I|Got sent down because I|My sin? I} [h]{.|. Worth it.|. No regrets. Some regrets.}', { o: L.origin, h: fp(L.how) });
   };
   H.age = c => guarded(c) || (c.p.lore.origin ? E('{I\'ve been down here|Been dead} {about|roughly|for} [y] years{.|. Time flies.|, give or take.}', { y: c.p.lore.years }) : E('{I\'m about|Roughly|Around} [y] years old{.|. Young, for a [k].|. Don\'t ask a [k] their age.}', { y: c.p.lore.years, k: c.p.kind }));
   H.job = c => {
     const p = c.p;
     if (!p.job.place) return E('{I\'m between torments right now.|No job. I\'m "between torments".|Unemployed. Eternally.} {Living the dream.|Got any leads?|}');
-    const days = ['Thursday', 'Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday'];
+    const days = HellTime.WEEKDAYS;
     return E('{I\'m {a|an}|I work as {a|an}} [t] at [w]{.|!} {My shift is [s] to [e].|I work [s] to [e], except [o].|}', { t: p.job.title, w: R.PLACES[p.job.place].n, s: R.fmt(p.shift[0] * 60), e: R.fmt(p.shift[1] * 60), o: days[p.offDays[0]] + 's and ' + days[p.offDays[1]] + 's' });
   };
   H.home = c => guarded(c) || E('{I live in|My place is in|Home is|I\'ve got a place in|I rent a hole in} [h]{, in the [ci] circle|, circle of [ci]|}{.|. Come visit. Or don\'t.|. It\'s cosy. And on fire.|. Rent is one soul a month.}', { h: c.p.home, ci: R.CIRCLES[c.p.circle] });
@@ -649,7 +654,24 @@
   H.weather = c => E('{It\'s|We\'ve got|Today it\'s|Outside it\'s|Forecast says} [w]{.| as usual.| again. Lovely.|. Bring a cloak.|. Typical Hell.}', { w: c.world.weather });
   H.news = c => E('{Did you hear|Apparently|Big news:|You heard?|Word is|Everyone\'s saying} [h]{!|.|. Wild.|. Classic Hell.|. I\'m not even surprised.}', { h: c.world.headline });
   H.joke = c => E(JOKES, { kind: c.p.kind, place: c.p.job.place ? R.PLACES[c.p.job.place].n : 'the Throne' });
-  H.time = () => E('{It\'s|About} [t]{.|. Time flies when you\'re damned.|. Not that time means much here.}', { t: U.time(Date.now()) });
+  H.time = () => E('{It\'s|About} [t]{.|. Time flies when you\'re damned.|. Not that time means much here.}', { t: HellTime.clock() });
+  H.date = c => {
+    const d = HellTime.date(), f = d.festival;
+    let s = E('{It\'s|Today is|Today\'s} [l], [y] AF{.|!}', { l: HellTime.label(), y: d.year });
+    if (f) s += ' ' + E('{It\'s [f]!|Happy [f]!|And it\'s [f], obviously.}', { f: f.name });
+    return s;
+  };
+  H.season = c => { const d = HellTime.date(); return E('{It\'s|We\'re in} [s]{.|. [b]}', { s: d.seasonName, b: HellTime.SEASONS[d.season].blurb.split('. ')[0] + '.' }); };
+  H.festival = c => {
+    const d = HellTime.date(), f = d.festival;
+    if (f) {
+      const mine = c.tl.find(b => b.kind === 'festival' || b.place === f.place);
+      return E('{It\'s [f] today!|Today\'s [f]!|Happy [f]!}', { f: f.name }) + ' ' + (mine && !coldTier(c) ? E('{I\'m going to [w] tonight.|I\'ll be at [w] later.|See you at [w]?}', { w: R.PLACES[f.place].n }) : E('{Not really my thing though.|I might skip it this year.|I have to work, ugh.}'));
+    }
+    const up = HellTime.upcoming(1, HellTime.day() + 1)[0];
+    if (!up) return idk(c);
+    return E('{Next up is|The next festival is|Coming up:} [f], {in [n] days|[n] days from now|on [l]}{.|! [b]|. Can\'t wait.}', { f: up.f.name, n: up.inDays + 1, l: HellTime.label(up.n), b: up.f.blurb.split('. ')[0] + '.' });
+  };
   H.help = c => coldTier(c) ? E('{Help yourself.|No.}') : E('{Sure, what do you need?|Depends. What is it?|I can try. What\'s up?}');
   H.love = c => {
     if (c.tr === 'devoted') { bump(c.st, 2); return E('{Love you too, you menace.|Aww. Love you too.|I know. Love you back.}'); }
@@ -708,6 +730,78 @@
   H.no = c => E('{Oh. Okay.|Fair.|No? Alright.|Hm, okay.}');
   H.ok = c => E(REACT);
 
+  // ================================================================ the player's Grimoire
+  const DAYS = HellTime.WEEKDAYS;
+  const HD = () => HellTime.key(HellTime.day());
+  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+  const POS3 = p => ({ she: 'her', he: 'his', they: 'their' })[p.pron];
+  const third = (p, s) => s.replace(/\btheir\b/g, POS3(p));
+  function didList(p, entries) {
+    const acts = entries.filter(b => b.kind !== 'sleep' && b.kind !== 'commute').map(b => third(p, b.act) + (b.kind === 'work' || b.kind === 'social' || b.kind === 'hobby' ? ' (' + b.where + ')' : ''));
+    const inc = entries.find(b => b.incident);
+    return acts.length ? cap(acts.join('; ')) + '.' + (inc ? ' Also ' + third(p, inc.incident) + '.' : '') : null;
+  }
+  function relText(rel, name) { return ({ partner: 'Partner of ' + name, sibling: 'Sibling of ' + name, rival: 'Rivals with ' + name, friend: 'Friends with ' + name, coworker: 'Works with ' + name, neighbour: 'Neighbours with ' + name })[rel] || null; }
+  const RECORD = {
+    myname: c => JP(c, c.p.id, 'name', 'Name: ' + c.p.name),
+    kind: c => JP(c, c.p.id, 'kind', cap(c.p.kind)),
+    identity: c => { RECORD.myname(c); RECORD.kind(c); if (c.p.lore.origin) JP(c, c.p.id, 'origin', 'From ' + c.p.lore.origin); RECORD.job(c, true); },
+    job: (c, short) => { const p = c.p; if (!p.job.place) { JP(c, p.id, 'job', 'No job (between torments)'); return; } JP(c, p.id, 'job', cap(p.job.title) + ' at ' + R.PLACES[p.job.place].n + (short ? '' : ', ' + R.fmt(p.shift[0] * 60) + '–' + R.fmt(p.shift[1] * 60) + ', off ' + DAYS[p.offDays[0]] + 's and ' + DAYS[p.offDays[1]] + 's')); Journal.place(p.job.place, 'staff:' + p.id, p.name + ' works here as ' + p.job.title, p.id); },
+    home: c => JP(c, c.p.id, 'home', 'Lives in ' + c.p.home + ' (circle of ' + R.CIRCLES[c.p.circle] + ')'),
+    origin: c => { const L = c.p.lore; if (L.origin) JP(c, c.p.id, 'origin', 'From ' + L.origin); JP(c, c.p.id, 'sin', (L.origin ? 'Ended up in Hell because ' + c.p.pron + ' ' : cap(c.p.pron) + ' ') + third(c.p, L.how)); },
+    age: c => JP(c, c.p.id, 'age', c.p.lore.origin ? 'Has been dead about ' + c.p.lore.years + ' years' : 'About ' + c.p.lore.years + ' years old'),
+    fear: c => JP(c, c.p.id, 'fear', 'Afraid of ' + c.p.lore.fear),
+    dream: c => JP(c, c.p.id, 'dream', 'Dreams of being able to ' + third(c.p, c.p.lore.dream)),
+    secret: c => JP(c, c.p.id, 'secret', '🔓 Secret: ' + third(c.p, c.p.lore.secret)),
+    quirk: c => JP(c, c.p.id, 'quirk', 'Quirk: ' + third(c.p, c.p.lore.quirk)),
+    hobby: c => JP(c, c.p.id, 'hobby', 'Into ' + c.p.hobbies.slice(0, 2).map(h => h[0]).join(' and ')),
+    likes: c => JP(c, c.p.id, 'likes', 'Likes ' + c.p.likes[0] + ', ' + c.p.likes[1] + ' and ' + c.p.fav.food),
+    dislikes: c => JP(c, c.p.id, 'dislikes', 'Can’t stand ' + c.p.dislikes[0] + ' or ' + c.p.dislikes[1]),
+    fav: (c, d, t) => { const m = t.match(/ favourite ([a-z]+) /); const k = m && FAV_KEYS[m[1]]; if (!m || / favourites /.test(t)) { ['food', 'drink', 'music'].forEach(k2 => JP(c, c.p.id, 'fav:' + k2, 'Favourite ' + k2 + ': ' + c.p.fav[k2])); return; } if (k) JP(c, c.p.id, 'fav:' + k, 'Favourite ' + k + ': ' + c.p.fav[k]); },
+    partner: c => { if (c.p.partner != null) relBoth(c, c.p, R.get(c.p.partner), 'partner'); else JP(c, c.p.id, 'single', 'Single'); },
+    family: c => { if (c.p.family) relBoth(c, c.p, R.get(c.p.family.id), 'sibling'); },
+    friends: c => c.p.friends.slice(0, 3).forEach(f => relBoth(c, c.p, R.get(f), 'friend')),
+    enemies: c => { if (c.p.rivals.length) relBoth(c, c.p, R.get(c.p.rivals[0]), 'rival'); },
+    opinion_me: c => JP(c, c.p.id, 'feels', 'Feels about you: ' + tier(c.st.aff).label),
+    where_now: c => JS(c, c.p.id, c.nb.kind === 'commute' ? 'On the move' : 'At ' + c.nb.where),
+    doing_now: c => JS(c, c.p.id, c.nb.kind === 'sleep' ? 'Asleep at home' : cap(third(c.p, c.nb.act)) + ' (' + c.nb.where + ')'),
+    day: c => JD(c, c.p.id, HD(), didList(c.p, R.log(c.p))),
+    yesterday: c => JD(c, c.p.id, HellTime.key(HellTime.day() - 1), didList(c.p, R.log(c.p, HellTime.day() - 1))),
+    where_went: (c, d) => { const dt = d.when === 'yesterday' ? HellTime.day() - 1 : HellTime.day(); const pl = [...new Set(R.log(c.p, dt).filter(b => b.place !== 'home' && b.place !== 'transit').map(b => b.where))]; if (pl.length) JD(c, c.p.id, HellTime.key(dt) + ' places', 'Went to ' + pl.join(', ')); },
+    who_seen: (c, d) => { const dt = d.when === 'yesterday' ? HellTime.day() - 1 : HellTime.day(); R.log(c.p, dt).filter(b => b.with != null).forEach(b => { const q = R.get(b.with); const when = d.when === 'yesterday' ? ' (yesterday)' : ''; JS(c, c.p.id, (b.kind === 'clash' ? 'Clashed with ' : 'With ') + q.name + ' at ' + b.where + when); JS(c, q.id, (b.kind === 'clash' ? 'Clashed with ' : 'With ') + c.p.name + ' at ' + b.where + when); }); },
+    tomorrow: c => { const dt = HellTime.day() + 1; const tl = R.day(c.p, dt); const w = tl.filter(b => b.kind === 'work' && b.s > 0); const soc = tl.find(b => b.kind === 'social'); JD(c, c.p.id, HellTime.key(dt) + ' plans', 'Plans: ' + (w.length ? 'work at ' + R.placeName(c.p, w[0].place) + ' ' + R.fmt(w[0].s) + '–' + R.fmt(w[w.length - 1].e) : 'day off') + (soc ? '; seeing ' + R.get(soc.with).name + ' at ' + R.placeName(c.p, soc.place) + ' in the evening' : '') + '.'); },
+    tonight: c => { const soc = c.tl.find(b => b.kind === 'social'); if (soc) JD(c, c.p.id, HD() + ' plans', 'Tonight: ' + third(c.p, soc.act) + ' at ' + R.placeName(c.p, soc.place) + ', ' + R.fmt(soc.s) + '.'); },
+    person: (c, d, t) => {
+      const q = d.person, rel = relationTo(c.p, q);
+      if (/ (where is|what is .* doing|have you seen|did you see|is .* (okay|ok)) /.test(t)) {
+        const met = R.log(c.p).find(b => b.with === q.id);
+        if (met) JS(c, q.id, 'With ' + c.p.name + ' at ' + met.where);
+        else { const qn = R.now(q); JS(c, q.id, qn.kind === 'sleep' ? 'Asleep at home' : 'At ' + qn.where); }
+        return;
+      }
+      if (rel === 'stranger') { JP(c, q.id, 'kind', cap(q.kind) + ' (rumour)'); JP(c, q.id, 'sin', 'Rumour: ' + q.pron + ' ' + third(q, q.lore.how)); return; }
+      if (rel === 'neighbour') { JP(c, q.id, 'home', 'Lives in ' + q.home); JP(c, q.id, 'job', cap(q.job.title) + ' (heard from a neighbour)'); return; }
+      relBoth(c, c.p, q, rel);
+      if (rel === 'friend' || rel === 'coworker') { if (q.job.place) JP(c, q.id, 'job', cap(q.job.title) + ' at ' + R.PLACES[q.job.place].n); JP(c, q.id, 'hobby', 'Into ' + q.hobbies[0][0]); }
+    },
+    place: (c, d) => {
+      const key = d.place, went = R.log(c.p).find(b => b.place === key);
+      if (went) Journal.place(key, 'visit:' + c.p.id + ':' + HD(), c.p.name + ' was here on ' + HellTime.label() + ' (' + third(c.p, went.act) + ')', c.p.id);
+      if (c.p.job.place === key) Journal.place(key, 'staff:' + c.p.id, c.p.name + ' works here as ' + c.p.job.title, c.p.id);
+      if (c.p.fav.place === R.PLACES[key].n) Journal.place(key, 'fav:' + c.p.id, c.p.name + '’s favourite place', c.p.id);
+    },
+    weather: c => Journal.world('weather:' + HD(), HellTime.label() + ': ' + cap(c.world.weather) + ' (' + HellTime.date().seasonName + ')', c.p.id),
+    news: c => Journal.world('news:' + HD(), HellTime.label() + ': ' + cap(c.world.headline), c.p.id),
+    date: c => { const f = HellTime.date().festival; if (f) RECORD.festival(c); },
+    season: c => { const d = HellTime.date(); Journal.world('season:' + d.season, d.seasonName + ': ' + HellTime.SEASONS[d.season].blurb, c.p.id); },
+    festival: c => { const f = HellTime.date().festival || (HellTime.upcoming(1, HellTime.day() + 1)[0] || {}).f; if (f) Journal.world('fest:' + f.id, f.name + ': ' + f.blurb + ' (' + R.PLACES[f.place].n + ')', c.p.id); }
+  };
+  function JP(c, rid, k, text) { if (window.Journal) Journal.person(rid, k, text, c.p.id); }
+  function JS(c, rid, text) { if (window.Journal) Journal.seen(rid, text, c.p.id); }
+  function JD(c, rid, dk, text) { if (window.Journal && text) Journal.day(rid, dk, text, c.p.id); }
+  function relBoth(c, a, b, rel) { const t1 = relText(rel, b.name), t2 = relText(rel, a.name); if (t1) JP(c, a.id, 'rel:' + b.id, t1); if (t2) JP(c, b.id, 'rel:' + a.id, t2); }
+
+  const INFO_EXTRA = ['date', 'season', 'festival'];
   const INFO = ['where_now', 'doing_now', 'day', 'yesterday', 'tomorrow', 'tonight', 'where_went', 'who_seen', 'origin', 'age', 'home', 'partner', 'family', 'friends', 'enemies', 'fear'];
 
   // small talk when we have nothing better: talk about their own day
@@ -741,7 +835,7 @@
       const learned = facts.length ? learn(c, facts) : '';
       const pending = st.pending && now - st.pending.t < 30 * 60000 ? st.pending : null;
       const main = d.intents.find(i => i !== 'greet' && i !== 'ok' && i !== 'yes' && i !== 'no' && i !== 'laugh') || null;
-      if (pending && !facts.length && !d.question && (!main || ['ok', 'yes', 'no', 'laugh'].indexOf(main) >= 0 || pending.k === 'opinion' || pending.k === 'name' || pending.k === 'day')) {
+      if (pending && !facts.length && !d.question && (!main || (pending.k === 'opinion' && /^(compliment|insult|love)$/.test(main)))) {
         out.push(takeAnswer(c, t, text));
       } else {
         if (pending) st.pending = null;
@@ -752,7 +846,10 @@
           const classic = p.npc && window.NPCS && NPCS[p.npc];
           const rule = classic ? classic.rules.find(r => !r.k.some(k => /^(hi|hello|hey|yo|sup|thanks|thank|lol|haha|lmao|how are|how r u|you ok)$/.test(k)) && r.k.some(k => t.indexOf(' ' + k + ' ') >= 0 || (k.length > 4 && t.indexOf(k) >= 0))) : null;
           if (rule && !/^(recall|opinion|person|insult|compliment|sorry|love|flirt)/.test(main) && INFO.indexOf(main) < 0 && chance(0.85)) out.push(pick(rule.r));
-          else out.push(H[main] ? H[main](c, d, t) || idk(c) : idk(c));
+          else {
+            out.push(H[main] ? H[main](c, d, t) || idk(c) : idk(c));
+            if (!c.refused && RECORD[main] && window.Journal) { try { RECORD[main](c, d, t); } catch (e) { console.warn(e); } }
+          }
           if (INFO.indexOf(main) >= 0 || /^(identity|hobby|fav|likes|dislikes|dream|job|myname|kind)$/.test(main)) bump(st, 0.5); // being asked about yourself is nice
         } else if (!out.length) {
           // nothing recognised
@@ -760,7 +857,7 @@
           const rule = classic ? classic.rules.find(r => r.k.some(k => t.indexOf(' ' + k + ' ') >= 0 || (k.length > 4 && t.indexOf(k) >= 0))) : null;
           if (rule) out.push(pick(rule.r));
           else if (d.intents.length) out.push(H[d.intents[0]](c, d, t));
-          else if (d.person) out.push(H.person(c, d, t));
+          else if (d.person) { out.push(H.person(c, d, t)); if (!c.refused && window.Journal) RECORD.person(c, d, t); }
           else if (d.question) out.push(idk(c));
           else { out.push(E(REACT)); const st2 = chance(0.5) ? smallTalk(c) : null; if (st2) out.push(st2); }
         }
@@ -793,6 +890,7 @@
     opts.push(() => nowPhrase(p, c.nb));
     const inc = R.log(p).find(b => b.incident); if (inc) opts.push(() => E('{Guess what, I|Omg I just|Today I} [i]{.|!|. Hell is weird.}', { i: fp(inc.incident) }));
     opts.push(() => E('{Did you hear|Have you heard|Apparently} [h]{?|!}', { h: c.world.headline }));
+    if (c.world.festival && !coldTier(c)) { opts.push(() => E('{Happy [f]!|[f] today!! You going?|It\'s [f]! See you at [w]?}', { f: c.world.festival.name, w: R.PLACES[c.world.festival.place].n })); opts.push(opts[opts.length - 1]); }
     const like = recallAll(st, 'like'); if (like.length && !coldTier(c)) opts.push(() => E('{Thought of you, saw something about|Still into|Been thinking about} [v]{?|. Made me think of you.}', { v: pick(like).v }));
     const pet = recall(st, 'pet'); if (pet && !coldTier(c)) opts.push(() => E('{How\'s your [v] doing?|Give your [v] a pat from me.}', { v: pet.v }));
     const mood = recall(st, 'mood'); if (mood && /sad|tired|stressed|lonely|awful|down|upset/.test(mood.v) && !coldTier(c)) opts.push(() => E('{Hey, just checking in. You doing okay?|Thinking of you. Feeling better?}'));
@@ -802,6 +900,10 @@
     let s = null, tries = 0;
     while (!s && tries++ < 5) s = pick(opts)();
     if (!s) return null;
+    if (window.Journal) {
+      if (s.indexOf(c.world.headline) >= 0) RECORD.news(c);
+      else if (s.indexOf(c.nb.where) >= 0) RECORD.doing_now(c);
+    }
     save();
     return split(p, style(p, s, c.tr));
   }
@@ -815,6 +917,7 @@
     const lines = [plain(hi)];
     if (c.tr === 'hate') { lines.push(plain(E('{I\'m hanging up.|Don\'t call me.|Lose my number.}'))); bump(st, 0); save(); return lines; }
     lines.push(plain(nowPhrase(p, c.nb)));
+    if (window.Journal) RECORD.doing_now(c);
     lines.push(plain(chance(0.5) ? summarise(p, R.log(p), c.tl.mood, 'present') : E('{Did you hear|Apparently} [h]?', { h: c.world.headline })));
     const like = recallAll(st, 'like');
     if (like.length && chance(0.5)) lines.push(plain(E('{Oh, and I saw something about [v] and thought of you.|Still into [v]?}', { v: pick(like).v })));

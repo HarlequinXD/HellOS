@@ -1,5 +1,15 @@
 # HellOS changelog
 
+## 6.10.0 — Hell time, festivals and your Grimoire
+- **Hell has its own time.** The world no longer follows the real clock. One Hell day lasts one real hour by default (change it in Almanac: 24 minutes, 1, 2 or 6 hours, or real time). Residents' routines, phone replies, missed-call callbacks and festivals all run on Hell time.
+- **A Hell calendar:** the year is 342 days counted from **6666 AF** (After the Fall): 12 months of 28 days (Smoulder, Cinderwane, Kindlemoon, Blazeth, Scorchtide, Pyrecrest, Ashveil, Greymere, Embersink, Rimeholt, Glacius, Frostgrave), then the **Six Nameless Days** outside the calendar.
+- **A 7-day week:** Moltenday, Ashday, Brimsday, Scorchday, Hexday, Gloomday and Doomday. Gloomday and Doomday are rest days for most residents.
+- **Four seasons:** The Kindling, The Searing, The Ashfall and The Hollow Frost, each with its own weather.
+- **Festivals:** Night of First Flame (New Year), Hatchmoon Hexday, Sulphur Sabbath (every Doomday in Blazeth), The Great Broil, Ashwake, Harvest of Souls, The Cocytus Freeze, The Longest Night, the Six Nameless Days and The Reckoning (Doom Year’s Eve). Residents go to them, meet friends there and talk about them; major festivals are holidays (except for bars, the ferry, guards and other services). You get a notification when a festival begins.
+- **New app: Almanac.** The Hell clock and date, the season, coming festivals, a month-by-month calendar and the pace of time. The home-screen clock also shows the Hell date and time.
+- **New app: Grimoire, your memory.** Everything residents tell you is written down with who told you and when: who people are, their jobs, homes, origins and sins, likes and fears, secrets you've earned, who they're friends or rivals with, what they did on which day and their plans, where people were seen, places, news, weather, seasons and festivals. Search it, browse by People, Places, World or Timeline, and keep your own notes on each person.
+- Residents answer "what day is it?", "what season is it?" and "any festivals?".
+
 ## 6.9.1 — residents have phones
 - Messages to residents now go **Sending → Delivered → Read 6:03pm**, with a Hellnet delay (usually a few seconds, sometimes a minute).
 - Their phone **buzzes** in their pocket, bag, jacket, hand, on the desk or on the charger, and you see it happen ("📳 Vex’s phone goes off in his pocket", "Vex pulls his phone out of his pocket…", "Vex is reading…", then typing).

@@ -28,6 +28,7 @@
     commute: { hear: 0.55, glance: 8, busy: 0.6 },
     hobby: { hear: 0.55, glance: 10, busy: 0.65 },
     social: { hear: 0.4, glance: 18, busy: 0.45 },
+    festival: { hear: 0.3, glance: 25, busy: 0.4 },
     work: { hear: 0.5, glance: 40, busy: 0.3 },
     clash: { hear: 0.3, glance: 25, busy: 0.15 },
     sleep: { hear: 0.12, glance: Infinity, busy: 0 }
@@ -79,17 +80,23 @@
   function emit(cid) { Store.emit('typing', cid); }
 
   // when are they free again? end of the current busy block (next day's wake for sleep)
+  // (all of their day runs on Hell time; HellTime.ms turns Hell minutes into real time)
+  const GM = m => HellTime.ms(m);
   function freeAt(p, nb) {
-    const d = new Date(); d.setHours(0, 0, 0, 0);
-    let end = d.getTime() + nb.e * MIN;
+    let endMin = nb.e, dayOff = 0;
     if (nb.kind === 'work') {
       // work ends at lunch or at the end of the shift, whichever comes first
-      const tl = R.day(p);
-      const lunch = tl.find(b => b.kind === 'lunch' && b.s >= nb.s);
-      if (lunch) end = Math.min(end, d.getTime() + lunch.s * MIN);
+      const lunch = R.day(p).find(b => b.kind === 'lunch' && b.s >= nb.s);
+      if (lunch) endMin = Math.min(endMin, lunch.s);
     }
-    if (nb.kind === 'sleep') end += rand(5, 25) * MIN; // nobody texts back the second they wake up
-    return end + rand(0.5, 6) * MIN;
+    if (endMin >= 1440) {
+      endMin -= 1440; dayOff = 1;
+      if (nb.kind === 'sleep') { const first = R.day(p, HellTime.day() + 1)[0]; endMin = first.kind === 'sleep' ? first.e : 7 * 60; }
+      if (nb.kind === 'work') endMin = 6 * 60;
+    }
+    let at = Date.now() + HellTime.msUntil(endMin, dayOff);
+    if (nb.kind === 'sleep') at += GM(rand(5, 25)); // nobody texts back the second they wake up
+    return at + GM(rand(0.5, 6));
   }
 
   // decide what happens after the phone buzzes (or doesn't)
@@ -115,7 +122,7 @@
     }
     // later: a sneaky glance, or when they're free
     const mean = a.glance / (0.4 + hb.glued) * (tier === 'hate' || tier === 'dislike' ? 3 : 1);
-    const glance = now + expo(mean) * MIN;
+    const glance = now + GM(expo(mean));
     const free = a.busy < 1 ? freeAt(p, nb) : Infinity;
     if (glance < free) { e.stage = 'waiting'; e.how = a.busy < 0.5 ? 'sneak' : 'now'; e.at = glance; }
     else { e.stage = 'waiting'; e.how = 'free'; e.at = free; }
@@ -160,7 +167,8 @@
         delete q()[cid];
         const msgs = [];
         if (window.Mind) {
-          const late = delay > 15 * MIN ? Mind.late(p.id, delay / MIN, e.kind, e.grumpy) : null;
+          const hellMin = delay / GM(1);
+          const late = hellMin > 30 ? Mind.late(p.id, hellMin, e.kind, e.grumpy) : null;
           if (late) msgs.push(late);
           if (e.grumpy) Mind.bump(p.id, -2);
           if (e.gift) Mind.gift(p.id, e.gift).forEach(m => msgs.push(m));
@@ -224,7 +232,7 @@
     missedCall(cid, rid) {
       const p = R.get(rid);
       const nb = R.now(p);
-      const at = (ACT[nb.kind] || ACT.home).busy < 1 ? freeAt(p, nb) : Date.now() + rand(1, 8) * MIN;
+      const at = (ACT[nb.kind] || ACT.home).busy < 1 ? freeAt(p, nb) : Date.now() + GM(rand(1, 8));
       Store.update('callbacks', [], l => { l.push({ cid, rid, at }); return l.slice(-20); });
     },
     tick

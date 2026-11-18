@@ -356,18 +356,26 @@
   }
 
   // ------------------------------------------------------------------ days
-  const dayNum = d => { d = new Date(d); return Math.floor((new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime() - new Date(2026, 0, 1).getTime()) / 86400000 + 0.5); };
+  // days are Hell days (see helltime.js); a real timestamp is read relative to today
+  const dayNum = d => d == null ? HellTime.day() : d > 1e9 ? HellTime.day() + Math.round((d - Date.now()) / 86400000) : d;
+  const SERVICE = ['pizza', 'limbo_lounge', 'frost', 'acheron', 'throne', 'cocytus', 'night_market', 'baths', 'lake_fire', 'tower', 'kennels'];
+  function holiday(p, n) { const f = HellTime.festival(n); return !!(f && f.major && SERVICE.indexOf(p.job.place) < 0); }
+  function workday(p, n) { return p.shift && p.offDays.indexOf(HellTime.date(n).weekday) < 0 && !holiday(p, n); }
   const WEATHER = ['ash drizzle', 'a heatwave (even for here)', 'thick sulphur fog', 'a clear red sky', 'an ember storm', 'blood rain', 'a howling whirlwind', 'a cold snap from Cocytus', 'a blood moon', 'smoke so thick you can chew it'];
   const HEADLINES = ['Cerberus got loose in the Third Circle again', 'the Brimstone Mines hit a record seam', 'the Hall of Minos is on strike', 'the Lake of Fire festival is on', 'the Hellnet went down for an hour', 'a duke got stuck in the Cocytus ice', 'HellPlay launched a new game', 'the Throne announced a new tax on sighing', 'there was a stampede at the Slop Market', 'the Wrath Arena final is tonight', 'someone stole the bell from Acheron Dock', 'a wizard on Earth summoned twelve imps by accident', 'the Choir of the Damned hit a note so low the walls cracked', 'the Grindhouse is showing a film about Heaven (it’s a horror)', 'Lucien Graves won another unwinnable case'];
   function world(date) {
-    const n = dayNum(date || Date.now());
+    const n = dayNum(date);
     const r = U.rng(SEED * 3 + n * 101);
-    return { weather: pick(WEATHER, r), headline: pick(HEADLINES, r), n };
+    const d = HellTime.date(n);
+    const weather = pick(HellTime.SEASON_WEATHER[d.season], r);
+    let headline = pick(HEADLINES, r);
+    if (d.festival) headline = pick(['it’s ' + d.festival.name + ' today', d.festival.name + ' is on at ' + PLACES[d.festival.place].n, 'half of Hell is heading to ' + PLACES[d.festival.place].n + ' for ' + d.festival.name], r);
+    return { weather, headline, n, date: d, festival: d.festival };
   }
 
   // pairings: who meets whom each evening (the same answer from both sides)
   const pairCache = {};
-  function eveningFree(p, n) { const wd = ((n % 7) + 7 + 3) % 7; const off = p.offDays.indexOf(wd) >= 0; return off || !p.shift || p.shift[1] <= 17 || p.shift[0] >= 22; }
+  function eveningFree(p, n) { return !workday(p, n) || p.shift[1] <= 17 || p.shift[0] >= 22; }
   function pairings(n) {
     if (pairCache[n]) return pairCache[n];
     const r = U.rng(SEED + n * 4241);
@@ -378,7 +386,8 @@
       const cands = all[a].friends.filter(b => !meet[b] && eveningFree(all[b], n));
       if (!cands.length || r() > 0.55) return;
       const b = pick(cands, r);
-      const place = pick(SOCIAL, r);
+      const fest = HellTime.festival(n);
+      const place = fest && r() < 0.7 ? fest.place : pick(SOCIAL, r);
       const what = pick(['had drinks', 'grabbed dinner', 'played games', 'had a long chat', 'went for a walk', 'watched a film', 'did karaoke', 'gossiped for hours', 'argued about nothing', 'played cards'], r);
       const s = 18 * 60 + Math.floor(r() * 4) * 30;
       meet[a] = { with: b, place, what, s, e: s + 90 + Math.floor(r() * 3) * 30 };
@@ -404,15 +413,16 @@
 
   // full timeline for a calendar day: [{s, e, place, act, with, kind}]
   function day(p, date) {
-    const n = dayNum(date || Date.now());
+    const n = dayNum(date);
     const r = U.rng(SEED + p.id * 131 + n * 977);
-    const wd = ((n % 7) + 7 + 3) % 7; // 2026-01-01 was a Thursday
-    const working = p.shift && p.offDays.indexOf(wd) < 0;
+    const wd = HellTime.date(n).weekday;
+    const fest = HellTime.festival(n);
+    const working = workday(p, n);
     const night = p.shift && p.shift[0] >= 22;
     const out = [];
     const add = (s, e, place, act, extra) => out.push(Object.assign({ s, e, place, act }, extra || {}));
     const wake = night ? 13 * 60 : (working ? Math.max(4 * 60, p.shift[0] * 60 - 60 - Math.floor(r() * 60)) : 7 * 60 + Math.floor(r() * 240));
-    if (night && p.offDays.indexOf((wd + 6) % 7) < 0) { add(0, 6 * 60, p.job.place, 'finished the night shift (' + pick(p.job.acts, r) + ')', { kind: 'work' }); add(6 * 60, wake, 'home', 'slept after the night shift', { kind: 'sleep' }); }
+    if (night && workday(p, n - 1)) { add(0, 6 * 60, p.job.place, 'finished the night shift (' + pick(p.job.acts, r) + ')', { kind: 'work' }); add(6 * 60, wake, 'home', 'slept after the night shift', { kind: 'sleep' }); }
     else add(0, wake, 'home', 'slept', { kind: 'sleep' });
     add(wake, wake + 30 + Math.floor(r() * 30), 'home', pick(['had ' + p.fav.food + ' for breakfast', 'had ' + p.fav.drink + ' and stared at the wall', 'got ready', 'scrolled The Pit in bed', 'polished their ' + (p.face.horns ? 'horns' : 'boots')], r), { kind: 'home' });
     let t = out[out.length - 1].e;
@@ -451,6 +461,10 @@
       if (meet.s > t) add(t, meet.s, 'home', pick(['had a nap', 'cooked dinner', 'played ' + p.fav.game, 'listened to ' + p.fav.music], r), { kind: 'home' });
       add(meet.s, meet.e, meet.place, meet.what + ' with ' + all[meet.with].name, { kind: 'social', with: meet.with });
       t = meet.e;
+    } else if (fest && t < eveEnd - 60 && r() < 0.75) {
+      const end = Math.min(eveEnd, t + 120 + Math.floor(r() * 90));
+      add(t, end, fest.place, fest.act, { kind: 'festival' });
+      t = end;
     } else if (t < eveEnd - 60 && r() < 0.6) {
       const h = pick(p.hobbies, r);
       const end = Math.min(eveEnd, t + 90 + Math.floor(r() * 90));
@@ -474,24 +488,24 @@
   }
 
   const placeName = (p, id) => id === 'home' ? 'home in ' + p.home : id === 'transit' ? 'on the road' : (PLACES[id] ? PLACES[id].n : id);
-  function minutesNow(d) { d = d || new Date(); return d.getHours() * 60 + d.getMinutes(); }
-  function now(p, d) {
-    d = d || new Date();
-    const m = minutesNow(d);
-    const tl = day(p, d);
+  function now(p) {
+    const m = HellTime.min();
+    const tl = day(p);
     const b = tl.find(x => m >= x.s && m < x.e) || tl[tl.length - 1];
     return Object.assign({ where: placeName(p, b.place), mood: tl.mood }, b);
   }
   // the record: today up to now, or a whole past day
   function log(p, date) {
-    const d = new Date(date || Date.now());
-    const today = U.sameDay(d, Date.now());
-    const m = today ? minutesNow() : 24 * 60;
-    const tl = day(p, d);
+    const n = dayNum(date);
+    const today = n === HellTime.day();
+    const m = today ? HellTime.min() : 24 * 60;
+    const tl = day(p, n);
     return tl.filter(b => b.s <= m).map(b => Object.assign({ where: placeName(p, b.place), done: b.e <= m }, b));
   }
   function fmt(min) { const h = Math.floor(min / 60) % 24, mm = min % 60; return (h % 12 || 12) + (mm ? ':' + String(mm).padStart(2, '0') : '') + (h < 12 ? 'am' : 'pm'); }
 
+  // most of Hell gets Gloomday and Doomday off (separate seed, so nobody else changes)
+  all.forEach(p => { const r2 = U.rng(p.id * 31 + 7); if (r2() < 0.6) p.offDays = [5, 6]; });
   const COMMON = new Set('ash cinder ember soot moth thorn raven bones crumb grub flick wisp pip rook nib scab dregs mildew tallow gristle hazel salem nox wren sable quill juniper magnolia verity prudence constance pandora sprocket uma tad otto ivo jude nell kiki basil dante'.split(' '));
   const byCid = {};
   all.forEach(p => { byCid[p.cid] = p; });
@@ -511,7 +525,7 @@
       return hits.sort((a, b) => b[1] - a[1]).map(x => x[0]);
     },
     findPlace(text) { const t = text.toLowerCase(); return Object.keys(PLACES).find(k => t.indexOf(PLACES[k].n.toLowerCase().replace(/^the /, '').replace('’', '\'')) >= 0 || t.indexOf(PLACES[k].n.toLowerCase().replace(/^the /, '')) >= 0) || null; },
-    day, now, log, world, fmt, placeName, dayNum,
+    day, now, log, world, fmt, placeName, dayNum, workday,
     face: p => p.face,
     contactFor(p) { return { id: p.cid, npc: p.npc, rid: p.id, name: p.npc === 'pizza' ? 'Beelzebub’s Pizza' : p.name, number: p.number, email: p.email, circle: 'Friends', fav: false, color: p.color }; }
   };
