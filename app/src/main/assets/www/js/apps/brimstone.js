@@ -19,6 +19,14 @@
     { t: 'Beelzebub’s Pizza named best delivery in the Fifth Circle', b: 'Judges praised the "aggressively crispy" base. Delivery times remain between 6 and 66 minutes, as advertised.' },
     { t: 'Weather: brimstone showers expected through the weekend', b: 'Omens forecasts sulphur haze followed by moderate brimstone. Umbrellas will melt. Bring two.' }
   ];
+  // the lore of Hell adds hundreds of pages (lore.js)
+  const allWiki = () => window.Lore ? Object.assign({}, WIKI, Lore.wiki()) : WIKI;
+  function buildIndex() {
+    const W = allWiki();
+    const forum = window.Forum ? Forum.feed(2).slice(0, 80).map(t => ({ url: 'hell://pit.hell/t/' + t.id, title: t.title + ' – The Pit', snip: (t.body || '') + ' · ' + t.replies.length + ' replies' })) : [];
+    const court = [{ url: 'hell://court.hell', title: 'The Conclave of Seven – official site of the Septarchy', snip: 'Decrees, the Sin Kings and the Ember Crown.' }];
+    return Object.keys(W).map(k => ({ url: 'hell://infernopedia.hell/wiki/' + encodeURIComponent(k), title: k + ' – Infernopedia', snip: W[k].slice(0, 110) + '…' })).concat(court, INDEX.filter(x => !/infernopedia/.test(x.url)), forum);
+  }
   const INDEX = [].concat(
     Object.keys(WIKI).map(k => ({ url: 'hell://infernopedia.hell/wiki/' + encodeURIComponent(k), title: k + ' – Infernopedia', snip: WIKI[k].slice(0, 110) + '…' })),
     NEWS.map((n, i) => ({ url: 'hell://news.hell/' + i, title: n.t + ' – Daily Damnation', snip: n.b.slice(0, 110) + '…' })),
@@ -122,9 +130,10 @@
         const path = hostPath.split('/').slice(1).map(decodeURIComponent);
         const q = new URLSearchParams(query || '');
         if (host === 'seek.hell' || host === 'seek') return seek(q.get('q'));
-        if (host === 'news.hell') return path[0] ? article(+path[0]) : news();
+        if (host === 'news.hell') return path[0] === 'd' ? dailyArticle(+path[1], +path[2]) : path[0] ? article(+path[0]) : news();
+        if (host === 'court.hell') return court();
         if (host === 'infernopedia.hell') return wiki(path[1] || 'HellOS');
-        if (host === 'pit.hell') return pit();
+        if (host === 'pit.hell') return path[0] === 't' ? pitThread(path[1]) : path[0] === 'u' ? pitUser(path[1]) : path[0] === 'new' ? pitNew(path[1]) : pit(path[0] === 'b' ? path[1] : null);
         if (host === 'mail.hell') return mail(path[0] || '');
         if (host === 'beelzepizza.hell') return pizza();
         if (host === 'hellplay.hell') { setTimeout(() => OS.open('hellplay'), 300); return site(h('h1', 'HellPlay'), h('p', 'Opening HellPlay…')); }
@@ -138,10 +147,10 @@
           const sbg = Art.get('backgrounds', 'brimstone_seek');
           return h('div.seekhome', { style: sbg ? `min-height:100%;background:linear-gradient(rgba(11,5,5,.35),rgba(11,5,5,.8)),url("${sbg}") center/cover no-repeat` : null }, h('div.logo', { style: sbg ? 'color:#FFD9C2;text-shadow:0 2px 16px #000' : null }, 'Seek'), inp,
             h('div', { style: 'display:flex;gap:10px;flex-wrap:wrap;justify-content:center' },
-              [['hell://news.hell', 'Daily Damnation'], ['hell://infernopedia.hell/wiki/Nine%20Circles', 'Infernopedia'], ['hell://pit.hell', 'The Pit'], ['hell://beelzepizza.hell', 'Pizza']].map(([u, t]) => h('button.btnp', { onclick() { go(u); } }, t))));
+              [['hell://news.hell', 'Daily Damnation'], ['hell://pit.hell', 'The Pit'], ['hell://court.hell', 'The Conclave'], ['hell://infernopedia.hell/wiki/History%20of%20Hell', 'Infernopedia'], ['hell://beelzepizza.hell', 'Pizza']].map(([u, t]) => h('button.btnp', { onclick() { go(u); } }, t))));
         }
         const words = query.toLowerCase().split(/\s+/).filter(Boolean);
-        const res = INDEX.map(r => ({ r, s: words.reduce((a, w) => a + ((r.title + ' ' + r.snip).toLowerCase().includes(w) ? 1 : 0), 0) })).filter(x => x.s > 0).sort((a, b) => b.s - a.s).map(x => x.r);
+        const res = buildIndex().map(r => ({ r, s: words.reduce((a, w) => a + ((r.title + ' ' + r.snip).toLowerCase().includes(w) ? 1 : 0), 0) })).filter(x => x.s > 0).sort((a, b) => b.s - a.s).map(x => x.r);
         const inp = h('input.sq', { value: query, onkeydown(e) { if (e.key === 'Enter') go('hell://seek.hell/?q=' + encodeURIComponent(inp.value)); } });
         return site(h('div', { style: 'font-family:var(--display);font-size:26px;font-weight:900;color:#A3260E;margin-bottom:10px' }, 'Seek'), inp,
           h('p', { style: 'font-size:13px;color:#6B5047;font-family:var(--ui)' }, res.length + ' results in 0.666 seconds'),
@@ -150,30 +159,127 @@
           h('p', { style: 'font-family:var(--ui);font-size:13px' }, 'Looking for the real web? Type a full address like example.com.'));
       }
       function news() {
+        const today = HellTime.day();
+        const daily = window.Lore ? [0, 1].map(k => ({ n: today - k, items: Lore.news(today - k) })) : [];
         return site(banner('news'), h('h1', 'Daily Damnation'), h('p', { style: 'font-style:italic' }, U.dateLong(new Date()) + ' · All the news that is fit to burn'),
+          daily.map(d => [h('h2', d.n === today ? 'Today' : HellTime.label(d.n)), d.items.map((n, i) => h('div.newsitem', n.sin ? h('span', { style: 'font-size:12px;color:#8A5A12;font-family:var(--ui)' }, '👑 THE COURT · ') : null, link('hell://news.hell/d/' + d.n + '/' + i, n.t), h('div', { style: 'font-size:14px;margin-top:4px' }, n.b.slice(0, 110) + (n.b.length > 110 ? '…' : ''))))]),
+          h('h2', 'From the archive'),
           NEWS.map((n, i) => h('div.newsitem', link('hell://news.hell/' + i, n.t), h('div', { style: 'font-size:14px;margin-top:4px' }, n.b.slice(0, 90) + '…'))));
+      }
+      function dailyArticle(n, i) {
+        const it = window.Lore ? Lore.news(n)[i] : null; if (!it) return site(h('h1', 'Story not found'));
+        const kids = [banner('news'), link('hell://news.hell', '← Daily Damnation'), h('h1', it.t), h('p', { style: 'font-style:italic' }, 'By Staff Demon · ' + HellTime.label(n)), h('p', it.b)];
+        if (it.sin) kids.push(h('p', link('hell://infernopedia.hell/wiki/' + encodeURIComponent(Residents.king(it.sin).name), 'Read about ' + Lore.kingTitle(it.sin) + ' on Infernopedia')), h('p', link('hell://court.hell', 'The Conclave of Seven')));
+        if (it.kind === 'decree') kids.push(h('p', link('hell://pit.hell/b/court', 'Argue about it on the Pit →')));
+        if (it.rid != null) kids.push(h('p', h('a', { href: '#', onclick(e) { e.preventDefault(); OS.open('census', { rid: it.rid }); } }, 'Look up ' + Residents.get(it.rid).name + ' in the Census')));
+        return site(...kids);
       }
       function article(i) {
         const n = NEWS[i]; if (!n) return site(h('h1', 'Story not found'));
         return site(banner(i === 3 ? 'styx_ferry' : 'news'), link('hell://news.hell', '← Daily Damnation'), h('h1', n.t), h('p', { style: 'font-style:italic' }, 'By Staff Demon · ' + U.dateShort(new Date())), h('p', n.b), h('p', 'More details are expected as soon as anyone escapes to report them. This story will be updated, eternally.'));
       }
       function wiki(topic) {
-        const text = WIKI[topic];
+        const W = allWiki(), keys = Object.keys(W);
+        const wl = k => link('hell://infernopedia.hell/wiki/' + encodeURIComponent(k), k);
+        if (topic === 'Index') {
+          const groups = [['Hell', ['History of Hell', 'Septarchy', 'Conclave of Seven', 'Ember Crown', 'Pact of Ash', 'Empty Throne', 'Nine Circles', 'Souls', 'HellOS']], ['The Sin Kings', window.Lore ? Lore.SINS.map(s => Residents.king(s).name) : []], ['The nine circles', keys.filter(k => /^\d\. /.test(k))], ['Places', window.Lore ? Object.keys(Lore.PLACES).map(k => { const n = Residents.PLACES[k].n.replace(/^the /, ''); return n.charAt(0).toUpperCase() + n.slice(1); }) : []], ['People and things', ['Charon', 'Cerberus', 'Styx', 'Brimstone', 'Lucien Graves']]];
+          return site(banner('infernopedia'), h('h1', 'Infernopedia: all articles'), groups.map(([g, ks]) => [h('h2', g), h('ul', ks.filter(k => W[k]).map(k => h('li', wl(k))))]));
+        }
+        const text = W[topic];
+        const king = window.Lore ? Lore.SINS.find(s => Residents.king(s).name === topic) : null;
+        const related = keys.filter(k => k !== topic && (text || '').indexOf(k.replace(/^\d\. /, '').replace(/^(King|Queen) /, '')) >= 0).slice(0, 12);
         return site(banner(topic === 'Charon' || topic === 'Styx' ? 'styx_ferry' : 'infernopedia'), h('div', { style: 'font-family:var(--ui);font-size:12px;color:#6B5047' }, 'Infernopedia, the free damned encyclopedia'),
-          h('h1', topic), text ? h('p', text) : h('p', 'Infernopedia does not have an article with this exact name.'),
-          h('h2', 'See also'), h('ul', Object.keys(WIKI).filter(k => k !== topic).map(k => h('li', link('hell://infernopedia.hell/wiki/' + encodeURIComponent(k), k)))));
+          h('h1', topic), text ? String(text).split(/\n\n+/).map(par => h('p', par)) : h('p', 'Infernopedia does not have an article with this exact name.'),
+          king ? h('p', h('a', { href: '#', onclick(e) { e.preventDefault(); OS.open('census', { rid: Residents.KING_IDS[king] }); } }, 'Find ' + Residents.king(king).first + ' in the Census'), ' · ', link('hell://court.hell', 'The Conclave of Seven')) : null,
+          h('h2', 'See also'), h('ul', (related.length ? related : ['History of Hell', 'Septarchy', 'Conclave of Seven'].filter(k => W[k] && k !== topic)).map(k => h('li', wl(k))), h('li', wl('Index'))));
       }
-      function pit() {
-        const posts = Store.get('pit', [
-          { who: 'tormented_tom', text: 'Day 4,012 of eternity. Still no Wi-Fi in Limbo.', t: Date.now() - 7200000 },
-          { who: 'vex', text: 'anyone wanna trade Brimblocks high scores', t: Date.now() - 3600000 },
-          { who: 'mortis', text: 'reminder that graves are a renewable resource', t: Date.now() - 1800000 }
-        ]);
-        const ta = h('textarea', { rows: 3, placeholder: 'Complain about eternity…', style: 'width:100%;border-radius:12px;border:1px solid #C9B2A6;padding:10px;font-size:15px;background:#fff;color:#23110D' });
-        return site(banner('pit'), h('h1', 'The Pit'), h('p', 'A forum for the damned. Be cruel, be kind, it all burns the same.'),
-          posts.map(p => h('div.newsitem', h('b', p.who), h('span', { style: 'color:#6B5047;font-size:12px' }, ' · ' + U.ago(p.t)), h('div', p.text))),
-          h('h2', 'Post'), ta,
-          h('button.btnp', { style: 'margin-top:8px', onclick() { if (!ta.value.trim()) return; posts.push({ who: Store.settings().name.toLowerCase().replace(/\s+/g, '_'), text: ta.value.trim(), t: Date.now() }); Store.set('pit', posts); load(curUrl()); } }, 'Post to the Pit'));
+      // ---------------------------------------------------------------- the Conclave's official site
+      function court() {
+        if (!window.Lore) return site(h('h1', 'The Conclave'), h('p', 'Closed.'));
+        const R = Residents, today = HellTime.day(), d = HellTime.date(), bearer = Lore.crown();
+        const conclaveNow = d.weekday === R.CONCLAVE_DAY && HellTime.min() >= 13 * 60 && HellTime.min() < 16 * 60;
+        const untilHex = (R.CONCLAVE_DAY - d.weekday + 7) % 7;
+        const kingCard = sin => { const k = R.king(sin), L = Lore.KINGS[sin], nb = R.now(k); return h('div.newsitem', { style: 'display:flex;gap:12px;align-items:flex-start' }, UI.avatar(k.name, 52, k.color, k.cid),
+          h('div', { style: 'flex:1' }, link('hell://infernopedia.hell/wiki/' + encodeURIComponent(k.name), k.name), sin === bearer ? h('span', { title: 'Bearer of the Ember Crown' }, ' 👑') : null,
+            h('div', { style: 'font-size:13px;font-family:var(--ui)' }, L.title + ' · ' + L.ministry), h('div', { style: 'font-size:13px;font-style:italic' }, '“' + L.motto + '”'),
+            h('div', { style: 'font-size:12px;font-family:var(--ui);color:#6B5047;margin-top:3px' }, 'Right now: ' + (nb.kind === 'sleep' ? 'asleep' : (window.Body ? Body.present(nb.act) : nb.act) + ' · ' + nb.where)))); };
+        const dc = Lore.decree();
+        return site(h('div', { style: 'text-align:center;font-size:40px' }, '⛧'), h('h1', { style: 'text-align:center' }, 'The Conclave of Seven'),
+          h('p', { style: 'text-align:center;font-style:italic' }, 'Official site of the Septarchy · Est. 13 AF under the Pact of Ash'),
+          h('div', { style: 'background:#2A0D08;color:#FFD9A0;border-radius:12px;padding:12px 14px;font-family:var(--ui);margin:10px 0' },
+            h('div', { style: 'font-weight:700' }, conclaveNow ? '🔴 The Conclave is in session now' : 'The Conclave sits ' + (untilHex === 0 ? (HellTime.min() < 13 * 60 ? 'today at 1pm' : 'next Hexday at 1pm') : 'in ' + untilHex + ' day' + (untilHex > 1 ? 's' : '') + ', Hexday at 1pm')),
+            h('div', { style: 'font-size:13px;margin-top:4px' }, 'Bearer of the Ember Crown: ' + Lore.kingTitle(bearer))),
+          h('h2', 'Decree of the day'), HellTime.min() >= dc.at ? h('div.newsitem', h('b', dc.text), h('div', { style: 'font-size:13px' }, 'By ' + Lore.kingTitle(dc.sin) + ', ' + dc.why + '. ' + (d.weekday === R.CONCLAVE_DAY ? 'Passed ' + dc.votes + ' votes to ' + (7 - dc.votes) + '.' : '')), link('hell://pit.hell/b/court', 'Discuss on the Pit →')) : h('p', 'Today’s decree will be published at ' + R.fmt(dc.at) + '.'),
+          h('h2', 'The Seven'), Lore.SINS.map(kingCard),
+          h('h2', 'Court this week'), h('ul', Object.keys(R.COURT_EVENTS).sort((a, b) => R.COURT_EVENTS[a].wd - R.COURT_EVENTS[b].wd).map(sin => { const ev = R.COURT_EVENTS[sin]; return h('li', HellTime.WEEKDAYS[ev.wd] + ', ' + R.fmt(ev.s) + ': ' + Lore.kingTitle(sin) + ' ' + ev.act.replace(/^(\w+)/, w => w) + '.'); }).concat([h('li', HellTime.WEEKDAYS[R.CONCLAVE_DAY] + ', 1pm: the Conclave of Seven sits behind the Empty Throne.')])),
+          h('h2', 'Recent decrees'), h('ul', Lore.decrees(7).filter(x => x.n < today || HellTime.min() >= x.at).map(x => h('li', HellTime.label(x.n) + ': ' + x.text + ' (' + Lore.kingTitle(x.sin) + ')'))),
+          h('h2', 'How Hell is governed'), [Lore.SEPTARCHY.summary, Lore.SEPTARCHY.laws, Lore.SEPTARCHY.order].map(t => h('p', t)), h('p', link('hell://infernopedia.hell/wiki/History%20of%20Hell', 'The history of Hell →')));
+      }
+      // ---------------------------------------------------------------- the Pit (forum.js)
+      const PIT_BG = 'background:#FFF6EE;border:1px solid #D9C7BC;border-radius:12px;padding:10px 12px;margin:8px 0';
+      function ago(n, m) { const d = HellTime.day() * 1440 + HellTime.min() - (n * 1440 + m); return d < 1 ? 'just now' : d < 60 ? d + ' min ago' : d < 1440 ? Math.floor(d / 60) + 'h ago' : Math.floor(d / 1440) + 'd ago'; }
+      function who(rid, anon) {
+        if (rid === 'me') return h('b', { style: 'color:#2E6B2E' }, '@' + Forum.myHandle() + ' (you)');
+        const p = Residents.get(rid);
+        if (anon) return h('b', '@' + anon);
+        return h('a', { href: '#', style: 'font-weight:700;' + (p.king ? 'color:#8A5A12' : ''), onclick(e) { e.preventDefault(); go('hell://pit.hell/u/' + rid); } }, (p.king ? '👑 ' : '') + '@' + Forum.handle(p));
+      }
+      function pitHead(board) {
+        return [banner('pit'), h('h1', board ? Forum.BOARD[board].name : 'The Pit'), h('p', { style: 'margin-top:-6px' }, board ? Forum.BOARD[board].blurb : 'The forum of the damned. Be cruel, be kind, it all burns the same.'),
+          h('div', { style: 'display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;font-family:var(--ui)' },
+            [h('button.btnp', { style: 'padding:6px 12px;flex-shrink:0;' + (!board ? '' : 'background:#C9B2A6;color:#23110D'), onclick() { go('hell://pit.hell'); } }, 'All')].concat(Forum.BOARDS.map(b => h('button.btnp', { style: 'padding:6px 12px;flex-shrink:0;white-space:nowrap;' + (board === b.id ? '' : 'background:#C9B2A6;color:#23110D'), onclick() { go('hell://pit.hell/b/' + b.id); } }, b.name)))),
+          h('div', { style: 'display:flex;justify-content:space-between;align-items:center;font-family:var(--ui);font-size:13px;margin:6px 0' }, h('span', 'Posting as @' + Forum.myHandle()), h('button.btnp', { style: 'padding:6px 14px', onclick() { go('hell://pit.hell/new' + (board ? '/' + board : '')); } }, '+ New thread'))];
+      }
+      function threadRow(t) {
+        const last = t.replies.length ? t.replies[t.replies.length - 1] : null;
+        const p = t.rid === 'me' ? null : Residents.get(t.rid);
+        return h('div', { style: PIT_BG + (p && p.king && !t.anon ? ';border-color:#C8A040;background:#FFF3D6' : '') + (t.rid === 'me' ? ';border-color:#7FB07F' : ''), onclick() { go('hell://pit.hell/t/' + t.id); } },
+          h('div', { style: 'font-size:11px;font-family:var(--ui);color:#8A6A5A;text-transform:uppercase;letter-spacing:.04em' }, Forum.BOARD[t.board].name),
+          h('div', { style: 'font-weight:700;font-family:var(--ui);font-size:15px;margin:2px 0' }, t.title),
+          h('div', { style: 'font-size:12px;font-family:var(--ui);color:#6B5047' }, who(t.rid, t.anon), ' · ' + ago(t.n, t.m) + ' · 💬 ' + t.replies.length + ' · 🔥 ' + (t.burns || 0) + (last ? ' · last @' + (last.rid === 'me' ? Forum.myHandle() : Forum.handle(last.rid)) + ' ' + ago(last.n, last.m) : '')));
+      }
+      function pit(board) {
+        if (!window.Forum) return site(h('h1', 'The Pit'), h('p', 'The Pit is down.'));
+        const list = Forum.feed(2, board);
+        const shown = list.slice(0, 40);
+        return site(...pitHead(board), shown.length ? shown.map(threadRow) : h('p', 'Nothing here yet today. Come back later, the damned wake up eventually.'),
+          list.length > 40 ? h('p', { style: 'font-family:var(--ui);font-size:13px;color:#6B5047' }, '…and ' + (list.length - 40) + ' older threads.') : null);
+      }
+      function pitThread(id) {
+        const t = Forum.thread(id);
+        if (!t) return site(h('h1', 'Thread not found'), h('p', 'It has been cast into the void (or it hasn’t been posted yet).'), link('hell://pit.hell', '← The Pit'));
+        const op = t.rid === 'me' ? null : Residents.get(t.rid);
+        const ta = h('textarea', { rows: 3, placeholder: 'Reply to the thread…', style: 'width:100%;border-radius:12px;border:1px solid #C9B2A6;padding:10px;font-size:15px;background:#fff;color:#23110D' });
+        const pending = t.rid === 'me' ? t.replies.length === 0 : false;
+        return site(link('hell://pit.hell/b/' + t.board, '← ' + Forum.BOARD[t.board].name),
+          h('div', { style: PIT_BG + (op && op.king && !t.anon ? ';border-color:#C8A040;background:#FFF3D6' : '') },
+            h('div', { style: 'font-size:12px;font-family:var(--ui);color:#6B5047' }, who(t.rid, t.anon), ' · ' + ago(t.n, t.m) + ' · ' + (t.n === HellTime.day() ? 'today ' : HellTime.label(t.n) + ' ') + Residents.fmt(t.m)),
+            h('h1', { style: 'font-size:20px;margin:6px 0' }, t.title), t.body ? h('p', { style: 'margin:0' }, t.body) : null,
+            h('div', { style: 'font-size:12px;font-family:var(--ui);color:#6B5047;margin-top:6px' }, '🔥 ' + (t.burns || 0) + ' burns · 💬 ' + t.replies.length + ' replies')),
+          t.replies.map(r => h('div', { style: 'padding:8px 4px 8px 14px;border-left:3px solid ' + (r.rid === 'me' ? '#7FB07F' : r.rid !== 'me' && Residents.get(r.rid).king ? '#C8A040' : '#D9C7BC') + ';margin:6px 0' },
+            h('div', { style: 'font-size:12px;font-family:var(--ui);color:#6B5047' }, who(r.rid), ' · ' + ago(r.n, r.m)), h('div', { style: 'font-family:var(--ui);font-size:15px' }, r.text))),
+          pending ? h('p', { style: 'font-family:var(--ui);font-size:13px;color:#6B5047' }, 'No replies yet. The damned check the Pit when they get a moment: on the tram, at lunch, in bed. You’ll get a notification.') : null,
+          h('h2', 'Reply'), ta,
+          h('div', { style: 'display:flex;gap:8px;margin-top:8px' },
+            h('button.btnp', { onclick() { const v = ta.value.trim(); if (!v) return; Forum.reply(t.id, v); Sound.play && Sound.play('send'); load(curUrl(), true); } }, 'Post reply'),
+            h('button.btnp', { style: 'background:#C9B2A6;color:#23110D', onclick() { load(curUrl(), true); } }, 'Refresh')));
+      }
+      function pitUser(rid) {
+        const p = Residents.get(+rid); if (!p) return site(h('h1', 'No such user'));
+        const acts = Forum.byAuthor(p.id, 3);
+        return site(link('hell://pit.hell', '← The Pit'), h('div', { style: 'display:flex;gap:12px;align-items:center;margin:10px 0' }, UI.avatar(p.name, 56, p.color, p.cid),
+          h('div', h('h1', { style: 'margin:0;font-size:22px' }, (p.king ? '👑 ' : '') + '@' + Forum.handle(p)), h('div', { style: 'font-family:var(--ui);font-size:13px;color:#6B5047' }, p.name + ' · ' + p.kind + ' · ' + Residents.CIRCLES[p.circle]))),
+          h('p', { style: 'font-family:var(--ui);font-size:13px' }, Forum.usage(p) > 0.5 ? 'Posts a lot. Probably too much.' : Forum.usage(p) > 0.2 ? 'Posts now and then.' : 'Mostly lurks.', ' ', h('a', { href: '#', onclick(e) { e.preventDefault(); OS.open('census', { rid: p.id }); } }, 'View in Census')),
+          h('h2', 'Recent activity'), acts.length ? acts.slice(0, 30).map(a => h('div', { style: PIT_BG, onclick() { go('hell://pit.hell/t/' + a.thread.id); } },
+            h('div', { style: 'font-size:12px;font-family:var(--ui);color:#6B5047' }, (a.kind === 'post' ? 'Posted in ' + Forum.BOARD[a.thread.board].name : 'Replied to “' + a.thread.title + '”') + ' · ' + ago(a.n, a.m)),
+            h('div', { style: 'font-family:var(--ui);font-size:15px' }, a.text))) : h('p', 'Nothing recent.'));
+      }
+      function pitNew(board) {
+        const sel = h('select', { style: 'width:100%;padding:10px;border-radius:12px;border:1px solid #C9B2A6;background:#fff;color:#23110D;font-size:15px' }, Forum.BOARDS.map(b => h('option', { value: b.id, selected: b.id === (board || 'general') }, b.name)));
+        const ti = h('input.sq', { placeholder: 'Title', style: 'margin-top:8px' });
+        const bi = h('textarea', { rows: 5, placeholder: 'Say something. The damned are listening.', style: 'width:100%;margin-top:8px;border-radius:12px;border:1px solid #C9B2A6;padding:10px;font-size:15px;background:#fff;color:#23110D' });
+        return site(link('hell://pit.hell', '← The Pit'), h('h1', 'New thread'), h('p', { style: 'font-family:var(--ui);font-size:13px' }, 'Posting as @' + Forum.myHandle() + '. Residents read the Pit when they’re free, and some of them will reply. The Ministry of Eyes reads everything.'), sel, ti, bi,
+          h('button.btnp', { style: 'margin-top:10px', onclick() { const title = ti.value.trim(); if (!title) { OS.toast('Give it a title'); return; } const t = Forum.post(sel.value, title, bi.value.trim()); OS.toast('Posted to the Pit'); go('hell://pit.hell/t/' + t.id); } }, 'Post to the Pit'));
       }
       function mail(to) {
         const tI = h('input.sq', { value: to, placeholder: 'To (soul-mail address)' });

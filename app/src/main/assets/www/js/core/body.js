@@ -71,9 +71,17 @@
     if (n == null) n = HellTime.day();
     const tl = R.day(p, n);
     const out = [];
+    const pit = {};
+    if (window.Forum && blkSleepless(tl, from, to)) Forum.activity(p, n).forEach(a => { if (a.m >= from && a.m <= to) pit[a.m] = a; });
     for (let m = Math.max(0, Math.floor(from)); m <= Math.min(1439, to); m++) {
       const blk = tl.find(b => m >= b.s && m < b.e) || tl[tl.length - 1];
       const starts = m === blk.s;
+      if (pit[m] && !starts) {
+        const a = pit[m], th = a.thread;
+        const text = a.kind === 'post' ? 'posts on the Pit: “' + th.title + '”' : a.kind === 'reply' ? 'replies to @' + Forum.handle(th.rid) + '’s thread “' + th.title.slice(0, 48) + (th.title.length > 48 ? '…' : '') + '” on the Pit' : ['scrolls the Pit', 'reads a flame war on the Pit', 'checks the Pit for replies', 'lurks on the Pit'][U.hash('pr' + p.id + m) % 4];
+        out.push({ m, text: text.replace(/^\w/, ch => ch.toUpperCase()), pit: a.kind, thread: th ? th.id : null });
+        continue;
+      }
       if (!starts && U.hash('act' + p.id + ':' + n + ':' + m) % 3) continue; // roughly one action every 3 Hell minutes
       let text;
       if (starts) text = blk.kind === 'commute' ? 'sets off: ' + blk.act.replace(/^(walked|took|flew)/, w => ({ walked: 'walking', took: 'taking', flew: 'flying' })[w]) + ' (' + blk.mins + ' min)' : (blk.late ? 'arrives late. ' : '') + (blk.kind === 'sleep' ? 'Lights out.' : present(blk.act));
@@ -82,6 +90,7 @@
     }
     return out;
   }
+  function blkSleepless(tl, from, to) { return tl.some(b => b.kind !== 'sleep' && b.e > from && b.s <= to); }
   function now(p) { const m = HellTime.min(); const f = feed(p, Math.max(0, m - 6), m); return f[f.length - 1] || null; }
   window.Body = { feed, now, present };
 })();

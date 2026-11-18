@@ -20,7 +20,13 @@
     { n: 'Malebolge Mall', c: 7, a: 200, d: 'Ten ditches of shopping. Fraudulent prices guaranteed.', k: 'mall shopping shops' },
     { n: 'Graves & Associates', c: 7, a: 270, d: 'Lucien Graves’ law office. Fees in regrets.', k: 'lawyer lucien law' },
     { n: 'Lake Cocytus', c: 8, a: 120, d: 'Frozen solid. Ice skating at your own risk.', k: 'ice lake frozen' },
-    { n: 'The Throne', c: 8, a: 0, d: 'The very centre. Appointment only.', k: 'throne centre king' }
+    { n: 'The Throne', c: 8, a: 0, d: 'The very centre. Appointment only.', k: 'throne centre king' },
+    { n: 'Drowsing Palace', c: 0, a: 320, d: 'King Somnor’s palace and the Office of Forms. Take a pillow and a ticket.', k: 'palace sloth somnor king forms', lore: 'drowsing' },
+    { n: 'Velvet Court', c: 1, a: 20, d: 'Queen Sylvaine’s palace. Masquerade every Scorchday.', k: 'palace lust sylvaine queen party', lore: 'velvet_court' },
+    { n: 'Banquet Hall of Gorvath', c: 2, a: 150, d: 'King Gorvath’s palace: one enormous dining room. Gloomday Feast.', k: 'palace gluttony gorvath king food feast', lore: 'banquet' },
+    { n: 'Gilded Vault', c: 3, a: 260, d: 'Queen Auraxa’s palace and the treasury of Hell.', k: 'palace greed auraxa queen bank treasury', lore: 'vault' },
+    { n: 'Red Keep', c: 4, a: 100, d: 'Queen Karnasha’s fortress and the Throne Guard barracks.', k: 'palace wrath karnasha queen guard army', lore: 'red_keep' },
+    { n: 'Hall of Mirrors', c: 7, a: 280, d: 'King Nethrys’s palace. A thousand mirrors, each showing somewhere else.', k: 'palace envy nethrys king mirrors', lore: 'mirrors' }
   ].map(p => { const r = (8 - p.c) * RING + RING * 0.5; const ang = p.a * Math.PI / 180; return Object.assign(p, { x: Math.cos(ang) * r, y: Math.sin(ang) * r }); });
   const HOME = { n: 'You are here', c: 4, x: Math.cos(1.2) * ((8 - 4) * RING + RING * 0.5), y: Math.sin(1.2) * ((8 - 4) * RING + RING * 0.5) };
 
@@ -179,12 +185,19 @@
         card.append(
           h('div.row', h('div.grow', h('div', { style: 'font-size:18px;font-weight:700' }, p.n), h('div.muted', { style: 'font-size:13px' }, 'Circle ' + (p.c + 1) + ' · ' + CIRCLES[p.c] + ' · ' + (dist / 100).toFixed(1) + ' leagues')),
             h('button.ibtn', { 'aria-label': 'Close', onclick() { select(null); } }, icon('close', 20))),
-          h('div', { style: 'font-size:14px;margin:8px 0 12px' }, p.d),
+          h('div', { style: 'font-size:14px;margin:8px 0 ' + (loreOf(p) ? '4px' : '12px') }, p.d),
+          loreOf(p) ? h('div.muted', { style: 'font-size:13px;margin:0 0 12px' }, 'Founded ' + loreOf(p).founded + ' AF. Rumour has it ' + loreOf(p).rumour + '.') : null,
           h('div.row',
             h('button.btn', { onclick() { directions(p); } }, icon('navigate', 18), 'Directions'),
             h('button.btn.tonal', { onclick() { Store.set('mapSaved', isSaved ? saved.filter(x => x !== p.n) : saved.concat(p.n)); select(p); OS.toast(isSaved ? 'Removed from saved' : 'Saved'); } }, icon('bookmark', 18), isSaved ? 'Saved' : 'Save'),
             p.n.indexOf('Pizza') >= 0 ? h('button.btn.tonal', { onclick() { CallCore.dial('666-7492'); } }, icon('phone', 18)) : null));
         draw();
+      }
+      function loreOf(p) {
+        if (!window.Lore) return null;
+        if (p.lore) return Lore.PLACES[p.lore];
+        const key = Object.keys(Residents.PLACES).find(k => Residents.PLACES[k].n.replace(/^the /i, '').toLowerCase() === p.n.replace(/^the /i, '').toLowerCase());
+        return key ? Lore.PLACES[key] : null;
       }
       function directions(p) {
         if (!Store.settings().watched) { OS.toast('Turn on Watched to get directions from your location'); return; }

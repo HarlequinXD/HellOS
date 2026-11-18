@@ -5,6 +5,7 @@ OS.register({
   id: 'census', name: 'Census', icon: 'users', keywords: 'npc residents people directory citizens souls hell population',
   launch(win, args) {
     const R = Residents;
+    const cap1 = s => s.charAt(0).toUpperCase() + s.slice(1);
 
     const known = () => new Set((Store.get('contacts', []) || []).map(c => { const r = Chat.resident(c); return r ? r.id : -1; }));
     const affOf = id => { const m = Store.get('minds', {})[id]; return m ? m.aff : R.get(id).baseAff; };
@@ -32,7 +33,7 @@ OS.register({
       const more = h('div', { style: 'height:60px' });
       const count = h('div', { style: 'padding:0 16px 8px;color:var(--muted);font-size:13px' });
       const inp = h('input', { placeholder: 'Search 666 residents, jobs, places', 'aria-label': 'Search residents', oninput: U.debounce(() => { q = inp.value.toLowerCase().trim(); fill(); }, 200) });
-      const chips = UI.chips([{ id: 'all', label: 'Everyone' }, { id: 'known', label: 'In your Souls' }, { id: 'liked', label: 'Like you' }, { id: 'hated', label: 'Dislike you' }, { id: 'awake', label: 'Awake now' }, { id: 'working', label: 'At work' }], 'all', id => { filter = id; fill(); });
+      const chips = UI.chips([{ id: 'all', label: 'Everyone' }, { id: 'known', label: 'In your Souls' }, { id: 'liked', label: 'Like you' }, { id: 'hated', label: 'Dislike you' }, { id: 'awake', label: 'Awake now' }, { id: 'working', label: 'At work' }, { id: 'court', label: '👑 The Court' }], 'all', id => { filter = id; fill(); });
       const circ = UI.chips([{ id: -1, label: 'All circles' }].concat(R.CIRCLES.map((n, i) => ({ id: i, label: (i + 1) + '. ' + n }))), -1, id => { circle = +id; fill(); });
       function match(p) {
         if (circle >= 0 && p.circle !== circle) return false;
@@ -45,6 +46,7 @@ OS.register({
         if (filter === 'hated') return affOf(p.id) <= -25;
         if (filter === 'awake') return R.now(p).kind !== 'sleep';
         if (filter === 'working') return R.now(p).kind === 'work';
+        if (filter === 'court') return !!p.king;
         return true;
       }
       function row(p) {
@@ -52,7 +54,7 @@ OS.register({
         const aff = affOf(p.id);
         return UI.li({
           lead: UI.avatar(p.name, 46, p.color, p.cid),
-          title: p.name,
+          title: (p.king ? '👑 ' : '') + p.name,
           sub: p.kind + ' · ' + (nb.kind === 'sleep' ? 'asleep' : nb.where),
           trail: talked(p.id) || aff >= 15 || aff <= -25 ? h('span', { style: 'font-size:13px;font-weight:700;color:' + (aff >= 15 ? 'var(--accent)' : aff <= -25 ? '#C8281E' : 'var(--muted)') }, aff >= 15 ? '♥' : aff <= -25 ? '✖' : '·') : h('span', { style: 'color:var(--muted)' }, icon(KIND_ICON[nb.kind] || 'user', 16)),
           onClick: () => stack.push(pg => profile(pg, p.id))
@@ -66,7 +68,7 @@ OS.register({
       function fill() {
         U.clear(list); shown = 0;
         rows = R.all.filter(match);
-        count.textContent = (rows.length === R.COUNT ? R.COUNT + ' residents of Hell' : rows.length + ' of ' + R.COUNT + ' residents') + ' · ' + HellTime.label() + ', ' + HellTime.clock();
+        count.textContent = (rows.length === R.all.length ? R.COUNT + ' residents and the seven Sin Kings' : rows.length + ' of ' + R.all.length + ' souls') + ' · ' + HellTime.label() + ', ' + HellTime.clock();
         if (!rows.length) { list.appendChild(UI.empty('users', 'Nobody down here matches that.')); return; }
         more20();
       }
@@ -185,12 +187,22 @@ OS.register({
             showLive ? (h('div.list', R.log(p).filter(b => b.kind !== 'sleep' || b.s === 0).map(entry))) : null,
             showLive && histItems.length ? UI.section('With friends lately') : null,
             showLive ? (histItems.length ? h('div.list', histItems.map(hh => { const q = R.get(hh.with); return UI.li({ lead: UI.avatar(q.name, 34, q.color, q.cid), title: (hh.kind === 'clash' ? 'Run-in with ' : (hh.date ? 'Date with ' : '') ) + q.name, sub: HellTime.rel(hh.n) + ' · ' + (hh.kind === 'clash' ? 'over ' + hh.topic.text : hh.what.replace(/ with .*$/, '') + ' at ' + R.PLACES[hh.place].n + ' · talked about ' + hh.topic.text.replace(/^how /, '')), onClick: () => stack.push(pg => profile(pg, q.id)) }); })) : null) : null,
+            window.Forum ? UI.section('On the Pit · @' + Forum.handle(p)) : null,
+            window.Forum ? h('div.list', (() => { const acts = Forum.byAuthor(id, 2).slice(0, 5); return acts.length ? acts.map(a => UI.li({ icon: a.kind === 'post' ? 'edit' : 'message', title: a.kind === 'post' ? a.thread.title : a.text, sub: (a.kind === 'post' ? 'Posted in ' + Forum.BOARD[a.thread.board].name + ' · ' + a.thread.replies.length + ' replies' : 'Replied to “' + a.thread.title + '”') + ' · ' + (a.n === HellTime.day() ? R.fmt(a.m) : HellTime.rel(a.n)), onClick: () => OS.open('brimstone', { url: 'hell://pit.hell/t/' + a.thread.id }) })) : [h('div.muted', { style: 'padding:6px 20px 10px;font-size:13px' }, Forum.usage(p) > 0.3 ? 'Nothing posted lately.' : p.first + ' mostly lurks.')]; })()) : null,
             UI.section('Phone · ' + texts.length + ' text' + (texts.length === 1 ? '' : 's') + ' today'),
             hide ? h('div.muted', { style: 'padding:6px 20px 10px;font-size:13px' }, 'Their messages are private.') : h('div.list', texts.slice(-6).reverse().map(x => h('div', { style: 'padding:8px 16px;border-bottom:1px solid var(--line);font-size:13px' }, h('span.muted', R.fmt(x.m) + ' · ' + (x.from === id ? 'to ' + R.get(x.to).first : 'from ' + R.get(x.from).first) + ': '), x.text))),
             showLive ? (UI.section('History')) : null,
             showLive ? (UI.chips(days.map((d, i) => ({ id: i, label: d })), 0, i => { histDay = +i; fillHist(); })) : null,
             showLive ? (hist) : null,
             hide ? h('div', UI.section('What you know'), h('div.list', knownFacts ? Object.values(J.facts).slice(0, 12).map(f => UI.li({ icon: 'bookmark', title: f.text })) : [h('div.muted', { style: 'padding:8px 20px;font-size:13px' }, 'You don\'t know much about ' + p.first + ' yet. Talk to them.')]), UI.li({ icon: 'bookmark', title: 'Open in Grimoire', onClick: () => OS.open('grimoire', { rid: id }) })) : null,
+            p.king && window.Lore ? h('div', UI.section('The Crown · ' + Lore.KINGS[p.king].title),
+              h('div', { style: 'padding:4px 20px 8px;font-size:14px;line-height:1.5;display:flex;flex-direction:column;gap:8px' },
+                h('div', { style: 'font-style:italic' }, '“' + Lore.KINGS[p.king].motto + '”'),
+                h('div', 'Rules ' + Lore.KINGS[p.king].domain + ' and runs ' + Lore.KINGS[p.king].ministry + '.' + (Lore.crown() === p.king ? ' Bearer of the Ember Crown this year.' : '')),
+                h('div', Lore.KINGS[p.king].story), h('div', Lore.KINGS[p.king].rule),
+                h('div', { style: 'color:var(--muted)' }, 'Sits in the Conclave of Seven every ' + HellTime.WEEKDAYS[R.CONCLAVE_DAY] + ' at 1pm. ' + cap1(R.COURT_EVENTS[p.king].act) + ' every ' + HellTime.WEEKDAYS[R.COURT_EVENTS[p.king].wd] + ' from ' + R.fmt(R.COURT_EVENTS[p.king].s) + '.')),
+              h('div.list', UI.li({ icon: 'globe', title: 'Read more on Infernopedia', onClick: () => OS.open('brimstone', { url: 'hell://infernopedia.hell/wiki/' + encodeURIComponent(p.name) }) }), UI.li({ icon: 'globe', title: 'The Conclave of Seven', sub: 'court.hell', onClick: () => OS.open('brimstone', { url: 'hell://court.hell' }) }))) : null,
+            !p.king && window.Lore ? (() => { const fav = Lore.favouriteKing(p), worst = Lore.leastFavouriteKing(p); return hide && !nearby ? null : h('div', UI.section('Politics'), h('div', { style: 'padding:4px 20px 10px;font-size:14px;line-height:1.5' }, 'Lives under ' + Lore.kingTitle(Lore.rulerOf(p.circle)) + '. Favourite king: ' + Lore.kingTitle(fav) + '. Can’t stand ' + Lore.kingTitle(worst) + '.')); })() : null,
             hide ? null : UI.section('Who ' + pron[0] + (p.pron === 'they' ? ' are' : ' is')),
             hide ? null : h('div', { style: 'padding:4px 20px 8px;font-size:14px;line-height:1.5;display:flex;flex-direction:column;gap:8px' },
               h('div', L.origin ? p.first + ' is from ' + L.origin + ', and ended up in Hell after ' + (p.pron === 'they' ? 'they ' : pron[0] + ' ') + L.how + '. That was ' + L.years + ' years ago.' : p.first + ' ' + L.how + ', about ' + L.years + ' years ago.'),
