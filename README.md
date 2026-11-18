@@ -52,6 +52,7 @@ The APK is signed with the fixed key in `keystore/`, so new builds install over 
 - A hidden memory: your name, likes, pets, mood, where you went, anything you ask them to remember. They bring it up later, and gossipy friends pass some of it on.
 - A like meter from −100 to 100: compliments, kindness, answering their questions and gifts of souls raise it; insults and repeating yourself lower it. It changes how they greet you, what they will tell you (secrets need a close friend) and whether they block you.
 - Residents have phones: your messages are delivered, buzz in their pocket or bag, and get read and answered when they reach for the phone, which can take a while if they're at work, out or asleep (Sending → Delivered → Read). Busy residents may not pick up calls and text back later.
+- The Hellnet hivemind (`js/core/brain.js`, trained by `tools/brain/train.js`): a small neural network written and trained from scratch that every resident shares to understand messages the rules miss; it keeps learning on the phone.
 - On calls each resident speaks with their own synthesised babble voice (pitch, speed and timbre), not real speech.
 
 **HellPlay apps:** Serpent, Hellmines, Damned 2048, Soul Flap, Brimblocks, Pentagram Paint, Hellfire Torch (real flashlight), Whispers (real microphone recorder), Ouija. Games pay out **souls**, the currency you spend in HellPlay.
