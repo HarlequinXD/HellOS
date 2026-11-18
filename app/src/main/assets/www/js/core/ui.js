@@ -3,6 +3,12 @@
   'use strict';
   const UI = {};
 
+  function decorateBar(bar){
+    bar.classList.add('illustrated-bar');
+    const app=OS.fg&&OS.fg.app;
+    if(app){const emblem=OS.appIcon(app,38);emblem.classList.add('appbar-emblem');bar.insertBefore(emblem,bar.firstChild)}
+    return bar;
+  }
   // appbar: {title, win, back:true|fn|false, actions:[{icon,label,onClick,accent}], big}
   UI.appbar = function (o) {
     const backBtn = o.back === false ? null : h('button.ibtn', {
@@ -16,12 +22,12 @@
         UI.backdrop(bar, o.hero, { top: 0.15, bottom: 0.95, pos: o.heroPos || 'center' });
         bar.classList.add('hero');
       }
-      return bar;
+      return decorateBar(bar);
     }
     const t = h('div.ttl', o.title || '');
     const bar = h('div.appbar', backBtn || h('div', { style: 'width:8px' }), t, acts);
     bar.setTitle = v => { t.textContent = v; };
-    return bar;
+    return decorateBar(bar);
   };
 
   // avatar: portrait art by stable contact id (never by editable name), else initials

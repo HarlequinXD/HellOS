@@ -28,6 +28,7 @@ OS.register({
     }
 
     function keypad() {
+      content.appendChild(UI.appbar({title:'Calls',back:false}));
       const num = h('div.num', number);
       const match = h('div.match');
       function upd() {

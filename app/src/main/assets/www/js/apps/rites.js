@@ -208,6 +208,8 @@ OS.register({
             const v = await OS.sheet('Choose a relic', photos.slice(0, 20).map((p, i) => ({ label: (p.name || 'Relic') + ' · ' + U.ago(p.created), icon: 'image', value: String(i) })));
             if (v != null) { Store.setting('wallpaperPhoto', Blobs.url(photos[+v])); set('wallpaper', 'photo'); page.rerender(); }
           } }, icon('image', 18), 'Use a photo from Relics')),
+          UI.section('Panel artwork'), SurfaceTheme.picker(s.panelTone||'obsidian', v=>{set('panelTone',v);page.rerender()}),
+          UI.section('Header artwork'), SurfaceTheme.picker(s.headerTone||'auto', v=>{set('headerTone',v);page.rerender()},true),
           UI.section('Flame colour'), accents,
           UI.section('Brightness'), h('div', { style: 'padding:0 16px' }, bright),
           h('div.list',

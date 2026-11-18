@@ -156,5 +156,14 @@
     "blood": "themes/blood.jpg",
     "void": "themes/void.jpg",
     "soulfire": "themes/soulfire.jpg"
+  },
+  "illustrated": {
+    "environments": "illustrated/environments.png",
+    "relic-tiles": "illustrated/relic-tiles.png",
+    "obsidian-frame": "illustrated/obsidian-frame.png",
+    "panel-surface": "illustrated/panel-surface.png",
+    "controls": "illustrated/controls.png",
+    "weather": "illustrated/weather.png",
+    "panel-palettes": "illustrated/panel-palettes.png"
   }
 }

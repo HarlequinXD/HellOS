@@ -131,6 +131,14 @@
 
   function icon(name, size, opts) {
     opts = opts || {};
+    const artNames=['back','forward','close','plus','minus','check','search','menu','edit','trash','phone','message','camera','play','pause','gear','download','user','grid','home','lock','volume','info','refresh','send'];
+    const artIndex=artNames.indexOf(name);
+    if(artIndex>=0&&(size||24)>=18&&!opts.fill){
+      const el=document.createElement('span');el.className='art-control';el.setAttribute('aria-hidden','true');
+      el.style.width=(size||24)+'px';el.style.height=(size||24)+'px';el.style.flex='0 0 '+(size||24)+'px';el.style.minWidth=(size||24)+'px';el.style.maxWidth=(size||24)+'px';
+      el.style.setProperty('--icon-x',(artIndex%5)*25+'%');el.style.setProperty('--icon-y',Math.floor(artIndex/5)*25+'%');
+      return el;
+    }
     const d = P[name] || name; // allow raw path data
     const ns = 'http://www.w3.org/2000/svg';
     const svg = document.createElementNS(ns, 'svg');

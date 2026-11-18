@@ -21,7 +21,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 
-import androidx.webkit.WebViewAssetLoader;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,8 +54,10 @@ public class MainActivity extends Activity {
 
         root = new FrameLayout(this);
         root.setBackgroundColor(Color.parseColor("#0B0505"));
+        root.setFitsSystemWindows(false);
         web = new WebView(this);
         web.setBackgroundColor(Color.parseColor("#0B0505"));
+        web.setFitsSystemWindows(false);
         root.addView(web, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
         setContentView(root);
@@ -69,16 +71,19 @@ public class MainActivity extends Activity {
         s.setAllowFileAccess(false);
         s.setAllowContentAccess(false);
         s.setTextZoom(100);
+        s.setUseWideViewPort(true);
+        s.setLoadWithOverviewMode(true);
+        s.setSupportZoom(false);
+        s.setBuiltInZoomControls(false);
+        s.setDisplayZoomControls(false);
         s.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
 
-        final WebViewAssetLoader loader = new WebViewAssetLoader.Builder()
-                .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
-                .build();
+        final LocalAssets loader = new LocalAssets(this);
 
         web.setWebViewClient(new WebViewClient() {
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-                return loader.shouldInterceptRequest(request.getUrl());
+                return loader.intercept(request.getUrl());
             }
 
             @Override
@@ -135,6 +140,10 @@ public class MainActivity extends Activity {
         Window w = getWindow();
         if (Build.VERSION.SDK_INT >= 30) {
             w.setDecorFitsSystemWindows(false);
+            w.setStatusBarColor(Color.TRANSPARENT);
+            w.setNavigationBarColor(Color.TRANSPARENT);
+            w.setStatusBarContrastEnforced(false);
+            w.setNavigationBarContrastEnforced(false);
             WindowInsetsController c = w.getInsetsController();
             if (c != null) {
                 c.hide(WindowInsets.Type.systemBars());
@@ -142,10 +151,15 @@ public class MainActivity extends Activity {
             }
             // Keep text fields above the keyboard while the system bars are hidden.
             root.setOnApplyWindowInsetsListener((v, insets) -> {
-                int ime = insets.getInsets(WindowInsets.Type.ime()).bottom;
+                int ime = insets.isVisible(WindowInsets.Type.ime()) ? insets.getInsets(WindowInsets.Type.ime()).bottom : 0;
                 v.setPadding(0, 0, 0, ime);
-                return insets;
+                float density = getResources().getDisplayMetrics().density;
+                int top = Math.round(insets.getInsets(WindowInsets.Type.displayCutout()).top / density);
+                int bottom = Math.round(insets.getInsets(WindowInsets.Type.displayCutout()).bottom / density);
+                web.evaluateJavascript("document.documentElement.style.setProperty('--native-safe-top','" + top + "px');document.documentElement.style.setProperty('--native-safe-bottom','" + bottom + "px');window.PhoneUI&&PhoneUI.refresh()", null);
+                return WindowInsets.CONSUMED;
             });
+            root.requestApplyInsets();
         } else {
             //noinspection deprecation
             w.getDecorView().setSystemUiVisibility(

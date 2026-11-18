@@ -15,14 +15,14 @@
 
   function frame(opts, ...content) {
     const total = STEPS.length;
-    return h('div', { style: 'position:absolute;inset:0;display:flex;flex-direction:column;padding:calc(var(--sb) + 20px) 24px 24px;background:var(--bg)' },
+    return h('div.setup-page', { style: 'position:absolute;inset:0;display:flex;flex-direction:column;padding:calc(var(--sb) + 20px) 24px 24px;background:var(--bg)' },
       opts.icon ? h('div', { style: 'color:var(--accent);margin-bottom:14px' }, icon(opts.icon, 36)) : null,
       opts.title ? h('h1', { style: 'font-family:var(--display);font-size:30px;margin:0 0 8px;line-height:1.15' }, opts.title) : null,
       opts.sub ? h('div', { style: 'color:var(--muted);font-size:15px;line-height:1.45;margin-bottom:18px' }, opts.sub) : null,
-      h('div', { style: 'flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column' }, content),
+      h('div.setup-content', { style: 'flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column' }, content),
       h('div', { style: 'display:flex;justify-content:center;gap:6px;margin:14px 0' },
         Array.from({ length: total }, (_, i) => h('span', { style: `width:${i === step ? 18 : 6}px;height:6px;border-radius:3px;background:${i <= step ? 'var(--accent)' : 'var(--tile)'};transition:width .2s` }))),
-      h('div', { style: 'display:flex;justify-content:space-between;align-items:center;gap:10px' },
+      h('div.setup-actions', { style: 'display:flex;justify-content:space-between;align-items:center;gap:10px' },
         opts.left || h('span'),
         opts.right || h('span')));
   }
@@ -41,7 +41,7 @@
       const wall = h('div', { style: 'position:absolute;inset:0;z-index:-1' });
       if (Art.get('backgrounds', 'setup_gateway')) UI.backdrop(wall, 'setup_gateway', { top: 0.25, bottom: 0.9 });
       else OS.wallpaperStyle(wall, 'lava');
-      const el = h('div', { style: 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;padding:calc(var(--sb) + 70px) 28px 34px;text-align:center;isolation:isolate' },
+      const el = h('div.setup-welcome', { style: 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;padding:calc(var(--sb) + 70px) 28px 34px;text-align:center;isolation:isolate' },
         wall,
         h('div', { style: 'color:var(--accent)' }, Boot.logo(110)),
         h('h1', { style: 'font-family:var(--display);font-size:34px;margin:26px 0 8px' }, 'Welcome to HellOS'),

@@ -56,7 +56,7 @@
       function draw() {
         drawHud();
         U.clear(board);
-        const size = Math.floor(Math.min(360, window.innerWidth - 30) / cols) - 3;
+        const size = Math.floor(Math.min(336, window.innerWidth - 64) / cols) - 3;
         board.style.gridTemplateColumns = `repeat(${cols}, ${size}px)`;
         const COL = ['', '#7BB8FF', '#7BD88F', '#FF7A45', '#C89BFF', '#FF5468', '#3FC1A5', '#F3E6DA', '#AD9387'];
         cells.forEach((c, i) => {

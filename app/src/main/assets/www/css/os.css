@@ -1,5 +1,4 @@
 /* ===== HellOS core styles ===== */
-@font-face { font-family: "HellDisplay"; src: url("../art/fonts/display.ttf") format("truetype"), local("Cinzel"); font-display: swap; }
 
 :root {
   --accent: #FF5A2A;

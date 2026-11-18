@@ -1,0 +1,1 @@
+{"name":"hellos-illustrated","version":"6.6.9","private":true,"scripts":{"test":"node tests/art-ui.cjs"},"devDependencies":{"linkedom":"0.18.12"}}

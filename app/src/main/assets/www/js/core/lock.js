@@ -86,7 +86,7 @@
     const ui = h('div.lock',
       icon(s.lockType === 'pin' ? 'lock' : 'unlock', 26),
       clock, date,
-      h('div', { style: 'display:flex;gap:8px;align-items:center;margin-top:10px;font-size:13px;color:#D9BCAE' }, icon('flame', 16), h('span.wline', weatherLine())),
+      h('div', { style: 'display:flex;gap:8px;align-items:center;margin-top:10px;font-size:13px;color:#D9BCAE' }, (window.Omens?Omens.currentSymbol(18):icon('flame',16)), h('span.wline', weatherLine())),
       window.Lament && Lament.playing() ? h('div', { style: 'margin-top:20px;padding:10px 16px;border-radius:20px;background:rgba(30,10,8,.8);display:flex;gap:10px;align-items:center' }, icon('music', 18), Lament.nowTitle(),
         h('button.ibtn', { 'aria-label': 'Pause', onclick() { Lament.toggle(); render(); } }, icon('pause', 20))) : null,
       notes,

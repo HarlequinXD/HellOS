@@ -65,9 +65,10 @@
       const now = new Date();
       clockEl = h('div.big-clock', U.time(now));
       dateEl = h('div.date', U.dateShort(now));
-      const glance = h('div.glance', clockEl, dateEl,
-        h('div.line', icon('flame', 16), h('span', window.Omens ? Omens.summary() : '')));
+      const glance = h('div.glance', {role:'button',tabindex:'0','aria-label':'Open Clock'}, clockEl, dateEl,
+        h('div.line', (window.Omens?Omens.currentSymbol(18):icon('flame',16)), h('span', window.Omens ? Omens.summary() : '')));
       glance.addEventListener('click', () => OS.open('doomclock'));
+      glance.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();OS.open('doomclock')}});
 
       const souls = s.souls;
       const widget = h('button.widget', { style: 'text-align:left;color:var(--text);width:calc(100% - 36px)', onclick() { OS.open('hellplay'); } },
@@ -75,15 +76,32 @@
         h('div', { style: 'display:flex;align-items:baseline;gap:8px' }, h('span.wbig', String(souls)), h('span', { style: 'font-size:14px;color:var(--muted)' }, 'souls to spend in HellPlay')),
         h('div.bar', h('div', { style: { width: Math.min(100, souls / 666 * 100) + '%' } })));
 
-      const grid = h('div.home-grid');
-      homeApps().forEach(id => grid.appendChild(tile(OS.apps[id], { where: 'home' })));
+      const pinned=homeApps(),pageSize=window.innerHeight<650?4:8;
+      const pages=h('div.home-pages',{'aria-label':'Home screen pages',role:'region'});
+      const dots=h('div.page-dots',{'aria-label':'Choose home screen page'});
+      const count=Math.max(1,Math.ceil(pinned.length/pageSize));
+      let pageIndex=Math.min(count-1,Store.get('homePage',0));
+      function updatePage(index){
+        pageIndex=index;
+        [...dots.children].forEach((el,i)=>{el.classList.toggle('active',i===index);el.setAttribute('aria-current',i===index?'page':'false')});
+        if(Store.get('homePage',0)!==index)Store.set('homePage',index);
+      }
+      for(let i=0;i<count;i++){
+        const page=h('div.home-page',{'aria-label':'Home page '+(i+1),style:'--page-rows:'+(pageSize===4?1:2)});
+        pinned.slice(i*pageSize,(i+1)*pageSize).forEach(id=>page.appendChild(tile(OS.apps[id],{where:'home',size:54})));
+        pages.appendChild(page);
+        dots.appendChild(h('button.page-dot',{'aria-label':'Home page '+(i+1),onclick(){pages.scrollTo({left:i*pages.clientWidth,behavior:'smooth'});updatePage(i)}}));
+      }
+      pages.addEventListener('scroll',()=>{if(pages.clientWidth)updatePage(Math.max(0,Math.min(count-1,Math.round(pages.scrollLeft/pages.clientWidth))))});
+      updatePage(pageIndex);
+      requestAnimationFrame(()=>{pages.scrollLeft=pageIndex*pages.clientWidth});
 
       const dock = h('div.dock');
       DOCK.forEach(id => { if (OS.apps[id]) dock.appendChild(tile(OS.apps[id], { where: 'dock', noLabel: true, size: 54 })); });
 
       const search = h('button.home-search', { onclick() { Home.openDrawer(true); } }, icon('search', 20), h('span', 'Search the underworld'), icon('mic', 20));
 
-      const home = h('div.home', glance, widget, h('div.home-spacer'), grid, dock, search);
+      const home = h('div.home', glance, widget, pages, dots, dock, search);
       U.swipe(home, { up: () => Home.openDrawer(), down: () => Shade.open() }, { min: 50 });
       U.longpress(home, e => {
         if (e.target.closest('.app-tile') || e.target.closest('button')) return;

@@ -5,8 +5,8 @@
   const $ = U.$;
 
   const OS = {
-    version: '6.6.6',
-    build: 'ABADDON.666.1118',
+    version: '6.6.9',
+    build: 'S23.PHONE.669.1118',
     apps: {},
     windows: [],
     fg: null,
@@ -71,7 +71,7 @@
     OS.windows.unshift(win);
     $('#layer-apps').appendChild(win.el);
     OS.focus(win, true);
-    try { app.launch(win, args || {}); }
+    try { app.launch(win, args || {}); GameArt.mount(win); }
     catch (e) { console.error(e); win.body.appendChild(h('div.empty', 'This app has been possessed: ' + e.message)); }
     return win;
   };
@@ -88,7 +88,7 @@
       own(fn) { win._cleanup.push(fn); return fn; },
       interval(fn, ms) { const t = setInterval(fn, ms); win._cleanup.push(() => clearInterval(t)); return t; },
       listen(key, fn) { win._cleanup.push(Store.on(key, fn)); },
-      visible() { return OS.fg === win && !OS.locked; }
+      visible() { return OS.fg === win && !OS.locked && !OS._paused; }
     };
     requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove('opening')));
     return win;
@@ -241,7 +241,7 @@
     const nb = $('#navbar');
     U.clear(nb);
     const mode = Store.settings().navMode;
-    document.documentElement.style.setProperty('--nav', mode === 'buttons' ? '48px' : '26px');
+    document.documentElement.style.setProperty('--nav', mode === 'buttons' ? 'calc(48px + var(--native-safe-bottom, 0px))' : 'calc(26px + var(--native-safe-bottom, 0px))');
     if (mode === 'buttons') {
       nb.appendChild(h('div.nav-buttons',
         h('button', { 'aria-label': 'Back', onclick() { Sound.play('click'); OS.back(); } }, icon('back', 22)),
@@ -508,11 +508,13 @@
   // ---------------- lifecycle ----------------
   OS.onPause = function () {
     OS._paused = true;
+    document.documentElement.classList.add('graphics-paused');
     const s = Store.settings();
     if (Store.get('setupDone', false) && s.lockOnLeave && !OS.locked && !OS.inCall) Lock.lock(true);
   };
   OS.onResume = function () {
     OS._paused = false;
+    document.documentElement.classList.remove('graphics-paused');
     readBattery();
     OS.applyBrightness();
     OS.renderStatus();

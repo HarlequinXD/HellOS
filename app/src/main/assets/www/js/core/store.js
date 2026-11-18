@@ -24,7 +24,7 @@
     pin: '',
     seal: false,
     fontScale: 1,
-    navMode: 'gestures',
+    navMode: 'buttons',
     time24: false,
     hellnet: true,
     hellnetName: 'Hellnet 666',

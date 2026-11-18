@@ -42,3 +42,12 @@ HellOS ships with the **HellOS Graphic Art Pack** made by ChatGPT. Everything is
 
 - `store/<app>_shot2` and `_shot3`: real gameplay screenshots (540 × 1000).
 - Contacts you create yourself use initials, because art is matched by contact id, not by name.
+
+
+### 6.6.9 selectable materials and forecast artwork
+
+`art/illustrated/panel-palettes.png` is a 3-column × 2-row material atlas. Row 1: Obsidian, Oxblood leather, Midnight slate. Row 2: Ash stone, Parchment, Cathedral ivory. `surface-theme.js` selects a single cell with a 300% × 200% CSS background. Do not use the entire atlas as one panel background. Panel and header choices are independent, persisted in settings, with text colours per material.
+
+`art/illustrated/weather.png` is a 3 × 3 atlas. Row 1: sulphur haze, brimstone showers, ember storm. Row 2: clear scorching sun, ash fall, blood rain. Row 3: hellfire, frozen solid, clear night. `omens.js` selects cells for forecasts and the symbol guide; the launcher and lock screen use the current symbol. Keep the symbol containers square.
+
+App-icon pseudo-element frame overlays are disabled in phone.css; original painted icon images and notification badges remain. Press feedback is event-driven in PhoneUI and has no continuous animation loop.

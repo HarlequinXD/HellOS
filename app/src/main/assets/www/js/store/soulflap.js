@@ -11,13 +11,13 @@
       const g = cv.getContext('2d');
       const batImg = GameKit.sprite('soulflap_bat'), boneImg = GameKit.sprite('soulflap_bone_pillar');
       GameKit.backdrop(win.body, 'soulflap');
-      let bat, pipes, score, running, raf, last, frame = 0;
+      let bat, pipes, score, running, raf, last, idle, frame = 0;
       function reset() { bat = { y: H / 2, v: 0 }; pipes = []; score = 0; running = true; last = performance.now(); for (let i = 0; i < 3; i++) pipes.push(pipe(W + 60 + i * 180)); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); }
       function pipe(x) { return { x, gap: 120 + Math.random() * 30, y: 90 + Math.random() * (H - 260), passed: false }; }
       function flap() { if (!running) return; bat.v = -6.2; Sound.play('key'); }
       function loop(t) {
         const dt = Math.min(2, (t - last) / 16.67); last = t; frame++;
-        if (!win.visible()) { last = t; raf = requestAnimationFrame(loop); draw(); return; }
+        if (!win.visible()) { last=t;idle=setTimeout(()=>{raf=requestAnimationFrame(loop)},200);return; }
         bat.v += 0.36 * dt; bat.y += bat.v * dt;
         pipes.forEach(p => { p.x -= 2.2 * dt; if (!p.passed && p.x + 40 < 70) { p.passed = true; score++; Sound.play('coin'); } });
         if (pipes[0].x < -60) { pipes.shift(); pipes.push(pipe(pipes[pipes.length - 1].x + 180)); }
@@ -27,9 +27,7 @@
         raf = requestAnimationFrame(loop);
       }
       function draw() {
-        const sky = g.createLinearGradient(0, 0, 0, H); sky.addColorStop(0, '#1B0508'); sky.addColorStop(1, '#4A1008');
-        g.fillStyle = sky; g.fillRect(0, 0, W, H);
-        g.fillStyle = 'rgba(226,59,59,.8)'; g.beginPath(); g.arc(250, 70, 26, 0, Math.PI * 2); g.fill();
+        GameArt.background(g,'soulflap',W,H);GameArt.embers(g,W,H,performance.now());
         const bones = GameKit.ready(boneImg);
         pipes.forEach(p => {
           if (bones) {
@@ -66,7 +64,7 @@
       cv.addEventListener('pointerdown', e => { e.preventDefault(); flap(); });
       const key = e => { if (win.visible() && (e.key === ' ' || e.key === 'ArrowUp')) { e.preventDefault(); flap(); } };
       window.addEventListener('keydown', key);
-      win.own(() => { window.removeEventListener('keydown', key); cancelAnimationFrame(raf); running = false; });
+      win.own(() => { window.removeEventListener('keydown', key); cancelAnimationFrame(raf); clearTimeout(idle); running = false; });
       bat = { y: H / 2, v: 0 }; pipes = [pipe(W + 60)]; score = 0; draw();
       GameKit.overlay(wrap, 'Soul Flap', ['Tap to flap through the bone pillars.'], 'Fly', reset);
     }

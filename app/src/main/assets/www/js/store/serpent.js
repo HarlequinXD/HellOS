@@ -12,7 +12,7 @@
     },
     ready(im) { return !!(im && im.complete && im.naturalWidth); },
     // illustrated backdrop for a game screen, under a dark overlay
-    backdrop(el, appId) { return UI.backdrop(el, appId + '_play', { top: 0.82, bottom: 0.93 }); },
+    backdrop(el, appId) { return UI.backdrop(el, appId + '_play', { top: 0.35, bottom: 0.82 }); },
     // shared: reward souls for a finished run, remember best score
     finish(key, score, perSoul, title) {
       const best = Store.get(key + 'Best', 0);
@@ -33,7 +33,7 @@
     id: 'serpent', name: M.name, icon: M.icon, tint: M.tint, store: M, dataKeys: ['serpentBest'],
     launch(win) {
       const N = 18;
-      const cv = h('canvas', { width: 360, height: 360, style: 'width:min(92vw,360px);height:min(92vw,360px)' });
+      const cv = h('canvas', { width: 360, height: 360, style: 'width:min(84vw,340px);height:auto;aspect-ratio:1' });
       const score = h('span', '0'), best = h('span', String(Store.get('serpentBest', 0)));
       const wrap = h('div.game', { style: 'position:relative' });
       const dpad = h('div.dpad',
@@ -63,22 +63,25 @@
       }
       function draw() {
         const c = 360 / N;
-        g.fillStyle = '#120605'; g.fillRect(0, 0, 360, 360);
+        GameArt.background(g,'serpent',360,360);
         g.strokeStyle = 'rgba(255,110,60,.06)';
         for (let i = 0; i <= N; i++) { g.beginPath(); g.moveTo(i * c, 0); g.lineTo(i * c, 360); g.moveTo(0, i * c); g.lineTo(360, i * c); g.stroke(); }
-        if (GameKit.ready(appleImg)) { const s = c * 1.25; g.drawImage(appleImg, fruit[0] * c + c / 2 - s / 2, fruit[1] * c + c / 2 - s / 2, s, s); }
+        if (GameKit.ready(appleImg)) { const s = c * (1.25+Math.sin(performance.now()/230)*.08); g.drawImage(appleImg, fruit[0] * c + c / 2 - s / 2, fruit[1] * c + c / 2 - s / 2, s, s); }
         else {
           g.fillStyle = '#E2481F'; g.beginPath(); g.arc(fruit[0] * c + c / 2, fruit[1] * c + c / 2, c / 2.4, 0, Math.PI * 2); g.fill();
           g.fillStyle = '#3FA34D'; g.fillRect(fruit[0] * c + c / 2 - 1, fruit[1] * c + 2, 2, 5);
         }
         const useHead = GameKit.ready(headImg);
-        snake.forEach((s, i) => { if (i === 0 && useHead) return; g.fillStyle = i === 0 ? '#7BD88F' : `hsl(${130 - i * 2},45%,${40 - Math.min(20, i)}%)`; g.fillRect(s[0] * c + 1, s[1] * c + 1, c - 2, c - 2); });
+        snake.forEach((s, i) => { if (i === 0 && useHead) return; GameArt.tile(g,13,s[0]*c+1,s[1]*c+1,c-2,c-2); });
         const hd = snake[0];
         if (useHead) {
           g.save(); g.translate(hd[0] * c + c / 2, hd[1] * c + c / 2); g.rotate(Math.atan2(dir[1], dir[0]));
           const s = c * 1.5; g.drawImage(headImg, -s / 2, -s / 2, s, s); g.restore();
         } else { g.fillStyle = '#120605'; g.fillRect(hd[0] * c + c / 2 + dir[0] * 4 - 2, hd[1] * c + c / 2 + dir[1] * 4 - 2, 4, 4); }
       }
+      const originalDraw=draw;
+      function animatedDraw(){originalDraw();GameArt.embers(g,360,360,performance.now())}
+      GameArt.animate(win,animatedDraw);
       function die() {
         alive = false; Sound.play('boom'); OS.vibrate(200);
         const r = GameKit.finish('serpent', pts, 20, 'Serpent');

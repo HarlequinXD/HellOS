@@ -10,10 +10,10 @@
     id: 'brimblocks', name: M.name, icon: M.icon, tint: M.tint, store: M, dataKeys: ['brimblocksBest'],
     launch(win) {
       const C = 10, R = 20, S = 16;
-      const cv = h('canvas', { width: C * S + 90, height: R * S, style: 'height:min(56vh,420px);width:auto' });
+      const cv = h('canvas', { width: C * S + 90, height: R * S, style: 'height:min(40vh,340px);width:auto' });
       const wrap = h('div.game', { style: 'position:relative' });
       const btn = (ic, label, fn) => { const b = h('button', { 'aria-label': label }, icon(ic, 24)); let rep; b.addEventListener('pointerdown', e => { e.preventDefault(); fn(); if (label === 'Left' || label === 'Right' || label === 'Down') rep = setInterval(fn, 110); }); ['pointerup', 'pointerleave', 'pointercancel'].forEach(n => b.addEventListener(n, () => clearInterval(rep))); return b; };
-      const pad = h('div', { style: 'display:grid;grid-template-columns:repeat(5,58px);gap:6px' },
+      const pad = h('div', { style: 'display:grid;grid-template-columns:repeat(5,minmax(0,1fr));width:100%;max-width:330px;gap:5px' },
         btn('back', 'Left', () => shift(-1)), btn('rotate', 'Rotate', rotate), btn('chevD', 'Down', () => { if (!drop()) lock(); }), btn('download', 'Hard drop', hard), btn('forward', 'Right', () => shift(1)));
       U.$$('button', pad).forEach(b => b.style.cssText = 'height:56px;border-radius:16px;border:none;background:var(--surface3);color:var(--text);display:flex;align-items:center;justify-content:center');
       wrap.append(cv, pad, h('button.chip', { onclick: hold }, 'Hold'));
@@ -43,7 +43,7 @@
       }
       function loop() { clearTimeout(tmr); tmr = setTimeout(() => { if (alive && !paused && win.visible()) { if (!drop()) lock(); } if (alive) loop(); }, Math.max(90, 650 - (level - 1) * 55)); }
       function draw() {
-        g.fillStyle = '#120605'; g.fillRect(0, 0, cv.width, cv.height);
+        GameArt.background(g,'brimblocks',cv.width,cv.height);
         g.strokeStyle = 'rgba(255,110,60,.07)';
         for (let x = 0; x <= C; x++) { g.beginPath(); g.moveTo(x * S, 0); g.lineTo(x * S, R * S); g.stroke(); }
         board.forEach((row, y) => row.forEach((c, x) => { if (c) cell(x, y, c); }));
@@ -52,7 +52,7 @@
           cells(gh).forEach(([x, y]) => { g.strokeStyle = 'rgba(243,230,218,.35)'; g.strokeRect(x * S + 1.5, y * S + 1.5, S - 3, S - 3); });
           cells(cur).forEach(([x, y]) => cell(x, y, COLORS[cur.k]));
         }
-        g.fillStyle = '#1A0B09'; g.fillRect(C * S, 0, 90, R * S);
+        g.fillStyle = 'rgba(12,5,10,.86)'; g.fillRect(C * S, 0, 90, R * S);
         g.fillStyle = '#CDB2A5'; g.font = '600 10px Inter, sans-serif'; g.textAlign = 'left';
         g.fillText('NEXT', C * S + 12, 18); mini(next, C * S + 14, 26);
         g.fillText('HOLD', C * S + 12, 96); if (held) mini(held, C * S + 14, 104);
@@ -60,8 +60,9 @@
         g.fillStyle = '#CDB2A5'; g.font = '600 10px Inter'; g.fillText('LINES', C * S + 12, 226); g.fillStyle = '#F3E6DA'; g.font = '700 15px Inter'; g.fillText(String(lines), C * S + 12, 244);
         g.fillStyle = '#CDB2A5'; g.font = '600 10px Inter'; g.fillText('LEVEL', C * S + 12, 272); g.fillStyle = '#F3E6DA'; g.font = '700 15px Inter'; g.fillText(String(level), C * S + 12, 290);
       }
-      function cell(x, y, c) { if (y < 0) return; g.fillStyle = c; g.fillRect(x * S + 1, y * S + 1, S - 2, S - 2); g.fillStyle = 'rgba(255,255,255,.18)'; g.fillRect(x * S + 1, y * S + 1, S - 2, 3); }
-      function mini(k, ox, oy) { SHAPES[k].forEach(([x, y]) => { g.fillStyle = COLORS[k]; g.fillRect(ox + x * 12, oy + y * 12, 11, 11); }); }
+      function cell(x,y,c){if(y<0)return;GameArt.tile(g,14,x*S+1,y*S+1,S-2,S-2,c)}
+      function mini(k, ox, oy) { SHAPES[k].forEach(([x, y]) => { GameArt.tile(g,14,ox+x*12,oy+y*12,11,11,COLORS[k]); }); }
+      GameArt.animate(win,()=>{draw();GameArt.embers(g,C*S,R*S,performance.now())});
       function die() {
         alive = false; clearTimeout(tmr); Sound.play('boom');
         const r = GameKit.finish('brimblocks', score, 300, 'Brimblocks');

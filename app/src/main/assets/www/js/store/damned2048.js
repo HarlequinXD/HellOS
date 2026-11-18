@@ -46,7 +46,7 @@
         U.clear(board);
         grid.forEach(v => {
           const lvl = v ? Math.log2(v) : 0;
-          board.appendChild(h('div', { style: v ? `background:hsl(${18 - lvl * 3},${50 + lvl * 4}%,${18 + lvl * 4}%);color:${lvl > 6 ? '#1A0605' : '#F3E6DA'};flex-direction:column;font-size:${v >= 1024 ? 16 : 20}px` : '' },
+          board.appendChild(h('div'+(v?'.relic-filled':''), { 'aria-label': v ? String(v)+' '+(NAMES[v]||'Beyond') : 'Empty tile', style: v ? `--tile-x:${(Math.min(10,lvl-1)%4)*100/3}%;--tile-y:${Math.floor(Math.min(10,lvl-1)/4)*100/3}%;flex-direction:column`  : '' },
             v ? h('span', String(v)) : null, v ? h('span', { style: 'font-size:9px;font-weight:600;opacity:.85' }, NAMES[v] || 'Beyond') : null));
         });
       }
