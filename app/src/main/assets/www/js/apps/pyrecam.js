@@ -71,7 +71,7 @@ OS.register({
           const s = Math.max(360 / artImg.width, 640 / artImg.height) * (1.04 + Math.sin(t * 0.5) * 0.02);
           ctx.drawImage(artImg, 180 - artImg.width * s / 2, 320 - artImg.height * s / 2, artImg.width * s, artImg.height * s);
           for (let i = 0; i < 30; i++) { ctx.fillStyle = `rgba(255,${120 + Math.random() * 100},40,${Math.random()})`; ctx.fillRect(Math.random() * 360, (640 - ((t * 60 + i * 37) % 640)), 2, 2); }
-          ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.font = '600 14px Inter, sans-serif'; ctx.textAlign = 'center';
+          ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.font = '600 14px "Pixelify Sans", monospace'; ctx.textAlign = 'center';
           ctx.fillText('SPECTRAL FEED · NO CAMERA', 180, 60);
           return;
         }
@@ -83,7 +83,7 @@ OS.register({
         for (let x = 0; x <= 360; x += 30) ctx.lineTo(x, 470 - Math.abs(Math.sin(x * 0.07 + 1)) * 140);
         ctx.lineTo(360, 640); ctx.fill();
         for (let i = 0; i < 40; i++) { ctx.fillStyle = `rgba(255,${120 + Math.random() * 100},40,${Math.random()})`; ctx.fillRect(Math.random() * 360, (640 - ((t * 60 + i * 37) % 640)), 2, 2); }
-        ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.font = '600 14px Inter, sans-serif'; ctx.textAlign = 'center';
+        ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.font = '600 14px "Pixelify Sans", monospace'; ctx.textAlign = 'center';
         ctx.fillText('SPECTRAL FEED · NO CAMERA', 180, 60);
       }, 50);
     }

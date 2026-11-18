@@ -129,24 +129,25 @@
     ear: 'M7 9a5 5 0 0 1 10 0c0 3-3 4-3 7a3 3 0 0 1-6 0'
   };
 
+  // Interface icons are pixel art: the path is rasterised on a coarse grid by
+  // PixelArt.iconMask and used as a mask, so the icon takes the current text
+  // colour (accent, white, danger...) while keeping blocky pixel edges.
   function icon(name, size, opts) {
     opts = opts || {};
+    size = size || 24;
     const d = P[name] || name; // allow raw path data
-    const ns = 'http://www.w3.org/2000/svg';
-    const svg = document.createElementNS(ns, 'svg');
-    svg.setAttribute('viewBox', '0 0 24 24');
-    svg.setAttribute('width', size || 24);
-    svg.setAttribute('height', size || 24);
-    svg.setAttribute('fill', opts.fill || 'none');
-    svg.setAttribute('stroke', opts.stroke || 'currentColor');
-    svg.setAttribute('stroke-width', opts.sw || 1.8);
-    svg.setAttribute('stroke-linecap', 'round');
-    svg.setAttribute('stroke-linejoin', 'round');
-    svg.setAttribute('aria-hidden', 'true');
-    const p = document.createElementNS(ns, 'path');
-    p.setAttribute('d', d);
-    svg.appendChild(p);
-    return svg;
+    const outer = document.createElement('span');
+    outer.className = 'pxi';
+    outer.setAttribute('aria-hidden', 'true');
+    outer.style.width = outer.style.height = size + 'px';
+    const inner = document.createElement('span');
+    const url = window.PixelArt ? PixelArt.iconMask(d, size, opts.fill && opts.fill !== 'none') : null;
+    if (url) {
+      inner.style.webkitMaskImage = inner.style.maskImage = 'url("' + url + '")';
+    }
+    if (opts.stroke && opts.stroke !== 'currentColor') inner.style.background = opts.stroke;
+    outer.appendChild(inner);
+    return outer;
   }
   window.ICONS = P;
   window.icon = icon;

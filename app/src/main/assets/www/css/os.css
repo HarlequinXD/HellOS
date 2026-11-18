@@ -118,7 +118,7 @@ button { cursor: pointer; }
 .app-tile:active .appicon { transform: scale(.92); }
 .dock { margin: 22px 16px 0; padding: 10px 14px; border-radius: 34px; background: rgba(20, 8, 7, .88); border: 1px solid var(--line); display: flex; justify-content: space-around; }
 .home-search { margin: 12px 16px 0; height: 50px; padding: 0 18px; border-radius: 25px; background: var(--surface3); display: flex; align-items: center; gap: 12px; color: var(--muted); border: none; width: calc(100% - 32px); font-size: 15px; text-align: left; }
-.home-search span { flex: 1; }
+.home-search > span:not(.pxi) { flex: 1; }
 
 /* drawer */
 .drawer { position: absolute; inset: 0; background: rgba(14, 6, 5, .97); padding-top: calc(var(--sb) + 12px); padding-bottom: var(--nav); display: flex; flex-direction: column; transform: translateY(100%); transition: transform calc(.3s * var(--anim)) cubic-bezier(.2,.8,.2,1); z-index: 5; }

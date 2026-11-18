@@ -53,12 +53,12 @@
           cells(cur).forEach(([x, y]) => cell(x, y, COLORS[cur.k]));
         }
         g.fillStyle = 'rgba(12,5,10,.86)'; g.fillRect(C * S, 0, 90, R * S);
-        g.fillStyle = '#CDB2A5'; g.font = '600 10px Inter, sans-serif'; g.textAlign = 'left';
+        g.fillStyle = '#CDB2A5'; g.font = '600 10px "Pixelify Sans", monospace'; g.textAlign = 'left';
         g.fillText('NEXT', C * S + 12, 18); mini(next, C * S + 14, 26);
         g.fillText('HOLD', C * S + 12, 96); if (held) mini(held, C * S + 14, 104);
-        g.fillText('SCORE', C * S + 12, 180); g.fillStyle = '#F3E6DA'; g.font = '700 15px Inter'; g.fillText(String(score), C * S + 12, 198);
-        g.fillStyle = '#CDB2A5'; g.font = '600 10px Inter'; g.fillText('LINES', C * S + 12, 226); g.fillStyle = '#F3E6DA'; g.font = '700 15px Inter'; g.fillText(String(lines), C * S + 12, 244);
-        g.fillStyle = '#CDB2A5'; g.font = '600 10px Inter'; g.fillText('LEVEL', C * S + 12, 272); g.fillStyle = '#F3E6DA'; g.font = '700 15px Inter'; g.fillText(String(level), C * S + 12, 290);
+        g.fillText('SCORE', C * S + 12, 180); g.fillStyle = '#F3E6DA'; g.font = '700 15px "Pixelify Sans"'; g.fillText(String(score), C * S + 12, 198);
+        g.fillStyle = '#CDB2A5'; g.font = '600 10px "Pixelify Sans"'; g.fillText('LINES', C * S + 12, 226); g.fillStyle = '#F3E6DA'; g.font = '700 15px "Pixelify Sans"'; g.fillText(String(lines), C * S + 12, 244);
+        g.fillStyle = '#CDB2A5'; g.font = '600 10px "Pixelify Sans"'; g.fillText('LEVEL', C * S + 12, 272); g.fillStyle = '#F3E6DA'; g.font = '700 15px "Pixelify Sans"'; g.fillText(String(level), C * S + 12, 290);
       }
       function cell(x,y,c){if(y<0)return;GameArt.tile(g,14,x*S+1,y*S+1,S-2,S-2,c)}
       function mini(k, ox, oy) { SHAPES[k].forEach(([x, y]) => { GameArt.tile(g,14,ox+x*12,oy+y*12,11,11,COLORS[k]); }); }

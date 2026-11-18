@@ -174,12 +174,21 @@
                 timer.total = tot; timer.endAt = Date.now() + tot; timer.remaining = tot; timer.running = true; render();
               } }, icon('play', 34)));
           } else {
-            const ns = 'http://www.w3.org/2000/svg';
-            const svg = document.createElementNS(ns, 'svg');
-            svg.setAttribute('viewBox', '0 0 100 100'); svg.setAttribute('width', 260); svg.setAttribute('height', 260);
-            svg.innerHTML = '<circle cx="50" cy="50" r="45" fill="none" stroke="var(--tile)" stroke-width="6"/><circle class="arc" cx="50" cy="50" r="45" fill="none" stroke="var(--accent)" stroke-width="6" stroke-linecap="round" transform="rotate(-90 50 50)" stroke-dasharray="282.7"/>';
+            // pixel-art progress ring on a 64x64 canvas, scaled up crisp
+            const cv = h('canvas', { width: 64, height: 64, 'aria-hidden': 'true', style: 'width:100%;height:100%;image-rendering:pixelated' });
             const tt = h('div.tt');
-            const ring = h('div.timer-ring', svg, tt);
+            const ring = h('div.timer-ring', cv, tt);
+            function drawRing(frac) {
+              const g = cv.getContext('2d'), acc = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#FF5A2A';
+              g.clearRect(0, 0, 64, 64);
+              for (let y = 0; y < 64; y++) for (let x = 0; x < 64; x++) {
+                const dx = x + 0.5 - 32, dy = y + 0.5 - 32, d = Math.hypot(dx, dy);
+                if (d < 25 || d > 30) continue;
+                const a = (Math.atan2(dx, -dy) / (Math.PI * 2) + 1) % 1;
+                g.fillStyle = d > 29 || d < 26 ? '#120606' : (a <= frac ? acc : '#3a2424');
+                g.fillRect(x, y, 1, 1);
+              }
+            }
             const pp = h('button.playbtn', { 'aria-label': 'Pause or resume', onclick() {
               if (timer.running) { timer.remaining = timer.endAt - Date.now(); timer.running = false; }
               else { timer.endAt = Date.now() + timer.remaining; timer.running = true; }
@@ -188,7 +197,7 @@
             function upd() {
               const rem = timer.running ? timer.endAt - Date.now() : timer.remaining;
               tt.textContent = U.hms(rem);
-              svg.querySelector('.arc').setAttribute('stroke-dashoffset', String(282.7 * (1 - Math.max(0, rem) / timer.total)));
+              drawRing(Math.max(0, rem) / timer.total);
               U.clear(pp).appendChild(icon(timer.running ? 'pause' : 'play', 34));
               if (!timer.running && timer.remaining <= 0) render();
             }

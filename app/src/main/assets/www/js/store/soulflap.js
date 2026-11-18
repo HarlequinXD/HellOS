@@ -44,7 +44,7 @@
         if (GameKit.ready(batImg)) {
           const sy = 1 + Math.sin(frame * 0.4) * 0.12;
           g.scale(1, sy); g.drawImage(batImg, -26, -21, 52, 42); g.restore();
-          g.fillStyle = '#F3E6DA'; g.font = '700 36px Cinzel, Georgia, serif'; g.textAlign = 'center'; g.fillText(String(score), W / 2, 56);
+          g.fillStyle = '#F3E6DA'; g.font = '700 36px "Pixelify Sans", monospace'; g.textAlign = 'center'; g.fillText(String(score), W / 2, 56);
           return;
         }
         const wing = Math.sin(frame * 0.4) * 10;
@@ -54,7 +54,7 @@
         g.beginPath(); g.arc(0, 0, 9, 0, Math.PI * 2); g.fill();
         g.fillStyle = '#FF5A2A'; g.fillRect(-4, -3, 2, 2); g.fillRect(2, -3, 2, 2);
         g.restore();
-        g.fillStyle = '#F3E6DA'; g.font = '700 36px Cinzel, Georgia, serif'; g.textAlign = 'center'; g.fillText(String(score), W / 2, 56);
+        g.fillStyle = '#F3E6DA'; g.font = '700 36px "Pixelify Sans", monospace'; g.textAlign = 'center'; g.fillText(String(score), W / 2, 56);
       }
       function die() {
         running = false; Sound.play('boom'); OS.vibrate(200);

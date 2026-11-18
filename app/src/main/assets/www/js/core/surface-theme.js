@@ -37,6 +37,13 @@
       '--plate-accent': Art.cssUrl(Art.get('ui', 'plate-accent')),
       '--relic-11': Art.cssUrl(Art.get('relics', '11')), '--relic-12': Art.cssUrl(Art.get('relics', '12'))
     };
+    // every interface plate is pixel art (pixelart.js)
+    ['plate', 'plate-lit', 'plate-accent', 'plate-green', 'plate-red', 'key', 'key-op', 'tab', 'tab-on', 'cat', 'hl',
+     'toast', 'field', 'well', 'rim', 'status', 'nav', 'badge', 'lcd', 'check', 'check-on', 'thumb', 'fill', 'groove']
+      .forEach(k => { vars['--ui-' + k] = Art.cssUrl(Art.get('ui', k)); });
+    vars['--ui-title'] = Art.cssUrl(Art.get('ui', 'title-' + hd.id));
+    vars['--tile-panel'] = Art.cssUrl(Art.get('ui', 'panel-obsidian'));
+    vars['--tile-parch'] = Art.cssUrl(Art.get('ui', 'panel-parchment'));
     for (const k in vars) root.style.setProperty(k, vars[k]);
   }
 

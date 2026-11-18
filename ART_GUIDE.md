@@ -27,8 +27,10 @@ molten orange on dark plum.
 | `weather` | `0`–`8` | Omens forecast symbols |
 | `gameplay` | serpent head and apple, bat, bone pillar, mine, planchette | Game sprites |
 | `scenes` | one per game | Game board backdrops |
-| `ui` | `frame`, `plate`, `plate-lit`, `plate-accent`, `panel-<tone>`, `swatch-<tone>` | 9-slice iron frame, forged button plates, tiling panel materials |
+| `ui` | `frame`, `plate`, `plate-lit`, `plate-accent`, `plate-green`, `plate-red`, `key`, `key-op`, `tab`, `tab-on`, `cat`, `hl`, `toast`, `field`, `well`, `rim`, `status`, `nav`, `badge`, `lcd`, `title-<tone>`, `check`, `check-on`, `thumb`, `fill`, `groove`, `panel-<tone>`, `swatch-<tone>` | Every interface surface: 24×24 nine-slice plates (slice 8, flat dithered centre) plus checkbox, slider and progress pieces and tiling materials. `surface-theme.js` exposes them as `--ui-*` CSS variables used by `css/retro.css`. |
 | `system`, `boot`, `themes` | seal, logo, boot screen, flame cards | |
+
+Interface icons are pixel art too: `icon()` asks `PixelArt.iconMask()` for a coarse-grid mask of the path, enlarged with nearest-neighbour, and fills it with the current text colour.
 
 ## Changing the art
 

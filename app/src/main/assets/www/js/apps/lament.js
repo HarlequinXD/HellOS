@@ -127,7 +127,7 @@
     for (let i = 0; i <= 5; i++) { const a = -Math.PI / 2 + i * (Math.PI * 4 / 5); const x = cx + Math.cos(a) * R, y = cy + Math.sin(a) * R; i ? g.lineTo(x, y) : g.moveTo(x, y); }
     g.stroke();
     for (let i = 0; i < 60; i++) { g.fillStyle = `rgba(255,${150 + r() * 100},80,${r() * 0.6})`; g.fillRect(r() * 300, r() * 300, 2, 2); }
-    g.fillStyle = 'rgba(255,240,230,.9)'; g.font = '700 22px Cinzel, Georgia, serif'; g.textAlign = 'center';
+    g.fillStyle = 'rgba(255,240,230,.9)'; g.font = '700 22px "Pixelify Sans", monospace'; g.textAlign = 'center';
     g.fillText(t.title.toUpperCase().slice(0, 22), 150, 268);
     c.style.cssText = `width:${size}px;height:${size}px;border-radius:inherit`;
     return c;

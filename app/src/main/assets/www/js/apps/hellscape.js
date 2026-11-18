@@ -50,15 +50,15 @@
       win.body.appendChild(wrap);
       win.onBack = () => { if (!results.classList.contains('hidden')) { results.classList.add('hidden'); q.blur(); return true; } if (selected) { select(null); return true; } return false; };
 
-      function size() { const r = wrap.getBoundingClientRect(); const dpr = window.devicePixelRatio || 1; canvas.width = r.width * dpr; canvas.height = r.height * dpr; draw(); }
+      function size() { const r = wrap.getBoundingClientRect(); const dpr = 2 / 3; /* render at 1 art px per 1.5 CSS px: chunky pixel map */ canvas.width = r.width * dpr; canvas.height = r.height * dpr; draw(); }
       const ro = new ResizeObserver(size); ro.observe(wrap); win.own(() => ro.disconnect());
 
-      function w2s(x, y) { const dpr = window.devicePixelRatio || 1; return [(x - cam.x) * cam.z * dpr + canvas.width / 2, (y - cam.y) * cam.z * dpr + canvas.height / 2]; }
-      function s2w(sx, sy) { const dpr = window.devicePixelRatio || 1; return [(sx * dpr - canvas.width / 2) / (cam.z * dpr) + cam.x, (sy * dpr - canvas.height / 2) / (cam.z * dpr) + cam.y]; }
+      function w2s(x, y) { const dpr = 2 / 3; /* render at 1 art px per 1.5 CSS px: chunky pixel map */ return [(x - cam.x) * cam.z * dpr + canvas.width / 2, (y - cam.y) * cam.z * dpr + canvas.height / 2]; }
+      function s2w(sx, sy) { const dpr = 2 / 3; /* render at 1 art px per 1.5 CSS px: chunky pixel map */ return [(sx * dpr - canvas.width / 2) / (cam.z * dpr) + cam.x, (sy * dpr - canvas.height / 2) / (cam.z * dpr) + cam.y]; }
 
       function draw() {
         const g = canvas.getContext('2d');
-        const dpr = window.devicePixelRatio || 1;
+        const dpr = 2 / 3; /* render at 1 art px per 1.5 CSS px: chunky pixel map */
         g.fillStyle = '#0E0403'; g.fillRect(0, 0, canvas.width, canvas.height);
         const [cx, cy] = w2s(0, 0);
         const R9 = 9 * RING * cam.z * dpr;
@@ -76,7 +76,7 @@
           g.strokeStyle = 'rgba(255,140,80,.25)'; g.lineWidth = 2 * dpr; g.stroke();
           // label
           if (cam.z > 0.25) {
-            g.fillStyle = 'rgba(255,220,200,.55)'; g.font = `600 ${12 * dpr}px Inter, sans-serif`; g.textAlign = 'center';
+            g.fillStyle = 'rgba(255,220,200,.55)'; g.font = `600 ${12 * dpr}px "Pixelify Sans", monospace`; g.textAlign = 'center';
             g.fillText((i + 1) + '. ' + CIRCLES[i].toUpperCase(), cx, cy - r + 18 * dpr);
           }
         }
@@ -99,7 +99,7 @@
           g.beginPath(); g.arc(x, y, (isSel ? 10 : 7) * dpr, 0, Math.PI * 2);
           g.fillStyle = isSel ? '#FFF' : getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#FF5A2A';
           g.fill(); g.strokeStyle = '#1A0605'; g.lineWidth = 2 * dpr; g.stroke();
-          if (cam.z > 0.45 || isSel) { g.fillStyle = '#F3E6DA'; g.font = `600 ${11 * dpr}px Inter, sans-serif`; g.textAlign = 'center'; g.fillText(p.n, x, y - 13 * dpr); }
+          if (cam.z > 0.45 || isSel) { g.fillStyle = '#F3E6DA'; g.font = `600 ${11 * dpr}px "Pixelify Sans", monospace`; g.textAlign = 'center'; g.fillText(p.n, x, y - 13 * dpr); }
         });
         // you
         if (Store.settings().watched) {

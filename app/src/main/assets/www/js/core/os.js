@@ -5,7 +5,7 @@
   const $ = U.$;
 
   const OS = {
-    version: '6.8.0',
+    version: '6.8.1',
     build: 'RETRO.GINGERHELL.680.1118',
     apps: {},
     windows: [],
@@ -225,10 +225,7 @@
     if (s.descent) right.appendChild(icon('descent', 14, { sw: 2.2 }));
     else {
       right.appendChild(icon(s.hellnet ? 'wifi' : 'wifiOff', 15, { sw: 2.2 }));
-      const sig = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      sig.setAttribute('viewBox', '0 0 24 24'); sig.setAttribute('width', 15); sig.setAttribute('height', 15); sig.setAttribute('fill', 'currentColor');
-      sig.innerHTML = '<rect x="3" y="15" width="3" height="6" rx="1"/><rect x="8" y="11" width="3" height="10" rx="1"/><rect x="13" y="7" width="3" height="14" rx="1"/><rect x="18" y="3" width="3" height="18" rx="1" opacity=".4"/>';
-      right.appendChild(sig);
+      right.appendChild(icon('signal', 15));
     }
     const b = OS.battery;
     right.appendChild(h('span.sb-batt', h('span', b.level + '%'),

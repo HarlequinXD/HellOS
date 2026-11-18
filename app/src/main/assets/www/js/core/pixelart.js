@@ -631,22 +631,113 @@
     [[2, 2], [S - 3, 2], [2, S - 3], [S - 3, S - 3]].forEach(([x, y]) => { px.put(x, y, C('bone', 14)); px.put(x + 1, y, C('bone', 9)); px.put(x, y + 1, C('bone', 9)); });
     return px;
   }
-  // 24x24 nine-slice button plate (retro Android glossy, forged)
-  function plate(state) {
+  // ------------------------------------------------------------------
+  // 9-slice pixel plates for every UI surface (24x24, slice 8).
+  // The centre is a flat dithered colour (period 4), so it repeats seamlessly;
+  // gloss and shading live in the edge slices only, so nothing ever stretches.
+  // ------------------------------------------------------------------
+  const PLATES = {
+    plate:        { ramp: 'iron', base: 4.5, gloss: 3 },
+    'plate-lit':  { ramp: 'ember', base: 9, gloss: 3 },
+    'plate-accent': { ramp: 'crimson', base: 6.5, gloss: 3.5 },
+    'plate-green': { ramp: 'serpent', base: 6, gloss: 3.5 },
+    'plate-red':  { ramp: 'blood', base: 6.5, gloss: 3.5 },
+    key:          { ramp: 'iron', base: 3.6, gloss: 2.5 },
+    'key-op':     { ramp: 'blood', base: 3.5, gloss: 2.5 },
+    tab:          { ramp: 'iron', base: 2.8, gloss: 2, square: true },
+    'tab-on':     { ramp: 'iron', base: 5.2, gloss: 2.5, square: true, under: 'ember' },
+    cat:          { ramp: 'iron', base: 3.4, gloss: 1.5, square: true, thin: true },
+    hl:           { ramp: 'ember', base: 9.5, gloss: 2.5, square: true, nokey: true },
+    toast:        { ramp: 'iron', base: 3, gloss: 1.5, rim: 'bone' },
+    field:        { ramp: 'bone', base: 13, inset: true },
+    well:         { ramp: 'plum', base: 0.8, inset: true },
+    rim:          { ramp: 'iron', rimOnly: true },
+    status:       { ramp: 'iron', base: 0.4, gloss: 0, square: true, nokey: true, bottomLine: true },
+    nav:          { ramp: 'iron', base: 1.6, gloss: 1.5, square: true, nokey: true, topLine: true },
+    badge:        { ramp: 'ember', base: 10, gloss: 2.5 },
+    lcd:          { ramp: 'bile', base: 12, inset: true }
+  };
+  function plate9(spec, tone) {
     const S = 24, px = new Px(S, S);
-    const ramp = state === 'lit' ? 'ember' : state === 'accent' ? 'crimson' : 'iron';
+    const ramp = spec.ramp, base = spec.base;
+    const cut = (x, y) => !spec.square && Math.min(x, S - 1 - x) + Math.min(y, S - 1 - y) < 2 && (x < 2 || x > S - 3) && (y < 2 || y > S - 3);
     px.each((x, y) => {
+      if (cut(x | 0, y | 0)) return null;
+      x |= 0; y |= 0;
       const e = Math.min(x, y, S - 1 - x, S - 1 - y);
-      const corner = (x < 2 || x > S - 3) && (y < 2 || y > S - 3) && Math.min(x, S - 1 - x) + Math.min(y, S - 1 - y) < 2;
-      if (corner) return null;
-      if (e === 0) return C('plum', 0.5);
-      const gloss = y < S / 2 ? 1.5 : 0;
-      const base = state === 'lit' ? 9 : state === 'accent' ? 7 : 4.5;
-      if (e === 1) return C(ramp, base + (y < S / 2 ? 4 : -1.5));
-      return C(ramp, base + gloss + (1 - y / S) * 2.2);
+      if (spec.rimOnly) {
+        if (e === 0) return INK;
+        if (e === 1) return C('iron', y < S / 2 ? 9 : 5);
+        if (e === 2) return C('iron', 3);
+        return null;                                   // see-through centre
+      }
+      if (e === 0 && !spec.nokey) return INK;
+      if (spec.inset) {
+        if (e === 1 && (y === 1 || x === 1)) return C(ramp, base - 6);      // inner shadow top/left
+        if (e === 2 && (y === 2 || x === 2)) return C(ramp, base - 3);
+        if (e === 1) return C(ramp, base + 1.5);                           // lit bottom/right lip
+        return C(ramp, base);
+      }
+      if (spec.topLine && y === 0) return C('iron', 6);
+      if (spec.bottomLine && y === S - 1) return C('iron', 3);
+      if (spec.under && y >= S - 3) return C(spec.under, y === S - 1 ? 7 : 11);
+      if (y < 8) {                                                          // glossy top slice
+        if (y === (spec.nokey ? 0 : 1)) return C(ramp, base + spec.gloss + 2);
+        return C(ramp, base + spec.gloss * (1 - y / 9) + (spec.thin ? 0 : 0.5));
+      }
+      if (y >= 16) return C(ramp, base - 0.8 - (y - 16) * 0.25);            // shaded bottom slice
+      if (e === 1 && spec.rim) return C(spec.rim, 9);
+      return C(ramp, base);                                                 // flat centre
     });
     return px;
   }
+  // header bar in the chosen material
+  function titlebar(tone) {
+    const [ramp, base] = TONE_RAMPS[tone] || TONE_RAMPS.obsidian;
+    const light = base > 8;
+    return plate9({ ramp, base: light ? base - 1 : base + 2.2, gloss: light ? 1.5 : 2.5, square: true, nokey: true, bottomLine: true });
+  }
+  // checkbox 16x16, slider thumb 16x16, progress fill tile 8x8, slider groove 8x8
+  function checkbox(on) {
+    const px = new Px(16, 16);
+    px.each((x, y) => { x |= 0; y |= 0; const e = Math.min(x, y, 15 - x, 15 - y); if (e === 0) return INK; if (e === 1) return C('iron', y < 8 ? 10 : 6); return C('plum', (x === 2 || y === 2) ? 0.3 : 1.2); });
+    if (on) {
+      const m = mask(16, 16, g => { g.lineWidth = 2.6; g.lineCap = 'square'; g.beginPath(); g.moveTo(4, 8); g.lineTo(7, 11); g.lineTo(13, 3); g.stroke(); });
+      const ck = new Px(16, 16);
+      for (let k = 0; k < m.length; k++) if (m[k]) ck.put(k % 16, Math.floor(k / 16), C('ember', 13 - Math.floor(k / 16) * 0.3));
+      ck.outline(INK); px.blit(ck, 0, 0);
+    }
+    return px;
+  }
+  function thumb() {
+    const px = new Px(16, 16);
+    px.each((x, y) => { const d = Math.hypot(x - 8, y - 8); if (d > 7.5) return null; if (d > 6.5) return INK; return C('bone', 13 - d * 0.7 - (y > 8 ? 2 : 0)); });
+    px.put(7, 7, C('ember', 12)); px.put(8, 7, C('ember', 12)); px.put(7, 8, C('ember', 10)); px.put(8, 8, C('ember', 10));
+    return px;
+  }
+  function fillTile() { const px = new Px(8, 8); return px.each((x, y) => (((x | 0) + (y | 0)) % 8 < 5 ? C('ember', 11 - (y | 0) * 0.3) : C('crimson', 8))); }
+  function groove() { const px = new Px(8, 8); return px.each((x, y) => { y |= 0; return y === 2 ? INK : y === 3 || y === 4 ? C('plum', 1.5) : y === 5 ? C('iron', 6) : null; }); }
+
+  // pixel icon masks for the interface: the HellOS icon paths rasterised on a
+  // coarse grid, then enlarged with nearest-neighbour so edges stay blocky
+  function iconMaskURL(name, size, filled) {
+    const n = Math.max(10, Math.round(size / 1.5)), up = 4;
+    const d = (window.ICONS && ICONS[name]) || name;
+    const m = mask(n, n, g => {
+      g.scale(n / 24, n / 24);
+      g.lineWidth = Math.max(1.9, 24 / n * 1.25); g.lineCap = 'round'; g.lineJoin = 'round';
+      const p = new Path2D(d);
+      if (filled) g.fill(p);
+      g.stroke(p);
+    });
+    const cv = document.createElement('canvas');
+    cv.width = cv.height = n * up;
+    const g = cv.getContext('2d');
+    g.fillStyle = '#fff';
+    for (let k = 0; k < m.length; k++) if (m[k]) g.fillRect((k % n) * up, Math.floor(k / n) * up, up, up);
+    return cv.toDataURL('image/png');
+  }
+
   function seal(S) {
     S = S || 64;
     const px = new Px(S, S), c = S / 2, R0 = S * 0.46;
@@ -731,11 +822,15 @@
         return px;
       }
       case 'ui': {
+        if (PLATES[key]) return plate9(PLATES[key]);
+        if (key.indexOf('title-') === 0) return titlebar(key.slice(6));
+        if (key === 'check') return checkbox(false);
+        if (key === 'check-on') return checkbox(true);
+        if (key === 'thumb') return thumb();
+        if (key === 'fill') return fillTile();
+        if (key === 'groove') return groove();
         if (key === 'frame') return frame(false);
         if (key === 'frame-lit') return frame(true);
-        if (key === 'plate') return plate('idle');
-        if (key === 'plate-lit') return plate('lit');
-        if (key === 'plate-accent') return plate('accent');
         if (key.indexOf('panel-') === 0) return panelTile(key.slice(6));
         if (key.indexOf('swatch-') === 0) return swatch(key.slice(7));
         return new Px(1, 1);
@@ -806,6 +901,12 @@
   const metaCache = {};
   const PixelArt = {
     animate: animator,
+    iconMask(name, size, filled) {
+      const id = 'icon/' + name + '/' + size + (filled ? 'f' : '');
+      if (!(id in cache)) { try { cache[id] = iconMaskURL(name, size, filled); } catch (e) { cache[id] = null; } }
+      return cache[id];
+    },
+    UI_KEYS: ['frame', 'frame-lit', 'check', 'check-on', 'thumb', 'fill', 'groove'],
     PALETTE,
     get(group, key) {
       const id = group + '/' + key;
