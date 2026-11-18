@@ -55,7 +55,7 @@
     return s.charAt(0).toUpperCase() + s.slice(1);
   }
   const SAID = [], SEEN = new Set();  // templates, for stats()
-  function E(tpl, slots) { if (Array.isArray(tpl)) tpl = pick(tpl); SEEN.add(tpl); return tidy(gen(parse(tpl), slots || {})); }
+  function E(tpl, slots) { if (Array.isArray(tpl)) tpl = pick(tpl); SEEN.add(tpl); return (/^\s/.test(tpl) ? ' ' : '') + tidy(gen(parse(tpl), slots || {})); }
   function T(name, list) { SAID.push([name, list]); return list; }
 
   // ================================================================ state
@@ -200,8 +200,11 @@
     ['ok', / okay | cool | nice | alright | fine | i see | got it | interesting | wow | oh /],
     ['help', / help me | can you help | i need help | advice /]
   ];
-  function detect(t, p) {
-    const res = { intents: [], person: null, place: null, when: null };
+  function detect(t, p, raw) {
+    const res = { intents: [], person: null, place: null, when: null, frame: window.Grammar ? Grammar.parse(raw || t) : null };
+    { const f = res.frame; if (f && (f.subject === 'you' || (!f.subject && (f.question || / plans? /.test(t)))) && (f.finish || / finish work /.test(t) || (f.homeward && (f.question || f.qtype)) || (f.time.rel && f.time.anchor && (f.question || f.qtype || / plans? /.test(t))))) res.intents.push('schedule');
+      if (f && f.subject === 'you' && f.experience) res.intents.push('frame_q');
+      if (window.Lexicon && DEFINE_RE.test(t)) { const w = defineWord(t); if (w) res.intents.unshift('define'); } }
     const people = R.findByName(t).filter(x => x.id !== p.id);
     // prefer people this resident actually knows
     res.person = people.find(x => p.friends.indexOf(x.id) >= 0 || p.rivals.indexOf(x.id) >= 0 || p.partner === x.id || (p.family && p.family.id === x.id)) || people[0] || null;
@@ -290,7 +293,7 @@
     const w = b.with != null ? R.get(b.with).name : '';
     switch (b.kind) {
       case 'sleep': return E('{I was asleep|I was sleeping|I was literally asleep|I was dreaming about [food]} {until you texted|before this|zzz}', { food: p.fav.food });
-      case 'work': return E('{I\'m at work|Working|Stuck at work|On shift|Clocked in|At my job} {at|over at|down at} [where]{.|, ugh.|.} {So far I\'ve|Today I|Already|This shift I} [act]{.| and I\'m tired.| and it\'s only going downhill.|. Living the dream.|. Send help.|.}', { where, act });
+      case 'work': { const ws = R.day(p).filter(x => x.kind === 'work' && x.s > 0); const endW = ws.length ? R.fmt(ws[ws.length - 1].e % 1440) : ''; return E('{I\'m at work|Working|Stuck at work|On shift|Clocked in|At my job} {at|over at|down at} [where]{.|, ugh.|.} {So far I\'ve|Today I|Already|This shift I} [act]{.| and I\'m tired.| and it\'s only going downhill.|. Living the dream.|. Send help.|.}{| I knock off at [end].| Finish at [end], thank the Throne.| Off at [end].}', { where, act, end: endW }); }
       case 'lunch': return E('{On my lunch break|Having lunch|Eating} {at|over at} [where]{.|, finally.|, best part of the day.}', { where });
       case 'commute': return E('{On my way|Heading out|In transit}{, nearly there|}. {I [act].|The roads in Hell are awful.|}', { act });
       case 'hobby': return E('{Just|Currently|Right now I\'m} at [where]. {I [act].|Spent a while here already, I [act].}', { where, act });
@@ -836,7 +839,7 @@
   function smallTalk(c) {
     if (coldTier(c)) return null;
     const opts = [
-      () => E('{Anyway,|So yeah.|Anyway, my day:} ') + nowPhrase(c.p, c.nb),
+      () => E('{Anyway,|So yeah.|Anyway, my day:}') + ' ' + nowPhrase(c.p, c.nb),
       () => { const inc = R.log(c.p).find(b => b.incident); if (inc) c.st.ctx = { type: 'incident', inc: inc.incident, t: Date.now() }; return inc ? E('{Oh! Today I [i].|Did I tell you I [i] today?|Guess what, I [i].}', { i: fp(inc.incident) }) : null; },
       () => E('{Did you hear|Btw, apparently} [h]?', { h: c.world.headline }),
       () => E('{It\'s|Ugh, it\'s} [w] {out|today}{.|. Classic.}', { w: c.world.weather })
@@ -941,6 +944,7 @@
         const lg = R.log(p, x.n != null ? x.n : HellTime.day());
         if (kind === 'who') { const w = lg.filter(b => b.with != null); return w.length ? E('{I was with|I saw} [n]{.|, at [w].}', { n: R.get(w[w.length - 1].with).name, w: w[w.length - 1].where }) : E('{Nobody really.|Just me, myself and my pitchfork.|Coworkers. Boring ones.}'); }
         if (kind === 'where') return E('{At|Over at} [w]{.|. You know it?}', { w: (x.where || R.now(p).where) });
+        if (kind === 'when' && (x.kind === 'work' || R.now(p).kind === 'work')) { const ws = R.day(p).filter(b => b.kind === 'work' && b.s > 0); return ws.length ? E('{I knock off at [e].|Till [e].|Finish at [e].}', { e: R.fmt(ws[ws.length - 1].e % 1440) }) : null; }
         if (kind === 'why') return x.kind === 'work' || R.now(p).kind === 'work' ? E('{Because it\'s my shift.|Bills. Well, soul debt.|Someone has to.}') : E('{Because I wanted to.|Why not?|It\'s my day off, I do what I like.}');
         const inc = lg.find(b => b.incident);
         if (inc && !x.toldInc) { x.toldInc = true; return E('{Well, also|Oh, and|Plus} I [i]. ', { i: fp(inc.incident) }) + E(pick(INCIDENT_MORE[inc.incident] || ['Weird day.']), slots); }
@@ -1288,6 +1292,14 @@
       bump(c.st, 2);
       return E('{Whoa.|Oh wow.|I did NOT expect that.|Okay. That\'s safe with me.} {I won\'t tell a soul.|My lips are sealed.|Thanks for trusting me.}');
     }
+    if (pd.k === 'define') {
+      if (nope || / (nothing|never mind|nevermind|forget it|doesn t matter) /.test(t)) return E('{Fine, keep your secrets.|Okay, mystery word.}');
+      const def = raw.replace(/^\s*(it|that)\s*('s|’s| is| means)\s*/i, '').replace(/^\s*(means|is)\s*/i, '').replace(/[.!?]+$/, '').trim().slice(0, 80);
+      if (def.length < 2) return E(REACT);
+      Lexicon.teach(pd.word, def, c.p.id); hist(c.st, 'word', 'you taught me the word "' + pd.word + '"'); bump(c.st, 1);
+      if (window.Journal) Journal.world('word:' + pd.word, '"' + pd.word + '": ' + def + ' (you taught ' + c.p.first + ')', c.p.id);
+      return E('{Ohh, [w] means [d]. Got it!|[w]: [d]. Noted. I\'m using that now.|Ha! [w]. I love it. I\'m telling everyone.|Okay, [w] = [d]. Learned something today.}', { w: pd.word, d: def });
+    }
     if (pd.k === 'help') { remember(c.st, 'favour', clean(t, 10)); hist(c.st, 'favour', 'you asked me for help'); bump(c.st, 1); return coldTier(c) ? E('{No.|Do it yourself.}') : E('{Okay, I\'ll see what I can do.|Leave it with me.|Ugh, fine. For you.|Consider it done. Probably.}'); }
     return null;
   }
@@ -1460,6 +1472,7 @@
   function evalQ(t) {
     for (const re of EVAL_RES) {
       const m = t.match(re); if (!m) continue;
+      if (!/\?/.test(t) && !/^ (is|are|was|were|do|did|would|will|how|what|should|thoughts|rate|any|isn|aren) /.test(t)) continue;
       if (re === EVAL_RES[1] && !/[?]| right | though | or not /.test(t)) continue;
       const raw = (m[1] || '').trim();
       if (/^(your|ur|my|i|i am|im|we|we are|you|you are|u|u r|everything|all|so|very|pretty|also|not|he|she|he is|she is)( |$)/.test(raw)) continue;
@@ -1504,6 +1517,165 @@
     const score = sharesTaste(c.p, name) ? 2 : hatesIt(c.p, name) ? -2 : 0;
     return score > 0 ? E('{Ooh, [x]! Love that.|[x]? You have taste.|[x]! Same, honestly.}', { x: name }) : score < 0 ? E('{[x]? Ew.|Oh no, [x].|[x]... why?}', { x: name }) : E('{Oh nice, [x].|[x], huh? How is it?|Ooh, [x]. Any good?|[x]? Fun.}', { x: name });
   };
+
+  // ---------------------------------------------------------------- after work, heading home, knocking off
+  // Uses the grammar frame (subject, verb, tense, time like "after work") and their real schedule.
+  const futureOf = act => fp(Grammar.toBase(lc(act.replace(/ \(.*\)$/, ''))));
+  const ingOf = act => fp(Grammar.toIng(lc(act.replace(/ \(.*\)$/, ''))));
+  function shiftEnd(tl) { const w = tl.filter(b => b.kind === 'work' && b.s > 0); return w.length ? w[w.length - 1].e : null; }
+  function blocksAfter(p, tl, ref) { return tl.filter(b => b.s >= ref - 5 && b.kind !== 'sleep' && b.kind !== 'commute').map(b => Object.assign({ where: R.placeName(p, b.place) }, b)); }
+  function planList(bs) {
+    const parts = bs.slice(0, 3).map(b => futureOf(b.act) + (b.place !== 'home' && b.act.indexOf(b.where.replace(/^the /, '')) < 0 && b.kind !== 'social' ? ' at ' + b.where : ''));
+    return parts.length === 1 ? parts[0] : parts.slice(0, -1).join(', ') + ' and then ' + parts[parts.length - 1];
+  }
+  H.schedule = (c, d, t) => {
+    const p = c.p, f = d.frame, m = HellTime.min(), tl = c.tl;
+    const g = guarded(c); if (g) return g;
+    const end = shiftEnd(tl), working = end != null;
+    const endT = end != null ? R.fmt(end % 1440) : '';
+    const done = working && m >= end;
+    // "when do you knock off / finish?"
+    if (f.finish && (f.qtype === 'when' || / what time /.test(t) || ((f.qtype === 'yesno' || f.question) && (f.time.when === 'soon' || f.time.when === 'now' || / soon | yet /.test(t)) && !f.time.anchor))) {
+      if (f.qtype !== 'when' && !/ what time /.test(t) && working && !done) { const left = end - m; return left <= 90 ? E('{Yeah, soon!|Nearly! [l] to go.|Almost. Knock off at [e].}', { l: left + ' minutes', e: endT }) : E('{Not for a while.|Nope, not till [e].|I wish. I\'m on till [e].}', { e: endT }); }
+      if (!working) { const tm = shiftEnd(R.day(p, HellTime.day() + 1)); return E('{I\'m not working today!|Day off today.|No work today, thank the Throne.}') + (tm ? E(' {Back in tomorrow though.|Tomorrow I\'m on till [e].}', { e: R.fmt(tm % 1440) }) : ''); }
+      if (done) return E('{I already knocked off at [e].|Finished at [e]! Free soul.|Already done, I got off at [e].}', { e: endT });
+      const left = end - m;
+      return E('{I knock off at [e].|I finish at [e].|[e], if they let me go on time.|Not till [e].}', { e: endT }) + (left < 600 ? E(' {[h] to go.|Only [h] left.|[h] more of this.}', { h: left >= 60 ? Math.round(left / 60) + (Math.round(left / 60) === 1 ? ' hour' : ' hours') : left + ' minutes' }) : '');
+    }
+    // the reference point: after work / after lunch / after that / now
+    let ref = m, label = '';
+    if (f.time.anchor === 'work' || f.finish) {
+      if (!working) return E('{I\'m not working today.|Day off!|No work today.}') + ' ' + (blocksAfter(p, tl, m).length ? E('{I\'m going to|Plan is to|Probably going to} [x].', { x: planList(blocksAfter(p, tl, m)) }) : E('{Just relaxing.|Nothing much.}'));
+      ref = done ? m : end; label = done ? '' : 'after work';
+    } else if (f.time.anchor === 'lunch') { const l = tl.find(b => b.kind === 'lunch'); if (l) { ref = l.e; label = 'after lunch'; } }
+    else if (f.time.anchor === 'dinner') { const dn = tl.find(b => /dinner/.test(b.act)) || tl.find(b => b.s >= 18 * 60); if (dn) { ref = dn.e; label = 'after dinner'; } }
+    else if (f.time.anchor === 'that' || f.time.when === 'soon' || f.time.when === 'later') { const cur = tl.find(b => m >= b.s && m < b.e); ref = cur ? cur.e : m; label = f.time.anchor === 'that' ? 'after this' : ''; }
+    const after = blocksAfter(p, tl, ref);
+    // "are you going to the Lake of Fire after work?"
+    const plc = f.place ? R.findPlace(' ' + f.place + ' ') : R.findPlace(t);
+    if (f.qtype === 'yesno' && plc && !f.homeward) {
+      const hit = after.find(b => b.place === plc);
+      return hit ? E('{Yeah!|Yep,|That\'s the plan.} {I\'ll be at [w] around [s].|[w] at [s].}', { w: R.PLACES[plc].n, s: R.fmt(hit.s) }) : E('{No, not today.|Nope.|Not planning to.} ') + (after.length ? E('{I\'m going to [x] instead.|I\'ll probably [x].}', { x: planList(after) }) : E('{Going home.|Straight to bed.}'));
+    }
+    // "you heading home soon?" / "going home after work?"
+    if (f.homeward) {
+      const cur = tl.find(b => m >= b.s && m < b.e);
+      if (cur && cur.place === 'home' && ref === m) return E('{I\'m already home.|Already home!|Home already, in my pyjamas.}');
+      const home = tl.find(b => b.place === 'home' && b.s >= ref - 5 && b.kind !== 'sleep') || tl.find(b => b.place === 'home' && b.s >= ref - 5);
+      if (!home) return E('{Not for a while.|Not tonight, no.}');
+      const first = after.find(b => b.place !== 'home' && b.s < home.s);
+      if (!first) return E('{Yeah, heading home [w].|Yep, home by [s].|Straight home, yeah.}', { w: home.s - m < 90 ? 'soon' : 'around ' + R.fmt(home.s), s: R.fmt(home.s) });
+      return E('{Not straight away.|Not yet.|Eventually.} {First I\'m going to [x],|I\'ll [x] first,} {then home around [s].|home by [s].}', { x: futureOf(first.act) + (first.place !== 'home' && first.kind !== 'social' && first.act.indexOf(first.where.replace(/^the /, '')) < 0 ? ' at ' + first.where : ''), s: R.fmt(home.s) });
+    }
+    // "what are you doing / planning after work?"
+    if (!after.length) return E('{Sleep, probably.|Bed. Straight to bed.|Nothing. Absolutely nothing.}');
+    const x = planList(after);
+    c.ctx = { type: 'day', n: HellTime.day() };
+    return E((label ? '{' + cap(label) + ' I\'m going to|' + cap(label) + '? I\'ll probably|' + cap(label) + ', I think I\'ll|Plan ' + label + ' is to}' : '{I\'m going to|Next I\'ll|Plan is to}') + ' [x]{.|!|. Exciting stuff.|. Living the dream.}', { x });
+  };
+
+  // ---------------------------------------------------------------- questions understood by grammar
+  // When nothing else matched: "did you go to X?", "are you X-ing?", "can you skate?",
+  // "have you ever been to Dis?", "do you play Serpent?", "what did you eat for lunch?"
+  function actMatches(b, f) {
+    const v = f.verb && f.verb !== 'be' && f.verb !== 'do' && f.verb !== 'have' ? f.verb : null;
+    const lw = Grammar.lemma(b.act.split(' ')[0]);
+    const words = ((f.object || '') + ' ' + (f.place || '')).split(' ').filter(w => w.length > 3);
+    const hay = b.act.toLowerCase() + ' ' + (b.where || '').toLowerCase();
+    return (v && (lw === v || hay.indexOf(v) >= 0)) || (words.length && words.some(w => hay.indexOf(w.replace(/s$/, '')) >= 0));
+  }
+  H.frame_q = (c, d, t) => H.frame(c, d, t) || idk(c);
+  H.frame = (c, d, t) => {
+    const f = d.frame, p = c.p;
+    if (!f || f.subject !== 'you' || !f.question) return null;
+    const g = guarded(c); if (g) return g;
+    const today = R.log(p).map(b => Object.assign({}, b));
+    const plc = f.place ? R.findPlace(' ' + f.place + ' ') : null;
+    if (f.experience) {
+      const known = plc && (p.job.place === plc || p.fav.place === R.PLACES[plc].n || p.hobbies.some(h => h[1] === plc));
+      const yes = known || U.hash(p.id + t) % 3 !== 0;
+      return yes ? E('{Loads of times.|Yeah, once or twice.|Of course.|Yep, years ago.} {[w] is [i]|}', { w: plc ? R.PLACES[plc].n : '', i: plc ? (PLACE_INFO[plc] || '').toLowerCase() : '' }).replace(/ is $/, '') : E('{Never, actually.|Nope, not once.|Not yet. Should I?}');
+    }
+    if (f.ability && f.verb) {
+      const hob = p.hobbies.find(h => h[0].indexOf(f.verb) >= 0 || h[0].indexOf(Grammar.ing(f.verb)) >= 0);
+      if (hob) return E('{Can I? I love [h].|Obviously. I\'m into [h].|Yeah, I\'m actually good at it.}', { h: hob[0] });
+      return E(pick(['{Badly.|Sort of.|A bit.} ', '{Of course.|Easily.} ', '{Never tried.|Not really.|No idea, honestly.} ']) + '{Why, are you any good at [x]?|Can you?|}', { x: Grammar.ing(f.verb) });
+    }
+    if (f.tense === 'past' && (f.qtype === 'yesno' || !f.qtype)) {
+      const lg = f.time.when === 'yesterday' ? R.log(p, HellTime.day() - 1) : today;
+      const hit = lg.find(b => actMatches(b, f) || (plc && b.place === plc));
+      if (hit) return E('{Yeah,|Yep!|I did, yeah.} I [a]{.| around [s].}', { a: fp(lc(hit.act)), s: R.fmt(hit.s) });
+      const other = lg.filter(b => b.kind !== 'sleep' && b.kind !== 'commute').slice(-1)[0];
+      return E('{No, I didn\'t.|Nope.|Not today.}') + (other ? E(' {I [a] instead.|I was busy, I [a].}', { a: fp(lc(other.act)) }) : '');
+    }
+    if (f.qtype === 'what' && f.tense === 'past' && f.verb) {
+      const lg = f.time.when === 'yesterday' ? R.log(p, HellTime.day() - 1) : today;
+      if (/^(eat|have)$/.test(f.verb) || / (lunch|dinner|breakfast|eat) /.test(t)) { const food = lg.find(b => /ate |had .*(breakfast|dinner|lunch)|lunch/.test(b.act)); return food ? E('{I [a].|Had [f], obviously.}', { a: fp(lc(food.act)), f: p.fav.food }) : E('{[f], as always.|Just [f].|Nothing yet, I\'m starving.}', { f: p.fav.food }); }
+      const hit = lg.find(b => actMatches(b, f));
+      return hit ? E('I [a]{.| at [w].}', { a: fp(lc(hit.act)), w: hit.where }) : null;
+    }
+    if (f.progressive && f.tense === 'present' && f.verb) {
+      const nb = c.nb;
+      if (actMatches(Object.assign({ where: nb.where }, nb), f)) return E('{Yep!|Yeah, right now.|I am, yeah.} {[i] at [w].|}', { i: cap(ingOf(nb.act)), w: nb.where });
+      return E('{No,|Nope,|Not right now,} {I\'m [i].|I\'m busy [i].}', { i: nb.kind === 'sleep' ? 'trying to sleep' : ingOf(nb.act) });
+    }
+    if (f.tense === 'future' && (f.verb || plc)) {
+      const n0 = HellTime.day(), m = HellTime.min();
+      const days = f.time.when === 'tomorrow' ? [n0 + 1] : [n0, n0 + 1];
+      for (const n of days) {
+        const hit = R.day(p, n).filter(b => n > n0 || b.s >= m).find(b => actMatches(Object.assign({ where: R.placeName(p, b.place) }, b), f) || (plc && b.place === plc));
+        if (hit) return E('{Yep,|Yeah,|That\'s the plan,} [d] around [s].', { d: n === n0 ? 'today' : 'tomorrow', s: R.fmt(hit.s) });
+      }
+      if (f.verb === 'work') return E('{Nope, day off!|Not [d], no.}', { d: f.time.when === 'tomorrow' ? 'tomorrow' : 'today' });
+      return E('{Not planning to.|Nope, not that I know of.|Wasn\'t going to. Should I?}');
+    }
+    if (f.habit && (f.verb || f.object)) {
+      const thing = (f.verb && f.verb !== 'do' ? Grammar.ing(f.verb) + ' ' : '') + (f.object || '');
+      const sc = sharesTaste(p, thing) || p.hobbies.some(h => thing.indexOf(h[0].split(' ')[0]) >= 0 || h[0].indexOf(f.verb || '~') >= 0) ? 2 : hatesIt(p, thing) ? -2 : (U.hash(p.id + thing) % 3) - 1;
+      return sc > 0 ? E('{All the time!|Yeah, I love it.|Every chance I get.}') : sc < 0 ? E('{Never.|Not if I can help it.|No way.}') : E('{Sometimes.|Now and then.|Not really.}');
+    }
+    return null;
+  };
+
+  // ---------------------------------------------------------------- the dictionary: "what does X mean?"
+  const DEFINE_RE = / what does (?:the word )?([a-z' -]{2,24}?) mean | what do you mean by ([a-z' -]{2,24}?) | define ([a-z' -]{2,24}?) | (?:the )?meaning of ([a-z' -]{2,24}?) | what is (?:a |an |the word )?([a-z'-]{2,16}) (?:\? )*$| what s (?:a |an )?([a-z'-]{2,16}) mean | what is ([a-z'-]{2,16}) mean /;
+  const NOT_WORDS = /^(your|you|up|it|that|this|the|new|happening|wrong|going|his|her|my|their|his|on|good|next|left|there|for|so|time|life|hell|love|today|tomorrow|tonight|news|the weather|weather|that like|it like)$/;
+  function defineWord(t) {
+    const m = t.match(DEFINE_RE); if (!m) return null;
+    const w = (m[1] || m[2] || m[3] || m[4] || m[5] || m[6] || m[7] || '').trim().replace(/^(a|an|the) /, '');
+    if (!w || NOT_WORDS.test(w) || (!Lexicon.isKnown(w) && !Lexicon.look(w) && window.Residents && Residents.findByName(' ' + w + ' ').length)) return null;
+    return w;
+  }
+  H.define = (c, d, t) => {
+    const w = defineWord(c.t0 || t);
+    if (!w) return idk(c);
+    const taught = Lexicon.taught(w);
+    if (taught && Lexicon.knows(c.p.id, w)) {
+      const by = taught.by === c.p.id ? 'you taught me that' : R.get(taught.by).first + ' told me. Apparently you made it up';
+      return E('{Oh, [w]? It means [d]. [b].|[w]! That\'s [d]. [b].}', { w, d: taught.def, b: cap(by) });
+    }
+    const def = taught ? null : Lexicon.define(w);
+    if (!def) {
+      c.st.pending = { k: 'define', word: w, t: Date.now() };
+      return E('{No idea. What does [w] mean?|Never heard of it. What\'s [w]?|[w]? You tell me.|Beats me. What is it?}', { w });
+    }
+    const nerd = c.p.voice.id === 'nerd' || c.p.voice.id === 'noble';
+    const look = Lexicon.look(w);
+    let dtext = def.text.replace(/^it means /, '').replace(/^it's /, '');
+    const isNoun = def.source === 'book' || def.source === 'world' || /^(a|an|the|someone|somewhere|where|what|one|being|without|full|not) /.test(dtext) || (look && look.pos === 'noun');
+    const verbWord = isNoun ? 'is' : 'means';
+    return E(nerd ? '{Technically,|Well, actually,|By definition,} [w] [v] [d].' : '{[w]? |}{It [v2]|That\'s|Basically,} [d]{.|. Easy.|. Everyone knows that.}', { w, v: verbWord, v2: isNoun ? '\'s' : 'means', d: dtext, pos: look ? look.pos : 'word' }).replace(/It 's /, 'It\'s ');
+  };
+  // a word the resident has never heard of (for "what's that mean?")
+  const COMMON_EN = new Set(('the a an and or but so to of in on at for with from by about as is are was were be been am do does did have has had will would can could should may might must not no yes i you he she it we they me him her us them my your his its our their this that these those what which who whom when where why how all any both each few more most other some such only own same than too very just also now then here there up down out off over under again once really still even well back much many lot lots thing things way day time year people man woman guy girl boy one two three get got go going went make made know think see look want give use find tell ask work seem feel try leave call keep let put mean become start show hear play run move live believe hold bring happen write sit stand lose pay meet include continue set learn change lead understand watch follow stop create speak read spend grow open walk win teach offer remember consider appear buy serve die send build stay fall cut reach kill raise pass sell decide return explain hope develop carry break receive agree support hit produce eat cover catch draw choose cause point listen realize place close involve sure true real right wrong big small long little old new great good bad high low last first next early late young important same different able free full special easy clear recent certain whole public dear bit kind sort pretty yeah okay ok lol ill im youre dont cant wont isnt thats whats theres heres ive id youll gonna wanna gotta kinda sorta yeah nah hey hi hello thanks please sorry like love hate really actually literally basically honestly anyway whatever though although because cause since until while after before during without within into onto upon').split(' '));
+  function newWord(t, c) {
+    const ws = t.trim().split(/\s+/).filter(w => /^[a-z]{4,12}$/.test(w));
+    const cand = ws.find(w => !COMMON_EN.has(w) && !Lexicon.isKnown(w) && !Lexicon.look(w) && !(window.Grammar && Grammar.lemma(w)) && !/(ing|ed|ly|tion|ness|ment|able|ful|less|ous|ive|est|ers?)$/.test(w) && !R.findByName(' ' + w + ' ').length && !R.findPlace(' ' + w + ' ') && !(c.st.mem || []).some(m => (m.v || '').toLowerCase().indexOf(w) >= 0));
+    if (!cand) return null;
+    const tg = Lexicon.taught(cand);
+    if (tg && Lexicon.knows(c.p.id, cand)) return null;
+    return cand;
+  }
 
   const LIVING_INTENTS = [
     ['judge', null],
@@ -1550,11 +1722,12 @@
     if (st.block && now < st.block) return null;
     if (st.block && now >= st.block) { st.block = 0; st.aff = Math.max(st.aff, -60); }
     const c = ctxFor(p, st);
-    const t = norm(text);
+    const t0 = norm(text); c.t0 = t0;
+    const t = window.Lexicon ? Lexicon.canon(t0) : t0;
     // out of character, always: someone may really be struggling
     if (CRISIS.test(t)) return { msgs: ['(Stepping out of Hell for a second.) If you are really feeling like this, please talk to someone you trust or a crisis line. In Australia that\'s Lifeline on 13 11 14; elsewhere, your local emergency number or crisis service. You matter more than any game.'], delay: 800 };
     if (!st.talks) hist(st, 'first', 'we first started talking');
-    const d = detect(t, p);
+    const d = detect(t, p, text);
     const out = [];
     const fk = followKind(t);
     const freshCtx = st.ctx && now - st.ctx.t < 20 * 60000;
@@ -1562,14 +1735,14 @@
     const lt = t.trim();
     const fr = fk && (freshCtx || /^(really|sympathy|same)$/.test(fk)) ? followup(c, fk) : null;
     if (fr) out.push(fr);
-    else if (lt.length > 3 && st.last.slice(-3).indexOf(lt) >= 0) { bump(st, -1); out.push(E('{You said that already.|Déjà vu.|...Again?|Are you a broken record?|I heard you the first time.}')); }
+    else if (lt.length > 3 && st.last.slice(-3).indexOf(lt) >= 0 && !DEFINE_RE.test(t)) { bump(st, -1); out.push(E('{You said that already.|Déjà vu.|...Again?|Are you a broken record?|I heard you the first time.}')); }
     else {
-      const facts = extract(t);
+      const facts = extract(t0);
       const learned = facts.length ? learn(c, facts) : '';
       const pending = st.pending && now - st.pending.t < 30 * 60000 ? st.pending : null;
       const main = d.intents.find(i => i !== 'greet' && i !== 'ok' && i !== 'yes' && i !== 'no' && i !== 'laugh') || null;
       const ev = d.question || / should | if i | would you /.test(t) ? null : extractEvent(t);
-      if (pending && /^(invite|news|player_secret|help)$/.test(pending.k) && (!main || main === 'invite' || pending.k === 'news' || pending.k === 'player_secret' || pending.k === 'help')) {
+      if (pending && /^(invite|news|player_secret|help|define)$/.test(pending.k) && (!main || main === 'invite' || pending.k === 'news' || pending.k === 'player_secret' || pending.k === 'help' || (pending.k === 'define' && !d.question))) {
         st.pending = null;
         out.push(takeAnswer2(c, pending, t, text) || E(REACT));
       } else if (pending && !ev && !facts.length && !d.question && (!main || (pending.k === 'opinion' && /^(compliment|insult|love)$/.test(main)))) {
@@ -1601,8 +1774,16 @@
           if (rule) out.push(pick(rule.r));
           else if (d.intents.length) out.push(H[d.intents[0]](c, d, t));
           else if (d.person) { out.push(H.person(c, d, t)); if (!c.refused && window.Journal) RECORD.person(c, d, t); }
+          else if (d.frame && (c.fr = H.frame(c, d, t))) out.push(c.fr);
           else if (d.question) out.push(idk(c));
-          else { out.push(E(REACT)); const st2 = chance(0.5) ? smallTalk(c) : null; if (st2) out.push(st2); }
+          else {
+            const fe = window.Lexicon ? Lexicon.feeling(t0) : 0;
+            const nw = window.Lexicon && chance(0.35 * (0.4 + c.p.traits.curiosity)) ? newWord(t0, c) : null;
+            if (nw) { c.st.pending = { k: 'define', word: nw, t: now }; out.push(E('{Wait, what\'s "[w]"?|"[w]"? What does that mean?|Sorry, [w]? Never heard that one.|What\'s [w] mean?}', { w: nw })); }
+            else if (fe <= -1.2) out.push(coldTier(c) ? E('{Sounds like a you problem.|Oof.}') : E('{Oof, that sounds rough.|Aw, no.|That sucks, honestly.|Ugh, sorry.}'));
+            else if (fe >= 1.2) out.push(E('{Love that.|Nice!|Ha, good.|That\'s great!}'));
+            else { out.push(E(REACT)); const st2 = chance(0.5) ? smallTalk(c) : null; if (st2) out.push(st2); }
+          }
         }
         // hostile enough to block you
         if (st.aff <= -85 && !st.block) { st.block = now + 2 * 3600000; out.push(E('{Blocked.|I\'m blocking you.|Don\'t text me again.|We\'re done here.}')); }

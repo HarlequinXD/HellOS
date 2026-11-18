@@ -24,7 +24,7 @@ OS.register({
       let tab = 'people', q = '';
       const body = h('div');
       const inp = h('input', { placeholder: 'Search what you know', 'aria-label': 'Search Grimoire', oninput: U.debounce(() => { q = inp.value.toLowerCase().trim(); fill(); }, 200) });
-      const tabs = UI.chips([{ id: 'people', label: 'People' }, { id: 'places', label: 'Places' }, { id: 'world', label: 'World' }, { id: 'timeline', label: 'Timeline' }], 'people', id => { tab = id; fill(); });
+      const tabs = UI.chips([{ id: 'people', label: 'People' }, { id: 'places', label: 'Places' }, { id: 'world', label: 'World' }, { id: 'words', label: 'Words' }, { id: 'timeline', label: 'Timeline' }], 'people', id => { tab = id; fill(); });
       const sub = h('div', { style: 'padding:0 16px 8px;color:var(--muted);font-size:13px' });
       function fill() {
         U.clear(body);
@@ -55,6 +55,11 @@ OS.register({
           const items = Object.values(j.world).sort((a, b) => b.t - a.t).filter(w => !q || w.text.toLowerCase().indexOf(q) >= 0);
           const list = h('div.list', items.map(w => fact(w.text, from(w.src) + ' · ' + U.ago(w.t))));
           body.appendChild(items.length ? list : UI.empty('globe', 'Ask residents for news, gossip or the weather.'));
+        } else if (tab === 'words') {
+          const book = window.Lexicon ? Lexicon.taughtAll() : {};
+          const items = Object.values(book).sort((a, b) => b.t - a.t).filter(w => !q || (w.word + ' ' + w.def).toLowerCase().indexOf(q) >= 0);
+          const list = h('div.list', items.map(w => fact(h('span', h('b', w.word + ': '), w.def), 'You taught ' + R.get(w.by).first + ' · ' + w.knowers.length + ' resident' + (w.knowers.length === 1 ? '' : 's') + ' know it now · ' + U.ago(w.t))));
+          body.append(h('div.muted', { style: 'padding:6px 18px;font-size:12px' }, 'Residents know about ' + (window.Lexicon ? Lexicon.size() : 0) + ' words. Ask one "what does obol mean?". When they don\'t know a word, teach them; gossips spread it.'), items.length ? list : UI.empty('bookmark', 'You haven\'t taught anyone a word yet. Use some slang they don\'t know.'));
         } else {
           const items = j.log.slice().reverse().filter(x => !q || x.text.toLowerCase().indexOf(q) >= 0).slice(0, 150);
           const list = h('div.list', items.map(x => {
