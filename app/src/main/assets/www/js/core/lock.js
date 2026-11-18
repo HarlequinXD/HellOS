@@ -58,7 +58,7 @@
     U.clear(layer);
     const s = Store.settings();
     const wall = h('div', { style: 'position:absolute;inset:0' });
-    OS.wallpaperStyle(wall, s.wallpaper, s.wallpaperPhoto);
+    OS.wallpaperStyle(wall, s.wallpaper, s.wallpaperPhoto, () => OS.locked && wall.isConnected);
     layer.appendChild(wall);
 
     const notes = h('div.lnotes');

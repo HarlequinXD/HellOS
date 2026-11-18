@@ -1,27 +1,22 @@
-/* Art overrides. Drop images into www/art/ and point art/art.json at them.
- * Any key left null keeps the built-in vector look. See ART_GUIDE.md. */
+/* Art lookup. Every image in HellOS is procedural pixel art from pixelart.js;
+ * nothing is loaded from files. Groups: icons, wallpapers, avatars, covers,
+ * store, backgrounds, websites, system, gameplay, boot, themes, weather,
+ * relics, scenes, ui. */
 (function () {
   'use strict';
-  let map = {};
   const Art = {
     async load() {
-      try {
-        const r = await fetch('art/art.json', { cache: 'no-store' });
-        if (r.ok) map = await r.json();
-      } catch (e) { map = {}; }
+      // warm the images the first screens need
+      if (window.PixelArt) {
+        PixelArt.prewarm([['boot', 'logo'], ['boot', 'background'], ['ui', 'frame'], ['ui', 'plate'], ['ui', 'plate-lit'], ['system', 'unlock_seal']]);
+      }
     },
-    get(group, key) {
-      const g = map[group];
-      const v = g && g[key];
-      return v ? 'art/' + v : null;
-    },
-    // absolute URL for use inside CSS custom properties (relative URLs there
-    // resolve against whichever stylesheet consumes the variable)
-    abs(path) { return path ? new URL(path, document.baseURI).href : null; },
-    cssUrl(path) { return path ? 'url("' + Art.abs(path) + '")' : 'none'; },
+    get(group, key) { return window.PixelArt ? PixelArt.get(group, key) : null; },
     icon(appId) { return Art.get('icons', appId); },
     wallpaper(id) { return Art.get('wallpapers', id); },
-    raw() { return map; }
+    // data URLs are already absolute; kept for callers that build CSS values
+    abs(path) { return path ? (/^data:/.test(path) ? path : new URL(path, document.baseURI).href) : null; },
+    cssUrl(path) { return path ? 'url("' + Art.abs(path) + '")' : 'none'; }
   };
   window.Art = Art;
 })();

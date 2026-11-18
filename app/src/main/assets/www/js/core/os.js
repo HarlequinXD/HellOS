@@ -5,8 +5,8 @@
   const $ = U.$;
 
   const OS = {
-    version: '6.7.0',
-    build: 'S23.ABADDON.670.1118',
+    version: '6.8.0',
+    build: 'RETRO.GINGERHELL.680.1118',
     apps: {},
     windows: [],
     fg: null,
@@ -211,7 +211,8 @@
     if (!sb) return;
     const s = Store.settings();
     U.clear(sb);
-    const left = h('div.sb-left', h('span', U.time(new Date())));
+    // retro Android: notifications on the left, status and the clock on the right
+    const left = h('div.sb-left');
     if (OS.notifications.length && !OS.locked) {
       const apps = [...new Set(OS.notifications.map(n => n.app))].slice(0, 3);
       apps.forEach(id => { const a = OS.apps[id]; if (a) left.appendChild(icon(a.icon, 14, { sw: 2 })); });
@@ -232,6 +233,7 @@
     const b = OS.battery;
     right.appendChild(h('span.sb-batt', h('span', b.level + '%'),
       h('span.batt-shell', h('div.batt-fill', { style: { width: b.level + '%', background: b.charging ? 'var(--ok)' : (b.level <= 15 ? 'var(--danger)' : 'currentColor') } }))));
+    right.appendChild(h('span.sb-time', U.time(new Date())));
     sb.appendChild(left);
     sb.appendChild(right);
   };
@@ -468,7 +470,9 @@
     svg.innerHTML = '<path d="M0 300V210l30-40 18 30 26-70 22 50 30-90 20 60 24-40 30 80 28-110 26 90 22-40 30 70 26-50 22 40 36-60V300z" fill="#0B0505" opacity=".92"/><path d="M0 300v-40l60-20 50 18 70-26 60 22 70-20 80 24v42z" fill="#1A0806"/>';
     return svg;
   };
-  OS.wallpaperStyle = function (el, id, photo) {
+  // animate: optional () => bool; when given, an animated pixel layer runs while it returns true
+  OS.wallpaperStyle = function (el, id, photo, animate) {
+    if (el._stopAnim) { el._stopAnim(); el._stopAnim = null; }
     el.className = el.className.replace(/\bwall-\S+/g, '').trim();
     el.style.backgroundImage = '';
     el.style.backgroundSize = ''; el.style.backgroundPosition = ''; el.style.backgroundRepeat = '';
@@ -480,6 +484,11 @@
       raster(photo);
     } else if (art) {
       raster(art);
+      if (animate && window.PixelArt && Store.settings().animWall !== false) {
+        const cv = h('canvas', { 'aria-hidden': 'true', style: 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none' });
+        el.appendChild(cv);
+        el._stopAnim = PixelArt.animate(id, cv, () => animate() && !document.hidden && !OS._paused && !Store.settings().emberSaver);
+      }
     } else {
       el.classList.add('wall-' + (id || 'lava'));
       if (id === 'lava' || id === 'bloodmoon' || !id) el.appendChild(OS.spires());
@@ -487,7 +496,7 @@
   };
   OS.renderWallpaper = function () {
     const s = Store.settings();
-    OS.wallpaperStyle($('#layer-wall'), s.wallpaper, s.wallpaperPhoto);
+    OS.wallpaperStyle($('#layer-wall'), s.wallpaper, s.wallpaperPhoto, () => !OS.locked && !OS.fg && Store.get('setupDone', false));
   };
 
   // ---------------- scheduler ----------------

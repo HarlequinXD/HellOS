@@ -17,7 +17,7 @@
   // painted forecast symbol: one square image per condition
   function symbol(cond, size = 28) {
     return h('span.weather-symbol', { role: 'img', 'aria-label': cond.n, title: cond.n, style: { width: size + 'px', height: size + 'px' } },
-      h('img', { src: 'art/weather/' + (cond.art || 0) + '.jpg', alt: '' }));
+      h('img', { src: Art.get('weather', String(cond.art || 0)), alt: '' }));
   }
   function place() { return PLACES[Store.get('omensPlace', 0)] || PLACES[0]; }
   function wx(p, date, hour) {

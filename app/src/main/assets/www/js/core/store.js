@@ -11,6 +11,7 @@
     accent: '#FF5A2A',
     wallpaper: 'lava',
     wallpaperPhoto: null,
+    animWall: true,
     brightness: 0.8,
     autoBrightness: false,
     volume: 0.7,

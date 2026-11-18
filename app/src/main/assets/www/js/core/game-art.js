@@ -1,5 +1,5 @@
 /* Illustrated game art: painted scenes, relic tiles and ember effects.
- * Every image is drawn with cover-cropping, so nothing is ever stretched. */
+ * Images come from pixelart.js and are drawn cover-cropped with smoothing off. */
 (function () {
   'use strict';
   const GAMES = ['serpent', 'hellmines', 'damned2048', 'soulflap', 'brimblocks', 'ouija'];
@@ -9,8 +9,8 @@
     return cache[path];
   }
   const ready = im => !!(im && im.complete && im.naturalWidth);
-  const scenePath = id => 'art/scenes/' + id + '.jpg';
-  const relicPath = i => 'art/relics/' + i + '.jpg';
+  const scenePath = id => Art.get('scenes', id);
+  const relicPath = i => Art.get('relics', String(i));
 
   // draw an image like CSS background-size: cover
   function cover(g, im, x, y, w, h) {
@@ -20,6 +20,7 @@
   }
 
   function background(g, id, w, h) {
+    g.imageSmoothingEnabled = false; // keep the pixel art crisp
     const im = img(scenePath(id));
     if (ready(im)) cover(g, im, 0, 0, w, h);
     else { g.fillStyle = '#150b10'; g.fillRect(0, 0, w, h); }
@@ -30,6 +31,7 @@
   function tile(g, index, x, y, w, h, tint) {
     const im = img(relicPath(index));
     if (!ready(im)) { g.fillStyle = tint || '#39231d'; g.fillRect(x, y, w, h); return; }
+    g.imageSmoothingEnabled = false;
     g.drawImage(im, x, y, w, h); // relic tiles are square, as are the cells they fill
     if (tint) { g.save(); g.globalAlpha = 0.38; g.fillStyle = tint; g.fillRect(x, y, w, h); g.restore(); }
   }

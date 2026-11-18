@@ -1,7 +1,8 @@
-/* Panel and header materials (Rites → Display & flame).
- * Each material is a seamless 256px texture that tiles, so panels of any
- * shape look right. Text colours are scoped to panels (--panel-text), so the
- * light materials never make wallpaper-facing text unreadable. */
+/* Panel and header materials (Rites → Display & flame), plus the pixel-art
+ * interface pieces (frame, button plates, mine tiles) that retro.css uses.
+ * Each material is a seamless procedural pixel tile, so panels of any shape
+ * look right. Text colours are scoped to panels (--panel-text), so light
+ * materials never make wallpaper-facing text unreadable. */
 (function () {
   'use strict';
   const TONES = [
@@ -13,7 +14,11 @@
     { id: 'ivory', name: 'Cathedral ivory', base: '#D3C5B7', text: '#211912', muted: '#4D4135', line: 'rgba(60,45,30,.24)', field: 'rgba(255,255,255,.40)', raise: 'rgba(255,255,255,.12)', light: true }
   ];
   const tone = id => TONES.find(t => t.id === id) || TONES[0];
-  const tex = t => Art.cssUrl('art/ui/panel-' + t.id + '.jpg');
+  const tex = t => Art.cssUrl(Art.get('ui', 'panel-' + t.id));
+  const shade = (hex, k) => {
+    const n = parseInt(hex.slice(1), 16), f = v => Math.max(0, Math.min(255, Math.round(k > 0 ? v + (255 - v) * k : v * (1 + k))));
+    return '#' + [f(n >> 16 & 255), f(n >> 8 & 255), f(n & 255)].map(v => v.toString(16).padStart(2, '0')).join('');
+  };
 
   function apply() {
     const s = Store.settings();
@@ -25,7 +30,12 @@
     const vars = {
       '--panel': p.base, '--panel-tex': tex(p), '--panel-text': p.text, '--panel-muted': p.muted,
       '--panel-line': p.line, '--field': p.field, '--panel-raise': p.raise,
-      '--header': hd.base, '--header-tex': tex(hd), '--header-text': hd.text
+      '--header': hd.base, '--header-tex': tex(hd), '--header-text': hd.text,
+      '--header-hi': shade(hd.base, hd.light ? 0.25 : 0.18), '--header-lo': shade(hd.base, -0.35),
+      '--frame': Art.cssUrl(Art.get('ui', 'frame')), '--frame-lit': Art.cssUrl(Art.get('ui', 'frame-lit')),
+      '--plate': Art.cssUrl(Art.get('ui', 'plate')), '--plate-lit': Art.cssUrl(Art.get('ui', 'plate-lit')),
+      '--plate-accent': Art.cssUrl(Art.get('ui', 'plate-accent')),
+      '--relic-11': Art.cssUrl(Art.get('relics', '11')), '--relic-12': Art.cssUrl(Art.get('relics', '12'))
     };
     for (const k in vars) root.style.setProperty(k, vars[k]);
   }
@@ -35,7 +45,7 @@
     if (headers) grid.appendChild(h('button.material-follow', { type: 'button', 'aria-pressed': String(!selected || selected === 'auto'), onclick: () => onChange('auto') }, 'Match panels'));
     TONES.forEach(t => grid.appendChild(h('button.material-choice' + (t.light ? '.light' : ''), {
       type: 'button', 'aria-label': t.name, 'aria-pressed': String(selected === t.id),
-      style: { backgroundImage: Art.cssUrl('art/ui/swatch-' + t.id + '.jpg'), color: t.text },
+      style: { backgroundImage: Art.cssUrl(Art.get('ui', 'swatch-' + t.id)), color: t.text },
       onclick: () => onChange(t.id)
     }, h('span', t.name))));
     return grid;

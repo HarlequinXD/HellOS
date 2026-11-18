@@ -46,10 +46,10 @@ The APK is signed with the fixed key in `keystore/`, so new builds install over 
 
 - `app/` is a small Java Android app (`MainActivity`, `HellBridge`, `LocalAssets`) that hosts the OS in a full-screen WebView served from a secure local origin. Camera, microphone, storage and audio all work. The bridge adds native extras: flashlight, vibration, screen brightness, battery level and the back key.
 - `app/src/main/assets/www/` is the OS itself, in plain HTML, CSS and JavaScript (no build step).
-  - `css/os.css` + `css/apps.css` hold layout; `css/theme.css` is the illustrated look (materials, frame, buttons, icons), driven by `js/core/surface-theme.js`.
+  - `css/os.css` + `css/apps.css` hold layout; `css/retro.css` is the retro Android look (title bars, lists, plates, frame, checkboxes), driven by `js/core/surface-theme.js`.
   - `js/core/` holds the kernel (window manager, notifications, scheduler), setup, lock, home, shade, telephony and characters.
   - `js/apps/` holds the system apps; `js/store/` holds the HellPlay catalog and its apps.
-- Art comes from the HellOS Graphic Art Pack (masters in `art-source/`). See **[ART_GUIDE.md](ART_GUIDE.md)** for what goes where.
+- All art is procedural 256-colour pixel art generated at start-up by `js/core/pixelart.js`. No image files ship. See **[ART_GUIDE.md](ART_GUIDE.md)**.
 
 ### Adding a HellPlay app
 

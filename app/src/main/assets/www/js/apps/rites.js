@@ -213,6 +213,7 @@ OS.register({
           UI.section('Flame colour'), accents,
           UI.section('Brightness'), h('div', { style: 'padding:0 16px' }, bright),
           h('div.list',
+            UI.switchRow({ icon: 'sparkle', title: 'Animated wallpaper', sub: 'Flowing lava, embers and flickering windows', value: s.animWall !== false, onChange: v => { set('animWall', v); } }),
             UI.switchRow({ icon: 'sun', title: 'Adaptive brightness', sub: 'Let the flames decide', value: s.autoBrightness, onChange: v => set('autoBrightness', v) }),
             UI.switchRow({ icon: 'clock', title: '24-hour time', value: s.time24, onChange: v => { set('time24', v); Home.render(); } }),
             nav('text', 'Font size', { 0.9: 'Small', 1: 'Default', 1.12: 'Large', 1.25: 'Largest' }[s.fontScale] || 'Default', async () => {
