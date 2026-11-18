@@ -89,6 +89,15 @@
     if (c) return c.rid != null ? Residents.get(c.rid) : Residents.byCid(c.id);
     return number ? Residents.byNumber(number) : null;
   }
+  // will a resident pick up right now?
+  function answers(res) {
+    const kind = Residents.now(res).kind;
+    const tr = window.Mind ? Mind.tier(Mind.state(res.id).aff).id : 'neutral';
+    if (tr === 'hate') return Math.random() < 0.1;
+    const base = { sleep: 0.15, work: 0.35, social: 0.5, clash: 0.15, hobby: 0.7, commute: 0.6, errand: 0.7 }[kind] || 0.9;
+    const like = { dislike: 0.5, wary: 0.8, neutral: 1, like: 1.15, close: 1.3, devoted: 1.4 }[tr] || 1;
+    return Math.random() < Math.min(0.97, base * like);
+  }
   function linesFor() {
     if (state.res && window.Mind) return Mind.callLines(state.res.id);
     return NPCS[state.npc] ? NPCS[state.npc].call : ['…', 'Wrong number.'];
@@ -159,9 +168,15 @@
       later(() => Sound.play('ringback'), 3000);
       if (digits === '666') {
         later(() => { state.ui.status.textContent = 'Connected'; connected(); hotline(); }, 2500);
-      } else if (res && Residents.now(res).kind === 'sleep' && Math.random() < 0.6) {
-        later(() => { state.ui.status.textContent = 'No answer'; state.ui.caption.textContent = res.first + ' is asleep.'; }, 7000);
-        later(() => hangup('No answer'), 9500);
+      } else if (res && !answers(res)) {
+        const asleep = Residents.now(res).kind === 'sleep';
+        const hated = Mind.tier(Mind.state(res.id).aff).id === 'hate';
+        if (hated && !asleep) { later(() => hangup('Declined'), 4000 + Math.random() * 4000); }
+        else {
+          later(() => { if (!state) return; state.ui.status.textContent = 'No answer'; state.ui.caption.textContent = asleep ? res.first + ' is asleep.' : 'It rings out.'; }, 9000 + Math.random() * 4000);
+          later(() => hangup('No answer'), 12000 + Math.random() * 3000);
+        }
+        if (c && window.Phones) Phones.missedCall(c.id, res.id);
       } else if (res || (c && c.npc)) {
         later(() => { state.ui.status.textContent = 'Connected'; connected(); say(linesFor(), () => hangup('They hung up')); }, 3200 + Math.random() * 2000);
       } else if (c) {

@@ -9,7 +9,7 @@ OS.register({
     const known = () => new Set((Store.get('contacts', []) || []).map(c => { const r = Chat.resident(c); return r ? r.id : -1; }));
     const affOf = id => { const m = Store.get('minds', {})[id]; return m ? m.aff : R.get(id).baseAff; };
     const talked = id => !!Store.get('minds', {})[id];
-    const KIND_ICON = { sleep: 'moon', work: 'gear', lunch: 'flame', commute: 'navigate', hobby: 'star', social: 'users', errand: 'bag', clash: 'bolt', home: 'home' };
+    const KIND_ICON = { sleep: 'moon', work: 'gear', lunch: 'flame', commute: 'navigate', hobby: 'star', social: 'users', errand: 'bag', clash: 'bolt', home: 'home', festival: 'flame' };
     const stack = UI.stack(win, listPage);
     if (args && args.rid != null) stack.push(p => profile(p, args.rid));
     win.onIntent = a => { if (a && a.rid != null) { stack.reset(); stack.push(p => profile(p, a.rid)); } };
@@ -66,7 +66,7 @@ OS.register({
       function fill() {
         U.clear(list); shown = 0;
         rows = R.all.filter(match);
-        count.textContent = rows.length === R.COUNT ? R.COUNT + ' residents of Hell' : rows.length + ' of ' + R.COUNT + ' residents';
+        count.textContent = (rows.length === R.COUNT ? R.COUNT + ' residents of Hell' : rows.length + ' of ' + R.COUNT + ' residents') + ' · ' + HellTime.label() + ', ' + HellTime.clock();
         if (!rows.length) { list.appendChild(UI.empty('users', 'Nobody down here matches that.')); return; }
         more20();
       }
@@ -94,11 +94,11 @@ OS.register({
         if (v > Store.settings().souls) { OS.toast('Not enough souls. Win some in HellPlay.'); return; }
         Store.setting('souls', Store.settings().souls - v);
         const cid = Chat.bind(id);
-        Chat.push(cid, { from: 'me', text: '🔥 Sent you ' + v + ' souls', status: 'sent' });
-        const msgs = Mind.gift(id, v);
-        Chat.deliver(cid, msgs, 900);
+        const mid = U.uid();
+        Chat.push(cid, { id: mid, from: 'me', text: '🔥 Sent you ' + v + ' souls', status: 'sending' });
+        Phones.receive(cid, id, mid, '', v);
         Sound.play('success');
-        OS.toast(v + ' souls sent to ' + p.first);
+        OS.toast(v + ' souls sent. ' + p.first + ' will see them when they check their phone.');
         draw();
       }
       function entry(b) {
@@ -131,9 +131,9 @@ OS.register({
         const act = (ic, label, fn) => h('button', { style: 'display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:none;color:var(--text);font-size:12px', onclick: fn },
           h('span', { style: 'width:52px;height:52px;border-radius:26px;background:var(--tile);display:flex;align-items:center;justify-content:center;color:var(--accent)' }, icon(ic, 22)), label);
         const L = p.lore;
-        const days = ['Yesterday', '2 days ago', '3 days ago', '4 days ago', '5 days ago', '6 days ago'];
+        const days = [1, 2, 3, 4, 5, 6].map(i => i === 1 ? 'Yesterday' : HellTime.short(HellTime.day() - i));
         const hist = h('div.list');
-        function fillHist() { U.clear(hist); const d = Date.now() - (histDay + 1) * 86400000; R.log(p, d).filter(b => b.kind !== 'sleep' || b.s === 0).forEach(b => hist.appendChild(entry(b))); }
+        function fillHist() { U.clear(hist); const d = HellTime.day() - (histDay + 1); R.log(p, d).filter(b => b.kind !== 'sleep' || b.s === 0).forEach(b => hist.appendChild(entry(b))); }
         fillHist();
         const blocked = st && st.block && Date.now() < st.block;
         const memN = st ? st.mem.length : 0;
@@ -160,7 +160,7 @@ OS.register({
               h('div', { style: 'flex:1' },
                 h('div', { style: 'font-weight:600' }, nb.kind === 'sleep' ? 'Asleep' : nb.act.charAt(0).toUpperCase() + nb.act.slice(1)),
                 h('div.muted', { style: 'font-size:12px' }, nb.where + ' · since ' + R.fmt(nb.s) + ' · until ' + R.fmt(nb.e % 1440))))),
-            UI.section('Today so far'),
+            UI.section('Today so far · ' + HellTime.label() + ', ' + HellTime.clock()),
             h('div.list', R.log(p).filter(b => b.kind !== 'sleep' || b.s === 0).map(entry)),
             UI.section('History'),
             UI.chips(days.map((d, i) => ({ id: i, label: d })), 0, i => { histDay = +i; fillHist(); }),
@@ -190,6 +190,7 @@ OS.register({
               p.family ? personLi(p.family.id, 'Sibling') : null,
               p.friends.filter(f => f !== p.partner).map(f => personLi(f, 'Friend')),
               p.rivals.map(f => personLi(f, 'Rival'))),
+            h('div.list', UI.li({ icon: 'bookmark', title: 'What you know about ' + p.first, sub: 'Your Grimoire: everything you\'ve been told', onClick: () => OS.open('grimoire', { rid: id }) })),
             h('div.muted', { style: 'padding:16px 20px;font-size:12px;text-align:center' }, memN ? p.first + ' remembers ' + memN + ' thing' + (memN === 1 ? '' : 's') + ' about you.' : p.first + ' doesn’t know anything about you yet.'),
             h('div', { style: 'height:30px' })));
       }

@@ -26,6 +26,8 @@ The APK is signed with the fixed key in `keystore/`, so new builds install over 
 | Calls | Keypad with tones, recents, favourites, contacts. Characters answer and talk; 666 is the Hell Hotline. Incoming calls happen on their own. |
 | Pacts | Messaging. Every resident of Hell answers in their own texting style, remembers what you tell them, likes or dislikes you, and texts you on their own. Tap their bubble to hear their voice. |
 | Souls | Contacts: add, edit, star, delete, circles. |
+| Grimoire | Your memory: everything residents have told you about themselves, each other, places and the world, with who told you and when, plus your own notes. |
+| Almanac | Hell's own calendar and clock: 6666 AF, four seasons, festivals, a 7-day week and the pace of Hell time. |
 | Census | All 666 residents of Hell: portrait, what they are doing right now, the record of their day and the last week, lore, personality, friends and rivals, and how much they like you. |
 | Pyre Cam | Uses the real camera, with hellish filters, a timer, a grid and front/back switching. |
 | Relics | Gallery: view, swipe, delete, set as wallpaper. |
@@ -49,6 +51,7 @@ The APK is signed with the fixed key in `keystore/`, so new builds install over 
 - 13 texting voices (gremlin, noble, grump, poet, shouter, nervous, spooky…) with per-resident slang, emoji, tics, typos, pet names and double-texting.
 - A hidden memory: your name, likes, pets, mood, where you went, anything you ask them to remember. They bring it up later, and gossipy friends pass some of it on.
 - A like meter from −100 to 100: compliments, kindness, answering their questions and gifts of souls raise it; insults and repeating yourself lower it. It changes how they greet you, what they will tell you (secrets need a close friend) and whether they block you.
+- Residents have phones: your messages are delivered, buzz in their pocket or bag, and get read and answered when they reach for the phone, which can take a while if they're at work, out or asleep (Sending → Delivered → Read). Busy residents may not pick up calls and text back later.
 - On calls each resident speaks with their own synthesised babble voice (pitch, speed and timbre), not real speech.
 
 **HellPlay apps:** Serpent, Hellmines, Damned 2048, Soul Flap, Brimblocks, Pentagram Paint, Hellfire Torch (real flashlight), Whispers (real microphone recorder), Ouija. Games pay out **souls**, the currency you spend in HellPlay.

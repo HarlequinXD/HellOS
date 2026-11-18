@@ -3,7 +3,7 @@
   'use strict';
   const $ = U.$;
   const DOCK = ['calls', 'pacts', 'brimstone', 'pyrecam'];
-  const DEFAULT_HOME = ['relics', 'souls', 'census', 'lament', 'doomclock', 'hellscape', 'hellplay', 'scribe', 'rites'];
+  const DEFAULT_HOME = ['relics', 'souls', 'census', 'grimoire', 'almanac', 'lament', 'doomclock', 'hellscape', 'hellplay', 'scribe', 'rites'];
   let drawer = null, clockEl = null, dateEl = null;
 
   function homeApps() {
@@ -64,7 +64,7 @@
       const s = Store.settings();
       const now = new Date();
       clockEl = h('div.big-clock', U.time(now));
-      dateEl = h('div.date', U.dateShort(now));
+      dateEl = h('div.date', U.dateShort(now) + (window.HellTime ? '  ⛧ ' + HellTime.short() + ' ' + HellTime.clock() : ''));
       const glance = h('div.glance', {role:'button',tabindex:'0','aria-label':'Open Clock'}, clockEl, dateEl,
         h('div.line', (window.Omens?Omens.currentSymbol(18):icon('flame',16)), h('span', window.Omens ? Omens.summary() : '')));
       glance.addEventListener('click', () => OS.open('doomclock'));
@@ -131,7 +131,7 @@
     refreshBadges() { if (!OS.fg) Home.render(); },
     refreshClock() {
       if (clockEl) clockEl.textContent = U.time(new Date());
-      if (dateEl) dateEl.textContent = U.dateShort(new Date());
+      if (dateEl) dateEl.textContent = U.dateShort(new Date()) + (window.HellTime ? '  ⛧ ' + HellTime.short() + ' ' + HellTime.clock() : '');
     },
     DOCK, DEFAULT_HOME
   };

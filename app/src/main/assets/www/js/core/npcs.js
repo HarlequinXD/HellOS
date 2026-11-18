@@ -134,20 +134,26 @@
     send(contactId, text) {
       const c = Chat.contact(contactId);
       const ok = OS.cellular();
-      Chat.push(contactId, { from: 'me', text, status: ok ? 'sent' : 'failed' });
-      if (!ok) { OS.toast('Not delivered. Descent mode is on.'); return; }
       const res = residentOf(c);
-      if (res && window.Mind) {
-        // a resident of Hell: their own mind answers (or ignores you)
-        const r = Mind.reply(res.id, text);
-        if (!r || !r.msgs.length) return;
-        Chat.deliver(contactId, r.msgs, r.delay);
+      const mid = U.uid();
+      Chat.push(contactId, { id: mid, from: 'me', text, status: !ok ? 'failed' : res && window.Phones ? 'sending' : 'sent' });
+      if (!ok) { OS.toast('Not delivered. Descent mode is on.'); return; }
+      if (res && window.Phones) {
+        // a resident of Hell: it reaches their phone, and they answer when they get to it
+        Phones.receive(contactId, res.id, mid, text);
         return;
       }
       const npcId = c && c.npc;
       const reply = npcId ? replyFor(npcId, text) : (Math.random() < 0.5 ? U.pick(['…', 'who is this?', 'the line crackles with static', '👁️', 'stop texting the dead']) : null);
       if (!reply) return;
       Chat.deliver(contactId, [reply], 1200 + Math.random() * 2500);
+    },
+    setStatus(contactId, ids, status, t) {
+      Store.update('threads', {}, th => {
+        const tr = th[contactId]; if (!tr) return th;
+        tr.msgs.forEach(m => { if (m.id && ids.indexOf(m.id) >= 0 && m.status !== 'failed') { m.status = status; if (status === 'read') m.readAt = t || Date.now(); } });
+        return th;
+      });
     },
     // show "typing…" then each bubble in turn
     _busy: {},
@@ -285,6 +291,7 @@
     const friend = p.friends.length ? Residents.get(p.friends[0]).first : 'someone at the Pit';
     const line = Mind.expand(['{Hey,|Hi,|Um, hi.} {is this the new HellOS number|is this the soul with the new phone}? {I\'m [n]|It\'s [n] here}{.|!} {[f] gave me your number.|Got your number from [f].|Found your number on The Pit.}', '{Wrong number, sorry|Oops, wrong soul}{.|!} {I\'m [n] btw.|This is [n]. Hi I guess.}', '{Hello|Hey}{, stranger|}. {I\'m [n], from [h].|[n] here. I live in [h].} {Thought I\'d say hi.|We should be friends. Or enemies. Your choice.}'], { n: p.name, f: friend, h: p.home });
     Chat.deliver(c.id, [line], 0);
+    if (window.Journal) { Journal.person(p.id, 'name', 'Name: ' + p.name, p.id); Journal.person(p.id, 'home', 'Lives in ' + p.home, p.id); }
   }
 
   window.Chat = Chat;

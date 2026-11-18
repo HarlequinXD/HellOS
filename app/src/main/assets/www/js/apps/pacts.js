@@ -107,8 +107,9 @@ OS.register({
         if (!v) return;
         if (v > Store.settings().souls) { OS.toast('Not enough souls. Win some in HellPlay.'); return; }
         Store.setting('souls', Store.settings().souls - v);
-        Chat.push(id, { from: 'me', text: '🔥 Sent you ' + v + ' souls', status: 'sent' });
-        Chat.deliver(id, Mind.gift(res.id, v), 900);
+        const mid = U.uid();
+        Chat.push(id, { id: mid, from: 'me', text: '🔥 Sent you ' + v + ' souls', status: 'sending' });
+        Phones.receive(id, res.id, mid, '', v);
         Sound.play('success');
       }
       function fill() {
@@ -122,8 +123,10 @@ OS.register({
           if (m.from !== 'me' && res && window.Voice) bub.addEventListener('click', () => Voice.speak(m.text, res.voice, { vol: 0.5 }));
           thread.appendChild(bub);
           const isLastOfMine = m.from === 'me' && (i === arr.length - 1 || arr[i + 1].from !== 'me');
-          if (isLastOfMine) thread.appendChild(h('div.bmeta.r', m.status === 'failed' ? 'Not delivered' : U.time(m.t) + ' · Sealed'));
+          if (isLastOfMine) thread.appendChild(h('div.bmeta.r', m.status === 'failed' ? 'Not delivered' : m.status === 'sending' ? 'Sending…' : m.status === 'delivered' ? U.time(m.t) + ' · Delivered' : m.status === 'read' ? 'Read ' + U.time(m.readAt || m.t) : U.time(m.t) + ' · Sealed'));
         });
+        const pn = window.Phones ? Phones.note(id) : null;
+        if (pn && !Chat.typing[id]) thread.appendChild(h('div.bmeta', { style: 'text-align:left;font-style:italic;color:var(--accent);padding-left:4px' }, pn));
         if (Chat.typing[id]) thread.appendChild(h('div.typing', h('i'), h('i'), h('i')));
         if (!t || !t.msgs.length) thread.appendChild(h('div.bmeta', 'Start a pact with ' + c.name));
         thread.scrollTop = thread.scrollHeight;

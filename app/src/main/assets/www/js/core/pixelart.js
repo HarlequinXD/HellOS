@@ -203,7 +203,7 @@
   // app icon medallion: horned iron plate, dark glowing face, bone glyph
   // ------------------------------------------------------------------
   const APP_RAMPS = {
-    calls: 'serpent', pacts: 'crimson', souls: 'bone', census: 'void', pyrecam: 'iron', relics: 'gold', brimstone: 'ember',
+    calls: 'serpent', pacts: 'crimson', souls: 'bone', census: 'void', grimoire: 'wood', almanac: 'gold', pyrecam: 'iron', relics: 'gold', brimstone: 'ember',
     lament: 'vex', doomclock: 'gold', dates: 'blood', hellscape: 'wood', abyss: 'slate', scribe: 'bone',
     abacus: 'wood', omens: 'soul', rites: 'iron', hellplay: 'ember', serpent: 'serpent', hellmines: 'iron',
     damned2048: 'gold', soulflap: 'void', brimblocks: 'crimson', paint: 'vex', torch: 'ember', whispers: 'soul', ouija: 'wood'
