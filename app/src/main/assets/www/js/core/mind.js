@@ -1010,7 +1010,7 @@
     if (s > 23 * 60) { s -= 24 * 60; day++; if (s < 8 * 60) s = 19 * 60; }
     return { day, s, e: s + 120, place, fest };
   }
-  const whenText = pr => HellTime.rel(pr.day).toLowerCase().replace('today', 'today').replace(/^(\w)/, x => x) + ' at ' + R.fmt(pr.s);
+  const whenText = pr => { const r = HellTime.rel(pr.day); return (/^(Today|Tomorrow|Yesterday)$/.test(r) ? r.toLowerCase() : 'on ' + r) + ' at ' + R.fmt(pr.s); };
   function busyAt(p, pr) {
     const tl = R.day(p, pr.day);
     const b = tl.find(x => pr.s >= x.s && pr.s < x.e);
