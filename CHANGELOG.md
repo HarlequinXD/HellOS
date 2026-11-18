@@ -1,5 +1,12 @@
 # HellOS changelog
 
+## 6.12.1 — "is it good?"
+- Ask a resident what they think of **anything they mention** or anything you name, in almost any wording: "is it good?", "is it bad though?", "is doom metal good?", "doom metal any good?", "is doom metal overrated?", "do you like it?", "do you rate it?", "would you recommend lava lattes?", "how was the Lake of Fire?", "what's the Slop Market like?", "is it worth it?", "should I try sulphur noodles?", "thoughts on harps?", "do you hate it?".
+- Residents keep track of everything they've just talked about (their music, food, drinks, games, hobbies, places, festivals, what they did today, the news, the weather, their job), so "it" and "that" mean the last thing they mentioned.
+- Answers depend on their tastes and on what kind of thing it is (music, food, a game, a place, the weather, work…), stay consistent each time, and react to how you asked: "Bad?! Wash your mouth out" if they love it, "Yeah, honestly" if they don't. "Why?" afterwards gets their reason.
+- Tell them what you're doing ("I'm listening to screamo", "I'm playing Serpent, is it good?") and they react, ask if it's any good, and give their own take.
+- "What music / food / games do you like?" now works too.
+
 ## 6.12.0 — the whole OS runs on Hell time
 - The status bar, lock screen, home clock, notification shade, message times ("Read 8:12"), call log, notifications and "5 min ago" labels all show **Hell time and the Hell date**, not the real clock.
 - **Doom Clock:** alarms ring at Hell times on Hell weekdays (Moltenday to Doomday), snooze is 5 Hell minutes, and "rings in…" counts Hell time. The world clock shows the circles relative to Hell time, plus real Earth time for reference. Timer and stopwatch still measure real seconds.
