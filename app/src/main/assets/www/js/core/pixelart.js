@@ -203,7 +203,7 @@
   // app icon medallion: horned iron plate, dark glowing face, bone glyph
   // ------------------------------------------------------------------
   const APP_RAMPS = {
-    calls: 'serpent', pacts: 'crimson', souls: 'bone', pyrecam: 'iron', relics: 'gold', brimstone: 'ember',
+    calls: 'serpent', pacts: 'crimson', souls: 'bone', census: 'void', pyrecam: 'iron', relics: 'gold', brimstone: 'ember',
     lament: 'vex', doomclock: 'gold', dates: 'blood', hellscape: 'wood', abyss: 'slate', scribe: 'bone',
     abacus: 'wood', omens: 'soul', rites: 'iron', hellplay: 'ember', serpent: 'serpent', hellmines: 'iron',
     damned2048: 'gold', soulflap: 'void', brimblocks: 'crimson', paint: 'vex', torch: 'ember', whispers: 'soul', ouija: 'wood'
@@ -438,8 +438,15 @@
     if (!f.faceless) ell(c, c + 1, 7.5, 9, (x, y, v) => put(x, y, C(skin[0], skin[1] + 1.5 - v * 2 - (x - c) * 0.12)));
     else ell(c, c + 2, 7, 8, (x, y) => put(x, y, C('plum', 0.5)));
     if (f.ears) [-1, 1].forEach(s => { for (let i = 0; i < 6; i++) for (let j = 0; j <= i * 0.5; j++) put(c + s * (7 + i), c - 1 - i + j, C(skin[0], skin[1])); });
-    if (f.hair) {
+    if (f.halo) { for (let a = 0; a < Math.PI * 2; a += 0.04) { if (f.halo === 'broken' && a > 0.4 && a < 1.3) continue; put(Math.round(c + Math.cos(a) * 7.5), Math.round(c - 13 + Math.sin(a) * 2.2), C('gold', 13)); } }
+    if (f.hair && f.hairStyle === 'mohawk') {
+      for (let y = c - 14; y < c - 4; y++) for (let x = c - 1; x <= c + 1; x++) put(x, y, C(f.hair[0], f.hair[1] + 2 - (y - c + 14) * 0.2));
+    } else if (f.hair) {
       ell(c, c - 6, 8.5, 4.5, (x, y) => put(x, y, C(f.hair[0], f.hair[1] + 1)));
+      if (f.hairStyle === 'spiky') for (let i = -3; i <= 3; i++) for (let k = 0; k < 4; k++) for (let w = -1 + Math.ceil(k / 2); w <= 1 - Math.ceil(k / 2); w++) put(c + i * 2.4 + w, c - 10 - k, C(f.hair[0], f.hair[1] + 2 - k * 0.4));
+      if (f.hairStyle === 'bun') ell(c, c - 12.5, 3.2, 2.8, (x, y, v) => put(x, y, C(f.hair[0], f.hair[1] + 2 - v * 2)));
+      if (f.hairStyle === 'side') ell(c - 4, c - 4, 5, 2.6, (x, y) => put(x, y, C(f.hair[0], f.hair[1] + 2)));
+      if (f.hairStyle === 'messy') for (let i = 0; i < 9; i++) { const a = Math.PI + (i / 8) * Math.PI; put(Math.round(c + Math.cos(a) * 9), Math.round(c - 6 + Math.sin(a) * 5.5), C(f.hair[0], f.hair[1] + 1)); }
       if (f.long) for (let y = c - 4; y < c + 10; y++) { put(c - 8, y, C(f.hair[0], f.hair[1])); put(c - 9, y, C(f.hair[0], f.hair[1])); put(c + 8, y, C(f.hair[0], f.hair[1])); put(c + 7, y + 1, C(f.hair[0], f.hair[1])); }
     }
     if (f.beard) ell(c, c + 8, 6, 5, (x, y, v) => put(x, y, C(f.beard[0], f.beard[1] - v * 3)));
@@ -455,6 +462,20 @@
     if (f.mouth === 'smile') for (let x = c - 2; x <= c + 2; x++) put(x, c + 6 + (Math.abs(x - c) < 2 ? 0 : -1), C('crimson', 6));
     if (f.mustache) for (let x = c - 4; x <= c + 4; x++) put(x, c + 4 + (Math.abs(x - c) > 2 ? 1 : 0), C('plum', 2));
     if (f.horns === 'small') [-1, 1].forEach(s => { for (let i = 0; i < 5; i++) { put(c + s * (5 + i * 0.5), c - 8 - i, C('bone', 12 - i)); put(c + s * (4 + i * 0.5), c - 8 - i, C('bone', 10 - i)); } });
+    if (f.horns === 'long') [-1, 1].forEach(s => { for (let i = 0; i < 9; i++) { put(c + s * (5 + i * 0.35), c - 8 - i, C('bone', 13 - i * 0.6)); put(c + s * (4 + i * 0.35), c - 8 - i, C('bone', 10 - i * 0.6)); } });
+    if (f.horns === 'curl') [-1, 1].forEach(s => { for (let a = 0; a < 4.2; a += 0.12) { const rr = 4 - a * 0.6; put(Math.round(c + s * (8 + Math.cos(a) * rr)), Math.round(c - 7 - Math.sin(a) * rr), C('bone', 12 - a)); } });
+    if (f.horns === 'ram') [-1, 1].forEach(s => { for (let a = 0; a < 5.5; a += 0.08) { const rr = 5 - a * 0.7; ell(c + s * (8 + Math.cos(a) * rr), c - 3 + Math.sin(a) * rr, 1.3, 1.3, (xx, yy) => put(xx, yy, C('gold', 10 - a))); } });
+    if (f.thirdEye && !f.faceless) { put(c, c - 3, C(f.eyes, 14)); put(c - 1, c - 3, C('plum', 1)); put(c + 1, c - 3, C('plum', 1)); }
+    if (f.glasses === 'shades' && !f.faceless) for (let x = c - 6; x <= c + 5; x++) { put(x, c + 1, C('iron', 1)); if (x !== c && x !== c - 1) put(x, c, C('iron', 2)); }
+    if (f.glasses === 'round' && !f.faceless) [-1, 1].forEach(s => { for (let a = 0; a < 6.3; a += 0.3) put(Math.round(c + s * 3 - (s < 0 ? 0.5 : 0) + Math.cos(a) * 2.4), Math.round(c + 1 + Math.sin(a) * 2.2), C('gold', 9)); });
+    if (f.scar && !f.faceless) for (let i = 0; i < 6; i++) put(c - 6 + i, c - 2 + i, C('crimson', 5));
+    if (f.freckles && !f.faceless) [[-5, 3], [-4, 4], [-6, 4], [4, 3], [5, 4], [3, 4]].forEach(([dx, dy]) => put(c + dx, c + dy, C(skin[0], Math.max(1, skin[1] - 4))));
+    if (f.blush && !f.faceless) [[-5, 4], [4, 4]].forEach(([dx, dy]) => { put(c + dx, c + dy, C('vex', 9)); put(c + dx + 1, c + dy, C('vex', 9)); });
+    if (f.mouth === 'flat' && !f.faceless && !f.skull) for (let x = c - 2; x <= c + 2; x++) put(x, c + 6, C('plum', 1));
+    if (f.mouth === 'fangs' && !f.faceless && !f.skull) { for (let x = c - 3; x <= c + 3; x++) put(x, c + 6, C('plum', 1)); put(c - 2, c + 7, C('bone', 15)); put(c + 2, c + 7, C('bone', 15)); }
+    if (f.mouth === 'open' && !f.faceless && !f.skull) ell(c, c + 6.5, 1.8, 1.4, (x, y) => put(x, y, C('blood', 2)));
+    if (f.earring) put(c + 8, c + 4, C(f.earring, 13));
+    if (f.crown) for (let x = c - 5; x <= c + 5; x++) { put(x, c - 9, C('gold', 11)); put(x, c - 10, C('gold', 10)); if ((x - c) % 3 === 0) { put(x, c - 11, C('gold', 12)); put(x, c - 12, C('gold', 13)); } }
     if (f.cap) ell(c, c - 7, 9, 3.5, (x, y) => put(x, y, C(f.cap[0], f.cap[1] + 1)));
     if (f.hat) { for (let y = 0; y < 13; y++) { const hw = 1 + y * 0.6; for (let x = Math.floor(c - hw); x <= c + hw; x++) put(x + (12 - y) * 0.25, c - 20 + y, C(f.hat[0], f.hat[1] + 1)); } for (let x = c - 12; x <= c + 12; x++) { put(x, c - 7, C(f.hat[0], f.hat[1])); put(x, c - 6, C(f.hat[0], f.hat[1] - 1)); } }
     if (f.chef) { ell(c, c - 12, 8, 5, (x, y, v) => put(x, y, C('bone', 15 - v * 3))); for (let x = c - 7; x <= c + 7; x++) for (let y = c - 9; y <= c - 6; y++) put(x, y, C('bone', 13)); }
@@ -792,7 +813,7 @@
     switch (group) {
       case 'icons': return medallion(key, iconFor(key), 40);
       case 'wallpapers': return scene(240, 520, key);
-      case 'avatars': return portrait(FACES[key] || FACES.player_default, 40);
+      case 'avatars': { const res = !FACES[key] && window.Residents ? Residents.byCid(key) : null; return portrait(FACES[key] || (res && res.face) || FACES.player_default, 40); }
       case 'covers': return cover(key);
       case 'themes': return themeCard(key);
       case 'weather': return weather(+key);

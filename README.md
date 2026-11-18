@@ -24,8 +24,9 @@ The APK is signed with the fixed key in `keystore/`, so new builds install over 
 | App | What it does |
 |---|---|
 | Calls | Keypad with tones, recents, favourites, contacts. Characters answer and talk; 666 is the Hell Hotline. Incoming calls happen on their own. |
-| Pacts | Messaging. Characters reply to what you say and text you on their own. |
+| Pacts | Messaging. Every resident of Hell answers in their own texting style, remembers what you tell them, likes or dislikes you, and texts you on their own. Tap their bubble to hear their voice. |
 | Souls | Contacts: add, edit, star, delete, circles. |
+| Census | All 666 residents of Hell: portrait, what they are doing right now, the record of their day and the last week, lore, personality, friends and rivals, and how much they like you. |
 | Pyre Cam | Uses the real camera, with hellish filters, a timer, a grid and front/back switching. |
 | Relics | Gallery: view, swipe, delete, set as wallpaper. |
 | Brimstone | Browser with hell:// sites (Seek search, Daily Damnation, Infernopedia, The Pit forum, Soul-mail, pizza ordering), tabs, bookmarks and history. Real websites load when online. |
@@ -39,6 +40,16 @@ The APK is signed with the fixed key in `keystore/`, so new builds install over 
 | Omens | Weather for each circle: hourly, 7-day and details. |
 | Rites | Settings. Every page works: network, devices, apps (force stop, clear data, disable, uninstall), notifications, battery, display, sounds, storage, security, privacy, accessibility, system, about (tap build number 7×). |
 | HellPlay | App store: browse, search, buy with souls, real download/install progress, uninstall, updates, ratings. |
+
+**The 666 residents (`js/core/residents.js`, `js/core/mind.js`, `js/core/voice.js`)**
+
+- Every resident is generated from a fixed seed: name, species, own pixel portrait, job and shift, home circle, hobbies, likes, favourites, backstory, sin, dream, fear, quirk, secret, friends, rivals, partners and siblings. Nothing is stored for them, so 666 lives cost no space.
+- Each one lives a real daily routine on the phone's clock: sleep, breakfast, commute, work, lunch, hobbies, errands and evenings out with friends (both sides of a meet-up agree on it), plus one odd thing that happens to them each day. Census shows the record.
+- The conversation engine is built in and offline. It understands about 60 kinds of question and remark (slang and typos too), answers from the resident's own life (now, today, yesterday, tomorrow, who they saw, other residents, places), and says "idk about that" in many ways when they don't know.
+- 13 texting voices (gremlin, noble, grump, poet, shouter, nervous, spooky…) with per-resident slang, emoji, tics, typos, pet names and double-texting.
+- A hidden memory: your name, likes, pets, mood, where you went, anything you ask them to remember. They bring it up later, and gossipy friends pass some of it on.
+- A like meter from −100 to 100: compliments, kindness, answering their questions and gifts of souls raise it; insults and repeating yourself lower it. It changes how they greet you, what they will tell you (secrets need a close friend) and whether they block you.
+- On calls each resident speaks with their own synthesised babble voice (pitch, speed and timbre), not real speech.
 
 **HellPlay apps:** Serpent, Hellmines, Damned 2048, Soul Flap, Brimblocks, Pentagram Paint, Hellfire Torch (real flashlight), Whispers (real microphone recorder), Ouija. Games pay out **souls**, the currency you spend in HellPlay.
 
