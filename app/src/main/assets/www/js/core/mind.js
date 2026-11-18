@@ -1740,7 +1740,17 @@
       const facts = extract(t0);
       const learned = facts.length ? learn(c, facts) : '';
       const pending = st.pending && now - st.pending.t < 30 * 60000 ? st.pending : null;
-      const main = d.intents.find(i => i !== 'greet' && i !== 'ok' && i !== 'yes' && i !== 'no' && i !== 'laugh') || null;
+      let main = d.intents.find(i => i !== 'greet' && i !== 'ok' && i !== 'yes' && i !== 'no' && i !== 'laugh') || null;
+      // the hivemind: when no rule matched, the shared neural network takes a guess
+      const pendingNow = st.pending && now - st.pending.t < 30 * 60000;
+      if (!main && !pendingNow && !facts.length && window.Brain && Brain.ready()) {
+        const g = Brain.guess(text, p.id);
+        const okLabel = g && H[g.label] && !/^(greet|ok|yes|no|laugh)$/.test(g.label) && !(g.label === 'person' && !d.person) && !(g.label === 'place' && !d.place);
+        if (okLabel) { main = g.label; c.brain = g; if (d.intents.indexOf(main) < 0) d.intents.unshift(main); }
+      } else if (main && window.Brain && !c.brainSkip && lt.split(' ').length <= 14) {
+        // the rules were sure: teach the hivemind this wording (and this resident's habits)
+        try { Brain.learn(text, main, p.id); } catch (e) { /* learning is best-effort */ }
+      }
       const ev = d.question || / should | if i | would you /.test(t) ? null : extractEvent(t);
       if (pending && /^(invite|news|player_secret|help|define)$/.test(pending.k) && (!main || main === 'invite' || pending.k === 'news' || pending.k === 'player_secret' || pending.k === 'help' || (pending.k === 'define' && !d.question))) {
         st.pending = null;
@@ -1904,5 +1914,5 @@
     return { total, templates: all.size };
   }
 
-  window.Mind = { late, callback, bump: bumpRid, reply, ambient, callLines, gift, state, tier, save, stats, norm, extract, detect, expand: E, count: s => count(parse(s)), TIERS };
+  window.Mind = { _intents: INTENTS, _follow: FOLLOW, _handlers: H, late, callback, bump: bumpRid, reply, ambient, callLines, gift, state, tier, save, stats, norm, extract, detect, expand: E, count: s => count(parse(s)), TIERS };
 })();

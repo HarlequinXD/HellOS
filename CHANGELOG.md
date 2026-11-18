@@ -1,5 +1,12 @@
 # HellOS changelog
 
+## 6.14.0 — the Hellnet hivemind
+- **A neural network, built and trained from scratch** for HellOS (no outside AI, no libraries): `js/core/brain.js` runs it, `tools/brain/train.js` trains it. It reads hashed words, word pairs and letter chunks (so typos and slang still look familiar), passes them through 48 hidden units, and scores 112 kinds of message plus "none". 522 KB, loads in about 13 ms, runs fully offline.
+- **One shared mind for all 666 residents:** it works out what you meant; each resident still answers with their own life, memories, personality and opinion of you. The hand-written rules stay in charge, and the hivemind steps in only when they miss and it's confident.
+- **Trained on Hell's own language:** the trainer takes every kind of message from the conversation rules plus hand-written examples (about 1,300 seed sentences) and turns them into ~33,000 practice sentences with synonyms, slang, typos, missing words, filler, names and places. It scores 94% on practice sentences it never saw. On 30 brand-new casual messages written for testing, the rules alone understood 17; with the hivemind, 27.
+- **It keeps learning on your phone:** whenever the rules recognise a message for certain, that wording trains the shared network a little, and each resident keeps a tiny personal layer for how you talk to them. Rites → System → Hellnet hivemind turns learning off or wipes what it learned.
+- To retrain after adding new kinds of message: `node tools/brain/train.js` (about 40 seconds).
+
 ## 6.13.0 — grammar and a hidden dictionary
 - **Grammar** (`js/core/grammar.js`): residents now pick sentences apart into parts of speech (nouns, pronouns, verbs and helper verbs, adjectives, adverbs, prepositions, conjunctions, determiners, interjections, question words) and work out who's doing what, when, the tense (past / present / future), and the kind of question. Verbs are turned into their base and -ing forms ("sold eyeballs" → "selling eyeballs", "went skating" → "go skating").
 - **After work:** "when do you knock off?", "you knocking off soon?", "what are you planning to do after work?", "any plans after work?", "you heading home soon?", "are you going home after work?", "are you going to the Lake of Fire after your shift?", "what are you doing after lunch / after that?" are answered from their real schedule. Working residents mention when they knock off, and "when?" gets the time.

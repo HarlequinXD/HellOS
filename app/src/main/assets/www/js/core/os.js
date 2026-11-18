@@ -5,7 +5,7 @@
   const $ = U.$;
 
   const OS = {
-    version: '6.13.0',
+    version: '6.14.0',
     build: 'RETRO.GINGERHELL.680.1118',
     apps: {},
     windows: [],
