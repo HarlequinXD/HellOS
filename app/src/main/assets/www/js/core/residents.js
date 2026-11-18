@@ -476,6 +476,21 @@
       add(eveEnd, eveEnd + 30, 'transit', 'headed to ' + PLACES[p.job.place].n, { kind: 'commute' });
       add(eveEnd + 30, 24 * 60, p.job.place, pick(p.job.acts, r), { kind: 'work' });
     } else add(eveEnd, 24 * 60, 'home', 'went to bed', { kind: 'sleep' });
+    // plans with the player override whatever they'd have done
+    const myPlans = (Store.get('plans', []) || []).filter(x => x.rid === p.id && x.day === n && x.status !== 'cancelled');
+    myPlans.forEach(pl => {
+      const act = pl.status === 'met' ? 'hung out with you at ' + PLACES[pl.place].n : pl.status === 'stood' ? 'waited for you at ' + PLACES[pl.place].n + ' (you never came)' : pl.met ? 'hanging out with you' : 'meeting you at ' + PLACES[pl.place].n;
+      for (let i = out.length - 1; i >= 0; i--) {
+        const b = out[i];
+        if (b.e <= pl.s || b.s >= pl.e) continue;
+        if (b.s < pl.s && b.e > pl.e) { out.splice(i + 1, 0, Object.assign({}, b, { s: pl.e })); b.e = pl.s; }
+        else if (b.s < pl.s) b.e = pl.s;
+        else if (b.e > pl.e) b.s = pl.e;
+        else out.splice(i, 1);
+      }
+      out.push({ s: pl.s, e: Math.min(pl.e, 1440), place: pl.place, act, kind: 'player' });
+      out.sort((a, b) => a.s - b.s);
+    });
     // one incident
     let inc = pick(INCIDENTS, r);
     if (p.npc && inc[0].toLowerCase().indexOf(p.npc) >= 0) inc = INCIDENTS[0];
