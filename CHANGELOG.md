@@ -1,5 +1,16 @@
 # HellOS changelog
 
+## 6.15.0 — social lives, bodies and travel
+- **Residents text each other.** Every day their phones fill with plans ("7:30pm at the Sulphur Baths, don't be late"), replies, after-meetup texts, next-day planning, fights after run-ins, and everyday chatter about each other's news. It's all worked out from the world, so 666 phones cost no storage.
+- **Relationships that move:** each pair has a bond that rises when they meet and falls when they clash, giving partners, siblings, close friends, friends, drifting friends, rivals, frenemies, enemies, and new couples who've started dating.
+- **They remember each other:** when they last met, what they did, where, and what they talked about (each other's news, the day's headline, a shared love, a festival). They pick up likes from close friends ("Kiki got me into puns, actually").
+- **Ask about other residents:** "what's Kiki up to?", "when did you last see Kiki?", "what did you talk about?", "are you and Kiki dating?", "did you text Kiki today?", "do you still get along?", "how do you know Kiki?". If they have plans with someone tonight, they tell you when you say hi.
+- **Real distances and travel time:** every place sits on Hell's map. Residents walk short hops, take the Hellnet tram, cross on Charon's ferry, or fly if they have wings, and leave early enough to arrive on time (or arrive late). Ask "how far away are you?" or "eta?".
+- **Bodies:** each resident's gestures, habits and moment-to-moment actions are worked out minute by minute from their job, quirks, personality, the weather and who they're with. The Census shows a live feed that updates as you watch, and residents mention what they're doing right now.
+- **Census:** live feed, relationship status and last-seen for their friends, "With friends lately", and today's phone texts.
+- **Rites → System → Census detail:** choose "Only what you've learned" to hide lore and personality and show only what you've learned in chats. In that mode, only close friends share their live feed, schedule and history, and their messages stay private.
+- The hivemind was retrained on questions about other residents and travel (114 kinds of message).
+
 ## 6.14.1 — saying no properly
 - **"Wanna get some?"** now means some of whatever you were just talking about (their favourite food, a drink…), and they pick a place that sells it ("Ooh, smoked brimstone ribs? Say no more. Dis Night Market, today at 7pm").
 - **Declines come with a real reason from their day** (seeing a friend tonight, working, too tired, saving souls, an ember storm at the venue) and residents who like you offer another day ("Rain check? Tomorrow at 7pm works").

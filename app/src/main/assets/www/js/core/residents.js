@@ -401,7 +401,7 @@
       const place = pick(FOOD, r);
       clash[p.id] = { with: q, place }; clash[q] = { with: p.id, place };
     });
-    const keys = Object.keys(pairCache); if (keys.length > 10) delete pairCache[keys[0]];
+    const keys = Object.keys(pairCache); if (keys.length > 45) delete pairCache[keys[0]];
     return (pairCache[n] = { meet, clash });
   }
 
@@ -435,7 +435,8 @@
       add(t, s, 'transit', 'headed to ' + PLACES[p.job.place].n, { kind: 'commute' });
       const mid = s + Math.floor((e - s) / 2);
       add(s, mid, p.job.place, pick(p.job.acts, r), { kind: 'work' });
-      const lunchPlace = clash ? clash.place : (r() < 0.5 ? p.job.place : pick(FOOD, r));
+      let lunchPlace = clash ? clash.place : (r() < 0.5 ? p.job.place : pick(FOOD, r));
+      if (!clash && lunchPlace !== p.job.place && travel(p, p.job.place, lunchPlace).mins > 12) lunchPlace = p.job.place;
       const co = all.filter(x => x.id !== p.id && x.job.place === p.job.place);
       const lunchWith = clash ? null : (co.length && r() < 0.4 ? pick(co, r).id : null);
       add(mid, mid + 45, lunchPlace, clash ? 'ran into ' + all[clash.with].name + ' at lunch and it got heated' : 'had lunch' + (lunchPlace !== p.job.place ? ' at ' + PLACES[lunchPlace].n : ''), { kind: clash ? 'clash' : 'lunch', with: clash ? clash.with : lunchWith });
@@ -510,17 +511,67 @@
     const awake = out.filter(b => b.kind !== 'sleep' && b.kind !== 'social' && b.kind !== 'clash');
     const host = awake.length ? pick(awake, r) : null;
     if (host) host.incident = inc[0];
+    addTravel(p, out);
     out.mood = -weatherHit * 0.5 + inc[1] + (meet ? 1 : 0) + (clash ? -2 : 0) + (working ? -0.5 : 1) + Math.round((p.traits.warmth - 0.5) * 2);
     out.n = n; out.working = working;
     return out;
   }
 
+  // ---------------------------------------------------------------- the map and travel
+  // Hell is nine rings around the Throne. Every place (and every home) has a spot on it,
+  // and getting anywhere takes real Hell time: walking, the Hellnet tram, Charon's ferry, or wings.
+  const RING_KM = c => 2 + c * 1.6;
+  function xyOfPlace(id) { const pl = PLACES[id]; const a = (U.hash('xy:' + id) % 3600) / 3600 * Math.PI * 2; const r = RING_KM(pl.c) + ((U.hash('r:' + id) % 100) / 100 - 0.5) * 0.9; return [Math.cos(a) * r, Math.sin(a) * r]; }
+  function xyOfHome(p) { const a = (U.hash('home:' + p.id) % 3600) / 3600 * Math.PI * 2; const r = RING_KM(p.circle) + ((U.hash('hr:' + p.id) % 100) / 100 - 0.5) * 1.2; return [Math.cos(a) * r, Math.sin(a) * r]; }
+  const XY = {}; Object.keys(PLACES).forEach(k => { XY[k] = xyOfPlace(k); });
+  const WINGED = /harpy|fallen angel|succubus|incubus|gargoyle/;
+  function xy(p, place) { return place === 'home' ? xyOfHome(p) : XY[place] || [0, 0]; }
+  function circleOf(p, place) { return place === 'home' ? p.circle : PLACES[place] ? PLACES[place].c : p.circle; }
+  function travel(p, from, to) {
+    const a = xy(p, from), b = xy(p, to);
+    const km = Math.hypot(a[0] - b[0], a[1] - b[1]);
+    const c1 = circleOf(p, from), c2 = circleOf(p, to);
+    let mode, mins;
+    if (WINGED.test(p.kind) && km > 0.6) { mode = 'fly'; mins = km / 35 * 60 + 2; }
+    else if (km < 1.3) { mode = 'walk'; mins = km / 5 * 60; }
+    else { mode = 'tram'; mins = km / 40 * 60 + 4 + (U.hash(p.id + ':' + from + to) % 6); }
+    if (mode !== 'fly' && (c1 === 0) !== (c2 === 0)) { mode = 'ferry'; mins += 12; }  // crossing the Acheron
+    mins += Math.abs(c1 - c2) * (mode === 'fly' ? 1 : 3);                             // stairs between circles
+    return { km: Math.round(km * 10) / 10, mins: Math.max(3, Math.round(mins)), mode };
+  }
+  const MODE_VERB = { walk: 'walked to ', tram: 'took the Hellnet tram to ', ferry: 'took Charon\'s ferry to ', fly: 'flew to ' };
+  function addTravel(p, out) {
+    // drop the old fixed "headed to" blocks, giving their time back
+    for (let i = out.length - 1; i > 0; i--) if (out[i].kind === 'commute') { out[i - 1].e = out[i].e; out.splice(i, 1); }
+    for (let i = 1; i < out.length; i++) {
+      const prev = out[i - 1], next = out[i];
+      if (prev.place === next.place || prev.place === 'transit' || next.place === 'transit') continue;
+      const tr = travel(p, prev.place, next.place);
+      const FIXED = /^(work|social|player|festival|clash)$/;
+      // leaving a fixed commitment (work, a meet-up): they leave when it ends and arrive later
+      if (FIXED.test(prev.kind) && !FIXED.test(next.kind)) {
+        const arrive = prev.e + tr.mins; next.s = arrive; if (next.e - next.s < 10) next.e = next.s + 15;
+        const to0 = next.place === 'home' ? 'home' : PLACES[next.place].n;
+        out.splice(i, 0, { s: prev.e, e: arrive, place: 'transit', act: next.place === 'home' ? MODE_VERB[tr.mode].replace(/ to $/, ' home') : MODE_VERB[tr.mode] + to0, kind: 'commute', from: prev.place, to: next.place, mode: tr.mode, mins: tr.mins, km: tr.km });
+        i++; continue;
+      }
+      let leave = next.s - tr.mins;
+      if (leave < prev.s + 10) { leave = Math.min(prev.e, prev.s + 10); const arrive = leave + tr.mins; if (next.e - arrive < 10) next.e = arrive + 15; next.s = arrive; next.late = true; }
+      prev.e = leave;
+      const to = next.place === 'home' ? 'home' : PLACES[next.place].n;
+      out.splice(i, 0, { s: leave, e: next.s, place: 'transit', act: next.place === 'home' ? MODE_VERB[tr.mode].replace(/ to $/, ' home').replace('walked home', 'walked home') : MODE_VERB[tr.mode] + to, kind: 'commute', from: prev.place, to: next.place, mode: tr.mode, mins: tr.mins, km: tr.km });
+      i++;
+    }
+    for (let i = 1; i < out.length; i++) if (out[i].s < out[i - 1].e) out[i].s = out[i - 1].e;
+  }
   const placeName = (p, id) => id === 'home' ? 'home in ' + p.home : id === 'transit' ? 'on the road' : (PLACES[id] ? PLACES[id].n : id);
   function now(p) {
     const m = HellTime.min();
     const tl = day(p);
     const b = tl.find(x => m >= x.s && m < x.e) || tl[tl.length - 1];
-    return Object.assign({ where: placeName(p, b.place), mood: tl.mood }, b);
+    const r = Object.assign({ where: placeName(p, b.place), mood: tl.mood }, b);
+    if (b.kind === 'commute') { r.left = Math.max(1, b.e - m); r.toName = b.to === 'home' ? 'home' : PLACES[b.to].n; r.where = b.to === 'home' ? 'on the way home' : 'on the way to ' + r.toName; }
+    return r;
   }
   // the record: today up to now, or a whole past day
   function log(p, date) {
@@ -553,7 +604,7 @@
       return hits.sort((a, b) => b[1] - a[1]).map(x => x[0]);
     },
     findPlace(text) { const t = text.toLowerCase(); return Object.keys(PLACES).find(k => t.indexOf(PLACES[k].n.toLowerCase().replace(/^the /, '').replace('’', '\'')) >= 0 || t.indexOf(PLACES[k].n.toLowerCase().replace(/^the /, '')) >= 0) || null; },
-    day, now, log, world, fmt, placeName, dayNum, workday,
+    day, now, log, world, fmt, placeName, dayNum, workday, travel, xy, pairings, XY,
     face: p => p.face,
     contactFor(p) { return { id: p.cid, npc: p.npc, rid: p.id, name: p.npc === 'pizza' ? 'Beelzebub’s Pizza' : p.name, number: p.number, email: p.email, circle: 'Friends', fav: false, color: p.color }; }
   };

@@ -28,7 +28,7 @@ The APK is signed with the fixed key in `keystore/`, so new builds install over 
 | Souls | Contacts: add, edit, star, delete, circles. |
 | Grimoire | Your memory: everything residents have told you about themselves, each other, places and the world, with who told you and when, plus your own notes. |
 | Almanac | Hell's own calendar and clock: 6666 AF, four seasons, festivals, a 7-day week and the pace of Hell time. |
-| Census | All 666 residents of Hell: portrait, what they are doing right now, the record of their day and the last week, lore, personality, friends and rivals, and how much they like you. |
+| Census | All 666 residents of Hell: portrait, a live feed of what they are doing, their texts with each other, who they've been seeing, the record of their day and the last week, lore, personality, friends and rivals, and how much they like you. |
 | Pyre Cam | Uses the real camera, with hellish filters, a timer, a grid and front/back switching. |
 | Relics | Gallery: view, swipe, delete, set as wallpaper. |
 | Brimstone | Browser with hell:// sites (Seek search, Daily Damnation, Infernopedia, The Pit forum, Soul-mail, pizza ordering), tabs, bookmarks and history. Real websites load when online. |
@@ -46,7 +46,7 @@ The APK is signed with the fixed key in `keystore/`, so new builds install over 
 **The 666 residents (`js/core/residents.js`, `js/core/mind.js`, `js/core/voice.js`)**
 
 - Every resident is generated from a fixed seed: name, species, own pixel portrait, job and shift, home circle, hobbies, likes, favourites, backstory, sin, dream, fear, quirk, secret, friends, rivals, partners and siblings. Nothing is stored for them, so 666 lives cost no space.
-- Each one lives a real daily routine on the phone's clock: sleep, breakfast, commute, work, lunch, hobbies, errands and evenings out with friends (both sides of a meet-up agree on it), plus one odd thing that happens to them each day. Census shows the record.
+- Each one lives a real daily routine on the phone's clock: sleep, breakfast, commute, work, lunch, hobbies, errands and evenings out with friends (both sides of a meet-up agree on it), plus one odd thing that happens to them each day. They travel between places on Hell's map (walking, the Hellnet tram, Charon's ferry or flying), text each other, date, fall out, and remember it all. Census shows the record.
 - The conversation engine is built in and offline. It understands about 60 kinds of question and remark (slang and typos too), answers from the resident's own life (now, today, yesterday, tomorrow, who they saw, other residents, places), and says "idk about that" in many ways when they don't know.
 - 13 texting voices (gremlin, noble, grump, poet, shouter, nervous, spooky…) with per-resident slang, emoji, tics, typos, pet names and double-texting.
 - A hidden memory: your name, likes, pets, mood, where you went, anything you ask them to remember. They bring it up later, and gossipy friends pass some of it on.
