@@ -86,7 +86,7 @@ PLACE|place|noun|0|somewhere you can go|place spot venue joint hangout haunt loc
 PARTY|party|noun|1|a celebration|party bash rave shindig celebration fiesta do knees-up
 DEATH|death|noun|-1|the end of life (where everyone here started)|death dying demise passing
 HEAVEN|heaven|noun|-1|the place upstairs. Boring, apparently|heaven paradise upstairs the_pearly_gates
-HELL|hell|noun|1|home. Nine circles of it|hell underworld inferno the_pit abyss netherworld
+HELL|hell|noun|1|home. Nine circles of it|hell underworld inferno abyss netherworld
 DEMON|demon|noun|0|one of Hell's natives|demon devil fiend imp daemon
 GHOST|ghost|noun|0|a spirit|ghost spirit spectre specter phantom wraith spook apparition
 FAMILY|family|noun|0|your relatives|family mum mom mother dad father parent parents sister brother sibling siblings son daughter kid kids child children grandma grandmother grandpa grandfather nan nana granny gramps aunt auntie uncle cousin niece nephew relatives folks

@@ -28,10 +28,10 @@ The APK is signed with the fixed key in `keystore/`, so new builds install over 
 | Souls | Contacts: add, edit, star, delete, circles. |
 | Grimoire | Your memory: everything residents have told you about themselves, each other, places and the world, with who told you and when, plus your own notes. |
 | Almanac | Hell's own calendar and clock: 6666 AF, four seasons, festivals, a 7-day week and the pace of Hell time. |
-| Census | All 666 residents of Hell: portrait, a live feed of what they are doing, their texts with each other, who they've been seeing, the record of their day and the last week, lore, personality, friends and rivals, and how much they like you. |
+| Census | All 666 residents of Hell and the seven Sin Kings: portrait, a live feed of what they are doing, their texts with each other, who they've been seeing, the record of their day and the last week, lore, personality, friends and rivals, and how much they like you. |
 | Pyre Cam | Uses the real camera, with hellish filters, a timer, a grid and front/back switching. |
 | Relics | Gallery: view, swipe, delete, set as wallpaper. |
-| Brimstone | Browser with hell:// sites (Seek search, Daily Damnation, Infernopedia, The Pit forum, Soul-mail, pizza ordering), tabs, bookmarks and history. Real websites load when online. |
+| Brimstone | Browser with hell:// sites (Seek search, Daily Damnation, Infernopedia (the history of Hell, the Sin Kings, every circle and place), The Pit forum where all 673 residents and kings post and reply, the Conclave of Seven at court.hell, Soul-mail, pizza ordering), tabs, bookmarks and history. Real websites load when online. |
 | Lament | Music player. 8 tracks composed live by a synth, plus seek, shuffle, repeat, likes and media controls in the shade. |
 | Doom Clock | Alarms that ring anywhere in the OS, world clock, timer, stopwatch with laps. |
 | Dates | Calendar with events and reminders. |

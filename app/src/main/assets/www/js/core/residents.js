@@ -54,7 +54,14 @@
     cinema: { n: 'the Grindhouse Cinema', c: 7, t: 'leisure' },
     cocytus: { n: 'Lake Cocytus', c: 8, t: 'nature' },
     throne: { n: 'the Throne', c: 8, t: 'palace' },
-    frost: { n: 'the Frostbite Tavern', c: 8, t: 'bar' }
+    frost: { n: 'the Frostbite Tavern', c: 8, t: 'bar' },
+    // the seats of the seven Sin Kings
+    drowsing: { n: 'the Drowsing Palace', c: 0, t: 'palace' },
+    velvet_court: { n: 'the Velvet Court', c: 1, t: 'palace' },
+    banquet: { n: 'the Banquet Hall of Gorvath', c: 2, t: 'palace' },
+    vault: { n: 'the Gilded Vault', c: 3, t: 'palace' },
+    red_keep: { n: 'the Red Keep', c: 4, t: 'palace' },
+    mirrors: { n: 'the Hall of Mirrors', c: 7, t: 'palace' }
   };
   const CIRCLES = ['Limbo', 'Lust', 'Gluttony', 'Greed', 'Wrath', 'Heresy', 'Violence', 'Fraud', 'Treachery'];
   const HOODS = ['Limbo Row', 'Velvet Terraces', 'Gutter Lane', 'Gilded Heights', 'Ashmarsh Flats', 'the Dis Tenements', 'Cinder Estates', 'Ditchside Lofts', 'the Icefloe Huts'];
@@ -188,6 +195,14 @@
     zealot: { label: 'fiery true believer', case: 'normal', punct: 'bang', emoji: ['🔥', '⛧', '😈'], emojiRate: 0.3, laugh: ['Ha! Glory!'], pre: ['Praise the Pit!', 'Behold,', 'Hear me,'], post: ['All hail the Throne!', 'Burn bright!', 'So it is written!'], pet: { hate: ['heretic'], cold: ['sinner'], warm: ['fellow sinner'], close: ['my brother in flame'] }, double: 0.2, typo: 0 },
     schemer: { label: 'sly schemer', case: 'normal', punct: 'normal', emoji: ['😏', '🐍', '👀'], emojiRate: 0.35, laugh: ['heh heh', 'hehehe'], pre: ['Between us,', 'Heh,', 'Psst,', 'Well well,'], post: ['you didn’t hear it from me', 'wink', 'heh'], pet: { hate: ['mark'], cold: ['friend'], warm: ['partner'], close: ['partner in crime'] }, double: 0.2, typo: 0.01 },
     jock: { label: 'hyped gym-brained', case: 'normal', punct: 'bang', emoji: ['💪', '🔥', '🏋️'], emojiRate: 0.45, slang: 0.6, laugh: ['HAHA', 'lmao bro'], pre: ['Bro,', 'Yo!', 'Dude,', 'Ayy,'], post: ['let’s gooo', 'no days off', 'gains!'], pet: { hate: ['scrub'], cold: ['dude'], warm: ['bro'], close: ['brother', 'my guy'] }, double: 0.4, typo: 0.03 },
+    // the seven Sin Kings each speak like no one else
+    sovereign: { label: 'royal and grand (says "We")', case: 'normal', punct: 'normal', emoji: ['👑'], emojiRate: 0.1, formal: 1, royal: 1, laugh: ['We are amused.', 'Ha. Ha.'], pre: ['Hm.', 'Speak plainly.', 'Very well.', 'Attend.'], post: ['So We have spoken.', 'You may bow.', 'Remember who wears the Crown.'], pet: { hate: ['insect'], cold: ['subject'], warm: ['loyal subject'], close: ['Our favoured one'] }, double: 0, typo: 0 },
+    miser: { label: 'smooth and money-minded', case: 'normal', punct: 'normal', emoji: ['💰', '🪙', '📈'], emojiRate: 0.35, laugh: ['Heh. Profitable.', 'Ha! Priceless. Well, not priceless.'], pre: ['Let us be frank,', 'Business first:', 'Hm,', 'Now then,'], post: ['time is souls', 'interest applies', 'I’ll put it on your tab', 'everything has a price'], pet: { hate: ['debtor'], cold: ['client'], warm: ['valued client'], close: ['my golden one'] }, double: 0.1, typo: 0 },
+    velvet: { label: 'velvety and charming', case: 'normal', punct: 'normal', emoji: ['🌹', '✨', '🍷', '💜'], emojiRate: 0.5, laugh: ['Mmhm, darling.', 'Oh, you’re wicked.'], pre: ['Darling,', 'Mmm,', 'Oh, sweet thing,', 'Well now,'], post: ['don’t blush', 'ta-ta', 'you’re adorable', 'kisses'], pet: { hate: ['bore'], cold: ['stranger'], warm: ['darling'], close: ['my treasure'] }, double: 0.2, typo: 0 },
+    envious: { label: 'jealous and comparing', case: 'normal', punct: 'ellipsis', emoji: ['👁️', '💚'], emojiRate: 0.3, laugh: ['heh. good for them.', 'Ha... ha.'], pre: ['Hmph.', 'Oh, sure,', 'Must be nice.', 'Well, I heard'], post: ['not that I care', 'lucky you', 'I could do it better', 'everyone else gets one'], pet: { hate: ['show-off'], cold: ['you'], warm: ['my rival-friend'], close: ['the only one I’m not jealous of'] }, double: 0.2, typo: 0 },
+    glutton: { label: 'jolly and always eating', case: 'normal', punct: 'bang', emoji: ['🍖', '🍗', '🥧', '🍷'], emojiRate: 0.5, chatty: 1, laugh: ['HOHOHO!', 'Bwahaha!'], pre: ['*munch*', 'Mmf,', 'Ahh,', 'Hoho,'], post: ['pass the gravy', 'pardon me *burp*', 'now, about lunch', 'more wine!'], pet: { hate: ['skinny wretch'], cold: ['little morsel'], warm: ['dumpling'], close: ['my sweet pudding'] }, double: 0.3, typo: 0.01 },
+    tyrant: { label: 'COMMANDING', case: 'upper', punct: 'normal', emoji: ['⚔️', '🩸', '🔥'], emojiRate: 0.35, terse: 1, laugh: ['HA.', 'HAH! GOOD.'], pre: ['SILENCE.', 'HEAR ME.', 'ENOUGH.', 'LISTEN.'], post: ['OR ELSE', 'DISMISSED', 'BLOOD AND ASH', 'DO NOT TEST ME'], pet: { hate: ['MAGGOT'], cold: ['RECRUIT'], warm: ['SOLDIER'], close: ['MY CHAMPION'] }, double: 0.1, typo: 0 },
+    sloth: { label: 'sleepy and slow', case: 'lower', punct: 'dots', emoji: ['💤', '😴'], emojiRate: 0.4, terse: 1, laugh: ['heh.', '*sleepy chuckle*'], pre: ['*yawn*', 'mm.', 'zzz... oh.', 'hmm...'], post: ['wake me later', 'too much effort', '*yawns*', 'later'], pet: { hate: ['noisy one'], cold: ['whoever you are'], warm: ['friend'], close: ['pillow friend'] }, double: 0, typo: 0.02 },
     spooky: { label: 'eerie and floaty', case: 'lower', punct: 'tilde', emoji: ['👻', '🌫️', '🕯️'], emojiRate: 0.4, laugh: ['hoohoohoo~', 'kekeke~'], pre: ['oooOOoo~', 'whispers:', 'psst~'], post: ['~', 'boo~', '*fades*'], pet: { hate: ['living thing'], cold: ['mortal~'], warm: ['dear~'], close: ['my favourite haunt~'] }, double: 0.2, typo: 0 }
   };
   const KIND_VOICES = {
@@ -319,6 +334,87 @@
     if (all[0].rivals.indexOf(1) < 0) { all[0].rivals.push(1); all[1].rivals.push(0); all[0].friends = all[0].friends.filter(x => x !== 1); all[1].friends = all[1].friends.filter(x => x !== 0); }
   })();
 
+  // ------------------------------------------------------------------ the seven Sin Kings
+  // They rule Hell together as the Septarchy (lore.js tells their story). They live
+  // like everyone else: they have days, friends, rivals and phones. Their ids follow the 666.
+  const KINGS = [
+    { sin: 'pride', name: 'Vaelith the Unbowed', title: 'King of Pride, Bearer of the Ember Crown', kind: 'fallen angel', pron: 'he', seat: 'throne', circle: 8, voice: 'sovereign', number: '666-7001', shift: [10, 18], off: [6],
+      traits: { warmth: 0.25, temper: 0.55, humor: 0.3, honesty: 0.7, curiosity: 0.4, energy: 0.6, pride: 1, gossip: 0.3, charm: 0.85, weird: 0.3 },
+      acts: ['held court on the Burning Throne', 'received the ambassadors of the nine circles', 'reviewed the Throne Guard', 'signed a decree in gold ink', 'had his portrait repainted (again)', 'refused to bow to anyone'],
+      hobbies: [['stargazing', 'sands', ['gazed at the blood moon from the Burning Sands', 'named a star after himself']], ['reading forbidden books', 'library', ['read his own biography in the Library of Limbo']]],
+      likes: ['rules', 'being early', 'the blood moon'], dislikes: ['small talk', 'crowds', 'harps'], fav: { food: 'blood orange sorbet', drink: 'frost mead', music: 'opera', colour: 'gold', animal: 'ravens', place: 'the Frostbite Tavern', game: 'Ouija' },
+      lore: { origin: null, how: 'was the first to fall, and the only one who never looked back', dream: 'have every soul in Hell know his name', fear: 'being forgotten', secret: 'still keeps one white feather from before the Fall', quirk: 'never sits anywhere lower than anyone else', years: 6666 },
+      face: { bg: 'gold', eyes: 'gold', suit: ['gold', 3], skin: ['bone', 12], hair: ['bone', 12], hairStyle: 'side', long: true, halo: 'broken', crown: true, mouth: 'flat', earring: 'gold' } },
+    { sin: 'greed', name: 'Auraxa Goldmaw', title: 'Queen of Greed, Treasurer of Souls', kind: 'demon', pron: 'she', seat: 'vault', circle: 3, voice: 'miser', number: '666-7002', shift: [8, 19], off: [],
+      traits: { warmth: 0.35, temper: 0.35, humor: 0.6, honesty: 0.3, curiosity: 0.7, energy: 0.8, pride: 0.7, gossip: 0.6, charm: 0.8, weird: 0.2 },
+      acts: ['counted the Soul Tithe in the Gilded Vault', 'set the day’s soul exchange rate', 'audited a duke', 'bought a debt from Lucien', 'minted a new obol', 'rang the bell at the Golden Boulder Exchange'],
+      hobbies: [['haggling', 'night_market', ['haggled at the Dis Night Market for sport']], ['arena betting', 'arena', ['bet a fortune at the Wrath Arena (and won)']]],
+      likes: ['rules', 'gossip', 'being early'], dislikes: ['naps', 'surprises', 'long queues'], fav: { food: 'molten cheese toast', drink: 'very black coffee', music: 'lounge jazz', colour: 'gold', animal: 'scorpions', place: 'the Golden Boulder Exchange', game: 'Damned 2048' },
+      lore: { origin: null, how: 'fell with the others and grabbed the treasury before anyone else noticed it existed', dream: 'own one soul from every circle', fear: 'running out of souls', secret: 'gives a soul to a beggar in Limbo every night and makes him swear not to tell', quirk: 'bites every coin to check it', years: 6666 },
+      face: { bg: 'gold', eyes: 'gold', suit: ['gold', 4], skin: ['crimson', 7], hair: ['void', 6], hairStyle: 'bun', horns: 'curl', crown: true, mouth: 'smirk', earring: 'gold', tie: 'gold' } },
+    { sin: 'lust', name: 'Sylvaine the Velvet', title: 'Queen of Lust, Mistress of Revels', kind: 'succubus', pron: 'she', seat: 'velvet_court', circle: 1, voice: 'velvet', number: '666-7003', shift: [14, 22], off: [0],
+      traits: { warmth: 0.75, temper: 0.2, humor: 0.75, honesty: 0.45, curiosity: 0.8, energy: 0.7, pride: 0.65, gossip: 0.9, charm: 1, weird: 0.4 },
+      acts: ['hosted a masquerade at the Velvet Court', 'judged a poetry slam', 'matched two lonely souls', 'planned the next festival', 'opened a new gallery', 'had tea with the harpies of Whirlwind Plaza'],
+      hobbies: [['sulphur bathing', 'baths', ['soaked at the Sulphur Baths with the whole court']], ['karaoke', 'limbo_lounge', ['sang a torch song at Limbo Lounge']]],
+      likes: ['gossip', 'singing', 'surprises'], dislikes: ['rules', 'paperwork', 'Mondays'], fav: { food: 'lava cake', drink: 'bloody marys', music: 'lounge jazz', colour: 'void purple', animal: 'moths', place: 'Limbo Lounge', game: 'Ouija' },
+      lore: { origin: null, how: 'fell for love, she says, and has never once explained whose', dream: 'throw a party so good even Heaven hears it', fear: 'being alone at the end of a party', secret: 'writes love letters she never sends', quirk: 'remembers every name, birthday and heartbreak in her circle', years: 6666 },
+      face: { bg: 'vex', eyes: 'crimson', suit: ['plum', 3], skin: ['vex', 9], hair: ['void', 6], hairStyle: 'side', long: true, horns: 'curl', crown: true, mouth: 'smile', blush: true, earring: 'soul' } },
+    { sin: 'envy', name: 'Nethrys Greeneye', title: 'King of Envy, Keeper of Eyes', kind: 'wraith', pron: 'he', seat: 'mirrors', circle: 7, voice: 'envious', number: '666-7004', shift: [9, 17], off: [5],
+      traits: { warmth: 0.3, temper: 0.5, humor: 0.4, honesty: 0.5, curiosity: 1, energy: 0.5, pride: 0.6, gossip: 1, charm: 0.4, weird: 0.7 },
+      acts: ['read a thousand posts on the Pit', 'watched Hell through his mirrors', 'inspected the Hellnet 666 Tower', 'compiled the Ministry of Eyes report', 'counted everyone else’s crowns', 'redesigned his crown to look like Vaelith’s'],
+      hobbies: [['posting on The Pit', 'home', ['posted on The Pit under a fake name', 'argued online for hours under three accounts']], ['shopping', 'mall', ['bought whatever everyone else was wearing']]],
+      likes: ['gossip', 'puns', 'HellPlay games'], dislikes: ['crowds', 'sunlight', 'surprises'], fav: { food: 'pickled eyeballs', drink: 'Styx tea', music: 'synthwave', colour: 'bile green', animal: 'crows', place: 'Malebolge Mall', game: 'Serpent' },
+      lore: { origin: null, how: 'fell because he wanted what the others had, and still does', dream: 'wear the Ember Crown for one whole year', fear: 'mirrors that show nothing', secret: 'is the anonymous Pit user “definitely_not_a_king”', quirk: 'always knows what you got for your birthday', years: 6666 },
+      face: { bg: 'serpent', eyes: 'serpent', suit: ['serpent', 3], hood: ['serpent', 3], skin: ['bile', 7], crown: true, mouth: 'flat', thirdEye: true } },
+    { sin: 'gluttony', name: 'Gorvath the Ever-Hungry', title: 'King of Gluttony, Lord of Feasts', kind: 'demon', pron: 'he', seat: 'banquet', circle: 2, voice: 'glutton', number: '666-7005', shift: [11, 20], off: [3],
+      traits: { warmth: 0.85, temper: 0.4, humor: 0.95, honesty: 0.7, curiosity: 0.5, energy: 0.45, pride: 0.5, gossip: 0.6, charm: 0.7, weird: 0.6 },
+      acts: ['tasted every dish in the royal kitchens', 'held a nine-course audience', 'judged a pie contest', 'inspected the Slop Market', 'blessed a new pizza oven', 'ate a whole roast basilisk'],
+      hobbies: [['baking', 'home', ['baked forty lava cakes', 'invented a new pie']], ['haggling', 'slop', ['bought one of everything at the Slop Market']]],
+      likes: ['spicy food', 'singing', 'crowds'], dislikes: ['long queues', 'rules', 'the cold'], fav: { food: 'smoked brimstone ribs', drink: 'ember ale', music: 'polka (they won’t explain)', colour: 'crimson', animal: 'toads', place: 'Beelzebub’s Pizza', game: 'Brimblocks' },
+      lore: { origin: null, how: 'fell after eating the apple, the tree, and the garden', dream: 'eat one of everything in Hell', fear: 'an empty plate', secret: 'is on a diet and hates it', quirk: 'carries a snack in every pocket', years: 6666 },
+      face: { bg: 'ember', eyes: 'ember', suit: ['crimson', 4], skin: ['blood', 8], horns: 'ram', crown: true, mouth: 'grin', beard: ['crimson', 6], blush: true } },
+    { sin: 'wrath', name: 'Karnasha the Red', title: 'Queen of Wrath, Warlord of the Throne Guard', kind: 'demon', pron: 'she', seat: 'red_keep', circle: 4, voice: 'tyrant', number: '666-7006', shift: [6, 15], off: [],
+      traits: { warmth: 0.3, temper: 1, humor: 0.35, honesty: 0.95, curiosity: 0.3, energy: 1, pride: 0.8, gossip: 0.2, charm: 0.5, weird: 0.2 },
+      acts: ['drilled the Throne Guard', 'presided over a bout in the Wrath Arena', 'sharpened her pitchfork', 'settled a feud by shouting', 'inspected the Red Keep walls', 'trained recruits until they cried'],
+      hobbies: [['boulder lifting', 'gym', ['lifted the heaviest boulder at the gym']], ['mud wrestling', 'styx', ['mud wrestled in Styx Marsh and won']]],
+      likes: ['shouting', 'rules', 'heat'], dislikes: ['small talk', 'naps', 'harps'], fav: { food: 'ghost pepper soup', drink: 'ember ale', music: 'doom metal', colour: 'crimson', animal: 'hellhounds', place: 'the Wrath Arena', game: 'Brimblocks' },
+      lore: { origin: null, how: 'fell swinging, and has been swinging ever since', dream: 'find an opponent who lasts a full round', fear: 'losing her temper so badly she can’t find it again', secret: 'cries at the end of every grindhouse romance', quirk: 'cracks her knuckles before answering anything', years: 6666 },
+      face: { bg: 'blood', eyes: 'crimson', suit: ['iron', 3], skin: ['crimson', 6], hair: ['crimson', 6], hairStyle: 'mohawk', horns: 'long', crown: true, mouth: 'fangs', scar: true } },
+    { sin: 'sloth', name: 'Somnor the Unhurried', title: 'King of Sloth, Keeper of Forms', kind: 'lich', pron: 'they', seat: 'drowsing', circle: 0, voice: 'sloth', number: '666-7007', shift: [13, 16], off: [1, 3, 5],
+      traits: { warmth: 0.6, temper: 0.05, humor: 0.55, honesty: 0.8, curiosity: 0.2, energy: 0.02, pride: 0.2, gossip: 0.3, charm: 0.4, weird: 0.7 },
+      acts: ['approved a form (after a nap)', 'invented a new form', 'held a very short audience', 'stamped things without reading them', 'napped on the Drowsing Throne', 'lost Form 66-B again'],
+      hobbies: [['reading forbidden books', 'library', ['fell asleep in the Library of Limbo']], ['harpy watching', 'whirlwind', ['watched harpies very slowly']]],
+      likes: ['naps', 'quiet mornings', 'paperwork'], dislikes: ['shouting', 'being early', 'loud music'], fav: { food: 'charred toast', drink: 'Styx tea', music: 'lo-fi dirges', colour: 'ash grey', animal: 'lava snails', place: 'the Library of Limbo', game: 'Hellmines' },
+      lore: { origin: null, how: 'fell last, because they couldn’t be bothered to hurry', dream: 'sleep through an entire Reckoning', fear: 'being woken up for an emergency', secret: 'actually reads every form, just very slowly', quirk: 'answers questions days after they were asked', years: 6666 },
+      face: { skull: true, bg: 'slate', eyes: 'soul', suit: ['ash', 3], crown: true } }
+  ];
+  const KING_IDS = {};
+  KINGS.forEach((k, j) => {
+    const id = COUNT + j, v = VOICES[k.voice];
+    KING_IDS[k.sin] = id;
+    all.push({
+      id, cid: 'c_r' + id, npc: null, king: k.sin, name: k.name, first: k.name.split(' ')[0], kind: k.kind, pron: k.pron, number: k.number,
+      email: k.sin + '@conclave.hell', circle: k.circle, home: PLACES[k.seat].n, job: { title: k.title, place: k.seat, acts: k.acts }, shift: k.shift, offDays: k.off,
+      traits: k.traits, voice: { id: k.voice, emojiRate: v.emojiRate, typo: v.typo, double: v.double, tic: true, catch: { pride: 'so We have decreed', greed: 'everything has a price', lust: 'life is a party, death more so', envy: 'must be nice', gluttony: 'there is always room for more', wrath: 'blood and ash', sloth: 'it can wait' }[k.sin], pitch: k.sin === 'wrath' || k.sin === 'gluttony' ? 0.55 : k.sin === 'lust' ? 1.15 : 0.8, rate: k.sin === 'sloth' ? 0.6 : 0.9 },
+      hobbies: k.hobbies, likes: k.likes, dislikes: k.dislikes, fav: k.fav, lore: k.lore, face: k.face, native: true,
+      baseAff: k.sin === 'lust' || k.sin === 'gluttony' ? 5 : k.sin === 'wrath' || k.sin === 'pride' ? -10 : 0,
+      friends: [], rivals: [], partner: null, family: null, color: { pride: '#6a5010', greed: '#5a4a08', lust: '#4a1050', envy: '#1a4a20', gluttony: '#6a2a10', wrath: '#6a0a0a', sloth: '#303040' }[k.sin]
+    });
+  });
+  (function court() {
+    const K = KING_IDS, link = (a, b, kind) => { const A = all[a], B = all[b]; if (kind === 'rival') { A.rivals.push(b); B.rivals.push(a); } else { A.friends.push(b); B.friends.push(a); } };
+    // allies and grudges inside the Conclave
+    [['pride', 'greed'], ['lust', 'gluttony'], ['gluttony', 'sloth'], ['lust', 'envy'], ['wrath', 'pride'], ['greed', 'lust']].forEach(([a, b]) => link(K[a], K[b]));
+    [['envy', 'pride'], ['wrath', 'sloth'], ['greed', 'gluttony']].forEach(([a, b]) => link(K[a], K[b], 'rival'));
+    // their people: the originals and a few residents of their own circle who serve them
+    link(K.pride, 0); link(K.greed, 0); link(K.gluttony, 5); link(K.lust, 4); link(K.sloth, 2); link(K.wrath, 1, 'rival');
+    KINGS.forEach(k => {
+      const r = U.rng(SEED + U.hash('court:' + k.sin));
+      const own = all.filter(p => !p.king && p.id > 5 && (p.circle === k.circle || p.job.place === k.seat));
+      for (let i = 0; i < 2 && own.length; i++) { const q = pick(own, r); if (all[K[k.sin]].friends.indexOf(q.id) < 0) link(K[k.sin], q.id); }
+    });
+  })();
+
   // ------------------------------------------------------------------ faces
   function makeFace(kd, r, circle) {
     const f = kd.f;
@@ -412,6 +508,37 @@
     ['found a cute bat', 1], ['burned their tongue', -1], ['was told off by a throne guard', -1], ['got a free pizza by mistake', 2], ['had a weird dream about Heaven', -1], ['ran into an old friend from Earth', 2]
   ];
 
+  // put a block into a timeline, trimming whatever was there
+  function overlay(out, blk) {
+    for (let i = out.length - 1; i >= 0; i--) {
+      const b = out[i];
+      if (b.e <= blk.s || b.s >= blk.e) continue;
+      if (b.s < blk.s && b.e > blk.e) { out.splice(i + 1, 0, Object.assign({}, b, { s: blk.e })); b.e = blk.s; }
+      else if (b.s < blk.s) b.e = blk.s;
+      else if (b.e > blk.e) b.s = blk.e;
+      else out.splice(i, 1);
+    }
+    out.push(blk); out.sort((a, b) => a.s - b.s);
+  }
+  const CONCLAVE_DAY = 4; // Hexday
+  const COURT_EVENTS = {
+    pride: { wd: 6, s: 19 * 60, e: 21 * 60 + 30, place: 'throne', act: 'held the Doomday Audience at the Throne' },
+    greed: { wd: 0, s: 18 * 60, e: 20 * 60, place: 'exchange', act: 'rang the closing bell at the Golden Boulder Exchange' },
+    lust: { wd: 3, s: 20 * 60, e: 23 * 60 + 30, place: 'velvet_court', act: 'threw the Scorchday Masquerade at the Velvet Court' },
+    envy: { wd: 2, s: 19 * 60, e: 21 * 60, place: 'tower', act: 'read the Hellnet in the Ministry of Eyes at the 666 Tower' },
+    gluttony: { wd: 5, s: 18 * 60 + 30, e: 22 * 60, place: 'banquet', act: 'hosted the Gloomday Feast in the Banquet Hall' },
+    wrath: { wd: 6, s: 18 * 60, e: 21 * 60, place: 'arena', act: 'presided over the Doomday bouts at the Wrath Arena' },
+    sloth: { wd: 1, s: 15 * 60, e: 17 * 60, place: 'minos', act: 'reviewed the queue at the Hall of Minos (slowly)' }
+  };
+  function courtDay(p, n, out, r) {
+    const wd = HellTime.date(n).weekday;
+    const fest = HellTime.festival(n);
+    if (wd === CONCLAVE_DAY && !(fest && fest.major)) overlay(out, { s: 13 * 60, e: 16 * 60, place: 'throne', act: 'sat in the Conclave of Seven', kind: 'work', court: 'conclave' });
+    const ev = COURT_EVENTS[p.king];
+    if (ev && ev.wd === wd) overlay(out, { s: ev.s, e: ev.e, place: ev.place, act: ev.act, kind: 'work', court: 'event' });
+    if (fest && fest.major) overlay(out, { s: 20 * 60, e: 22 * 60, place: fest.place, act: 'opened ' + fest.name + ' with a royal speech', kind: 'festival', court: 'festival' });
+  }
+
   // full timeline for a calendar day: [{s, e, place, act, with, kind}]
   function day(p, date) {
     const n = dayNum(date);
@@ -490,6 +617,8 @@
       if (b.kind === 'social') { const alt = pick(['limbo_lounge', 'cinema', 'arcade', 'frost', 'pizza'], r); b.act = b.act.replace(/ with /, ' indoors with ') + ' (' + w.cond.say + ' outside)'; b.place = alt; return; }
       b.act = 'stayed in because of the ' + w.cond.n.toLowerCase() + ' (wanted to go to ' + PLACES[b.place].n + ')'; b.place = 'home'; b.kind = 'home';
     });
+    // the Sin Kings: the Conclave of Seven sits every Hexday afternoon, and each holds their own court events
+    if (p.king) courtDay(p, n, out, r);
     // plans with the player override whatever they'd have done
     const myPlans = (Store.get('plans', []) || []).filter(x => x.rid === p.id && x.day === n && x.status !== 'cancelled');
     myPlans.forEach(pl => {
@@ -590,7 +719,7 @@
   all.forEach(p => { byCid[p.cid] = p; });
 
   window.Residents = {
-    COUNT, all, PLACES, CIRCLES, VOICES, FOODS, MUSIC,
+    COUNT, all, PLACES, KINGS, KING_IDS, CONCLAVE_DAY, COURT_EVENTS, king: sin => all[KING_IDS[sin]], CIRCLES, VOICES, FOODS, MUSIC,
     get: id => all[id], byCid: cid => byCid[cid] || null,
     byNumber(num) { const c = String(num).replace(/[^0-9]/g, ''); return all.find(p => p.number && p.number.replace(/[^0-9]/g, '') === c) || null; },
     findByName(text) {

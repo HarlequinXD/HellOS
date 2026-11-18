@@ -215,8 +215,8 @@
     for (const [id, re] of INTENTS) {
       if (id === 'social') { if (res.person && re.test(t)) res.intents.push(id); continue; }
       if (id === 'person') { if (res.person && / (who is|do you know|what do you think|what about|have you seen|did you see|where is|what is .* doing|how is|tell me about|know|is .* (nice|okay|cool|mean)) /.test(t)) res.intents.push(id); continue; }
-      if (id === 'judge') { const q = evalQ(t) || (PLAYER_DOING.test(t) && /\?|any good|is it/.test(t) ? {} : null); if (q && !(q.name && (R.findByName(' ' + q.name + ' ').length || /^(you|me)$/.test(q.name)))) res.intents.push(id); continue; }
-      if (id === 'place') { if (res.place && / (have you been|ever been|been to|what do you think|like|go to|is .* (good|nice|fun)|what is|tell me about) /.test(t)) res.intents.push(id); continue; }
+      if (id === 'judge') { const q = evalQ(t) || (PLAYER_DOING.test(t) && /\?|any good|is it/.test(t) ? {} : null); if (q && !/ (history|rumou?rs?|story|lore|decree|conclave|septarchy|the pit|forum) /.test(t) && !(q.name && (R.findByName(' ' + q.name + ' ').length || /^(you|me)$/.test(q.name)))) res.intents.push(id); continue; }
+      if (id === 'place') { if (res.place && / (have you been|ever been|been to|what do you think|like|go to|is .* (good|nice|fun)|what is|tell me about|history|rumou?rs?|story|who runs|who owns) /.test(t)) res.intents.push(id); continue; }
       if (re.test(t)) res.intents.push(id);
     }
     res.question = /\?/.test(t) || /^ (what|where|who|why|how|when|which|do|does|did|are|is|can|could|would|will|have|has|should) /.test(t);
@@ -233,6 +233,7 @@
     const v = R.VOICES[p.voice.id];
     let s = text;
     if (v.formal) CONTRACT.forEach(([re, rep]) => { s = s.replace(re, rep); });
+    if (v.royal) s = s.replace(/\bI am\b/g, 'We are').replace(/\bI was\b/g, 'We were').replace(/\bI have\b/g, 'We have').replace(/\bI will\b/g, 'We shall').replace(/\bI\b/g, 'We').replace(/\bmyself\b/gi, 'Ourselves').replace(/\bmy\b/g, 'Our').replace(/\bMy\b/g, 'Our').replace(/\bme\b/g, 'Us').replace(/\bmine\b/g, 'Ours');
     if (v.slang) SLANGIFY.forEach(([re, rep, pr]) => { s = s.replace(re, m => chance(pr * v.slang) ? rep : m); });
     if (v.terse && s.length > 70 && !/\d(?::\d\d)?(am|pm)|\?$/.test(s)) { const parts = s.split(/(?<=[.!?])\s+/); if (parts.length > 2) s = parts.slice(0, 2).join(' '); }
     const cold = tierId === 'hate' || tierId === 'dislike' || /sorry|awful|rough|are you okay|sucks|here if you need|i'm here|so sorry|holding up|doing okay/i.test(text);
@@ -250,6 +251,7 @@
     else if (v.punct === 'ellipsis') s = s.replace(/\.(\s|$)/g, (m, sp) => chance(0.6) ? '...' + sp : '.' + sp);
     else if (v.punct === 'bang') s = s.replace(/\.(\s|$)/g, (m, sp) => chance(0.6) ? '!' + sp : '.' + sp);
     else if (v.punct === 'tilde') s = s.replace(/[.!](\s|$)/g, (m, sp) => chance(0.6) ? '~' + sp : '.' + sp);
+    if (v.royal) s = s.replace(/\b(we|our|us|ourselves)\b/g, w => w.charAt(0).toUpperCase() + w.slice(1));
     if (v.case === 'lower') s = s.toLowerCase();
     if (v.case === 'upper') s = s.toUpperCase();
     if (p.voice.typo) s = s.split(' ').map(w => w.length > 4 && chance(p.voice.typo * 0.6) ? typo(w) : w).join(' ');
@@ -584,6 +586,7 @@
     return w.map(b => b.kind === 'clash' ? E('{Ran into|Bumped into} [n] at [w]{, ugh.|. We don\'t get along.}', { n: R.get(b.with).name, w: b.where }) : E('{I saw|I was with|Hung out with} [n] at [w]{.|!}', { n: R.get(b.with).name, w: b.where })).join(' ');
   };
   H.person = (c, d, t) => {
+    if (d.person && d.person.king && window.Lore && d.person.id !== c.p.id && !/ (where is|what is .* doing|have you seen) /.test(t)) return kingOpinion(c, d.person.king);
     const q = d.person, rel = relationTo(c.p, q);
     const knows = rel !== 'stranger' && rel !== 'neighbour';
     const n = q.first === c.p.first ? q.name : q.first;
@@ -604,8 +607,13 @@
       default: return c.p.traits.gossip > 0.8 ? E('{Never met them, but I heard|Don\'t know them. Rumour is} they\'re {a|an} [k] who [s].', { k: q.kind, s: q.lore.how }) : E('{[n]? Never heard of them.|Don\'t know any [n].|idk who that is.|Who?}', { n });
     }
   };
-  H.place = (c, d) => {
+  H.place = (c, d, t) => {
     const pl = R.PLACES[d.place], key = d.place;
+    const LP = window.Lore && Lore.PLACES[key];
+    if (LP && / (tell me about|history|what is .* like|what s .* like|rumou?rs?|story|who runs|who owns|what is) /.test(t || '')) {
+      const first = LP.text.split(/(?<=\.)\s+/)[0];
+      return (c.p.job.place === key ? E('{I work there!|That\'s my work.}') + ' ' : '') + first + ' ' + E('{Rumour is [r].|They say [r].|I heard [r].}', { r: LP.rumour });
+    }
     const lg = R.log(c.p);
     const went = lg.find(b => b.place === key);
     if (went) return E('{I was there today|Been there today, actually|I was literally just there}{!|.} I [a].', { a: lc(went.act) });
@@ -1796,7 +1804,105 @@
   };
   function relBothSoc(c, a, b, st) { if (!window.Journal) return; const lab = st.label; if (lab && st.id !== 'none') { JP(c, a.id, 'rel:' + b.id, cap(lab) + ' with ' + b.name); JP(c, b.id, 'rel:' + a.id, cap(lab) + ' with ' + a.name); } }
 
+  // ---------------------------------------------------------------- the Sin Kings, the Septarchy, lore and the Pit
+  const SIN_WORD = / (pride|greed|lust|envy|gluttony|wrath|sloth) /;
+  function kingFromText(t) {
+    const m = t.match(/ (?:king|queen|lord|lady|ruler) of (pride|greed|lust|envy|gluttony|wrath|sloth) /) || t.match(/ (pride|greed|lust|envy|gluttony|wrath|sloth) (?:king|queen) /);
+    if (m) return m[1];
+    const k = window.Lore && Lore.SINS.find(s => t.indexOf(' ' + R.king(s).first.toLowerCase() + ' ') >= 0);
+    return k || null;
+  }
+  // what a resident thinks of a king
+  function kingOpinion(c, sin) {
+    const p = c.p, k = R.king(sin), K = Lore.kingTitle(sin), L = Lore.KINGS[sin];
+    if (p.king === sin) return E('{That\'s me.|You\'re talking to them.|I am [K]. Obviously.}', { K });
+    if (p.king) { const l = Lore.loyalty(p, sin); return l > 0.3 ? E('{[K] is a worthy colleague.|[K]? An ally in the Conclave.|I respect [K]. Don\'t tell them.}', { K }) : l < -0.3 ? E('{[K] is a disgrace to the Conclave.|Don\'t mention [K] to me.|[K] and I do not speak.}', { K }) : E('{[K] does their job. Mostly.|We tolerate each other.}', { K }); }
+    const l = Lore.loyalty(p, sin), knows = k.friends.indexOf(p.id) >= 0;
+    const o = k.pron === 'she' ? 'her' : k.pron === 'he' ? 'him' : 'them', P2 = k.pron === 'they' ? 'They rule' : cap(k.pron) + ' rules', P3 = k.pron === 'they' ? 'They run' : cap(k.pron) + ' runs';
+    let s = knows ? E('{I know [K] personally, actually.|[K]? We\'re friends. Really.}', { K }) + ' ' : '';
+    s += l > 0.4 ? E('{[K]? The best of the seven.|Long live [K]!|[K] keeps Hell running, honestly.|I\'d die for [K]. Again.}', { K }) : l < -0.4 ? E('{[K]? Don\'t get me started.|Between us, [K] is a menace.|They read the Pit, but honestly, [K] is the worst.}', { K }) : E('{[K] is fine, I suppose.|I keep out of court business.|[K]? Never met [o]. Just seen the posters.}', { K, o });
+    if (chance(0.5)) s += ' ' + (p.traits.gossip > 0.6 ? E('{I heard [r].|Rumour is [r].}', { r: Lore.rumour(sin, pick(L.rumours)) }) : E('{[P2] [d].|[P3] [m].}', { d: L.domain, m: L.ministry, P2, P3 }));
+    return s;
+  }
+  H.court = (c, d, t) => {
+    if (!window.Lore) return null;
+    const p = c.p, sin = kingFromText(t);
+    if (sin) { c.ctx = { type: 'person', id: R.KING_IDS[sin] }; return (/ who is /.test(t) ? E('[n] is the [title]{.|, ruling from [w].}', { n: R.king(sin).name, title: Lore.KINGS[sin].title, w: R.PLACES[Lore.KINGS[sin].seat].n }) + ' ' : '') + kingOpinion(c, sin); }
+    const bearer = Lore.crown(), mine = Lore.rulerOf(p.circle);
+    if (/ (?:your|this|my|our) (?:circle|king|queen) /.test(t)) return p.king ? E('{I rule [d] myself.|Mine. I rule it.}', { d: Lore.KINGS[p.king].domain }) : E('{Here in [ci] it\'s [K].|[K] rules [ci].}', { ci: R.CIRCLES[p.circle], K: Lore.kingTitle(mine) }) + ' ' + kingOpinion(c, mine);
+    if (/ crown /.test(t)) return E('{[K] wears the Ember Crown this year.|[K] bears the Ember Crown. Again.}', { K: Lore.kingTitle(bearer) }) + (bearer === 'pride' ? ' ' + E('{Nethrys voted for himself again.|Six votes to one, as usual.}') : '');
+    if (/ conclave /.test(t)) return E('{The Conclave of Seven meets every Hexday afternoon behind the Empty Throne.|The kings meet on Hexdays, 1 till 4, behind the Empty Throne.}') + ' ' + (HellTime.date().weekday === R.CONCLAVE_DAY ? E('{They\'re sitting today, actually.|It\'s on today.}') : E('{Mostly they argue.|Somnor usually falls asleep.}'));
+    if (/ satan | lucifer | the devil | dark lord /.test(t)) return E('{There\'s no one devil. There are seven kings.|We don\'t have a devil. We have seven of them. The Septarchy.}') + ' ' + E('{[K] wears the Crown this year.|Ask [K], they like to think they\'re in charge.}', { K: Lore.kingTitle(bearer) });
+    return p.king ? E('{The seven of us, together. The Septarchy.|The Conclave of Seven rules Hell, and I am one of the seven.}') + ' ' + (bearer === p.king ? E('{And this year the Ember Crown is mine.|I bear the Ember Crown, of course.}') : E('{[K] bears the Crown this year.|[K] has the Crown, for now.}', { K: Lore.kingTitle(bearer) })) : E('{The Septarchy: seven Sin Kings, one for each sin.|Seven kings rule Hell together. One for each sin.|The Sin Kings. Seven of them, all arguing.}') + ' ' + E('{[K] has the Ember Crown this year, and [K2] rules here in [ci].|[K] wears the Crown. Here in [ci] it\'s [K2].}', { K: Lore.kingTitle(bearer), K2: Lore.kingTitle(mine), ci: R.CIRCLES[p.circle] });
+  };
+  H.decree = (c, d, t) => {
+    if (!window.Lore) return null;
+    const p = c.p, dc = Lore.decree(), K = Lore.kingTitle(dc.sin), x = dc.text.charAt(0).toLowerCase() + dc.text.slice(1);
+    if (HellTime.min() < dc.at) { const y = Lore.decree(HellTime.day() - 1); return E('{Nothing new yet today. Yesterday [K] decreed [x].|No decree yet today. Yesterday\'s was from [K]: [x].}', { K: Lore.kingTitle(y.sin), x: y.text.charAt(0).toLowerCase() + y.text.slice(1) }); }
+    if (p.king === dc.sin) return E('{I decreed it myself: [x], [w].|Mine. [X], [w].|Yes. [X]. I wrote it.}', { x, X: dc.text, w: dc.why });
+    const op = Lore.opinionOfDecree(p, dc);
+    if (p.king) return E('{[K] decreed [x].|The decree today was [K]\'s: [x].}', { K, x }) + ' ' + (op > 0.2 ? E('{I voted for it.|Sensible, for once.}') : E('{I voted against it.|I will raise it at the Conclave.}'));
+    return E('{Did you see? [K] decreed [x].|New decree from [K]: [x].|[K] just decreed [x].}', { K, x }) + ' ' + (op > 0.3 ? E('{Love it.|About time.|Best decree in ages.}') : op < -0.3 ? E('{Ridiculous.|I hate it.|The Pit is already furious.|Who asked for this?}') : E('{Not sure how I feel.|Whatever.|Could be worse.}'));
+  };
+  H.lore = (c, d, t) => {
+    if (!window.Lore) return null;
+    const p = c.p, H0 = Lore.HISTORY;
+    const keys = [['pact', 3], ['ash', 3], ['empty throne', 2], ['throne', 2], ['first flame', 1], ['dug', 4], ['circles', 4], ['charon', 9], ['strike', 9], ['ferry', 5], ['dis', 6], ['spill', 7], ['sands', 7], ['wrath war', 8], ['war', 8], ['rush', 10], ['hellnet', 11], ['phone', 12], ['hellos', 12], ['pit', 13], ['vote', 14], ['fall', 0], ['begin', 0], ['start', 0], ['old', 0], ['6666', 15]];
+    const k = keys.find(([w]) => t.indexOf(' ' + w) >= 0);
+    const e = k ? H0[k[1]] : / history of hell | hell s history | how did hell /.test(t) ? H0[0] : H0[U.hash(p.id + ':' + HellTime.day()) % H0.length];
+    const age = 6666 - e.y, there = p.king || (p.native && p.lore.years >= age);
+    const first2 = e.text.split(/(?<=\.)\s+/).slice(0, 2).join(' ');
+    return E(there ? '{I was there, you know.|I remember it.|Oh, I was there.}' : '{Before my time, but|Way before my time.|I only know the story:}') + ' ' + E('[t], [y] AF. [x]', { t: e.title, y: e.y, x: first2 });
+  };
+  H.forum = (c, d, t) => {
+    if (!window.Forum) return null;
+    const p = c.p, me = Forum.handle(p);
+    if (/ my (?:post|thread|reply) | did you see my /.test(t)) {
+      const st = Store.get('pitForum', { posts: [], replies: {} });
+      if (!st.posts.length) return E('{You post on the Pit? Since when?|What post? Link it.}');
+      const now = HellTime.day() * 1440 + HellTime.min();
+      for (const post of st.posts) {
+        const r = post.replies.find(x => x.rid === p.id);
+        if (!r) continue;
+        if (r.n * 1440 + r.m <= now) return E('{Yeah, I replied! "[x]"|Saw it. I said "[x]".|I did, I commented: "[x]"}', { x: r.text });
+        return E('{Not yet, I haven\'t checked the Pit.|Haven\'t had a chance, I\'ll look later.}');
+      }
+      return E('{Missed it. What was it about?|No, sorry. What did you post?|Didn\'t see it. I don\'t follow you. Yet.}');
+    }
+    if (/ trending | what is on the pit | anything (?:good|new|interesting) on | what are people (?:saying|posting) /.test(t)) {
+      const tr = Forum.trending(); if (!tr) return E('{Quiet today.|Nothing much yet.}');
+      return E('{Everyone\'s on "[x]" by @[h]. [n] replies.|The big thread is "[x]" from @[h]. [n] replies and counting.}', { x: tr.title, h: tr.rid === 'me' ? Forum.myHandle() : Forum.handle(tr.rid), n: tr.replies.length });
+    }
+    const mine = Forum.byAuthor(p.id, 2);
+    if (/ did you post | what did you post | your post | have you posted | posted /.test(t)) {
+      const a = mine[0];
+      if (!a) return Forum.usage(p) > 0.4 ? E('{Not today. Saving my energy.|Nothing today, just lurking.}') : E('{I don\'t really post.|Me? I just lurk.}');
+      return a.kind === 'post' ? E('{Yeah, I posted "[x]". [n] replies so far.|I put up a thread: "[x]". [n] replies.}', { x: a.thread.title, n: a.thread.replies.filter(r => r.m <= HellTime.min() || a.n < HellTime.day()).length }) : E('{I replied to a thread: "[x]".|Just commented on "[x]".}', { x: a.thread.title });
+    }
+    return Forum.usage(p) > 0.45 ? E('{All the time. I\'m @[h].|Way too much. Find me: @[h].|Obviously. @[h], that\'s me.}', { h: me }) : E('{Sometimes. Mostly lurking.|Not really. It\'s all flame wars.|I read it. I don\'t post.}');
+  };
+
+  // the kings speak like kings
+  const KING_GREET = {
+    pride: ['{You may speak.|I am listening. Briefly.|A subject texts the King. Bold.}', '{Ah, my favourite subject.|You again. I am pleased.}'],
+    greed: ['{Time is souls. Talk.|Make it quick, the meter is running.}', '{My favourite client!|Ah, you. Business or pleasure?}'],
+    lust: ['{Well hello, stranger.|Oh? Someone new.}', '{Darling! There you are.|My treasure! Tell me everything.}'],
+    envy: ['{Oh. You. I know who you are, by the way.|Hello. I\'ve read your posts.}', '{You texted ME? Not Vaelith? Good.|Finally, someone texts me first.}'],
+    gluttony: ['{Hoho! Come in, have you eaten?|Ah, a guest! Hungry?}', '{My little dumpling! Eaten yet?|There you are! I saved you a pie.}'],
+    wrath: ['{Speak.|State your business.|What.}', '{Ah. You. Good.|Soldier! Report.}'],
+    sloth: ['{...mm? oh. hello.|*yawn* hi.}', '{oh, it\'s you. nice. hi.|mm. hello, friend.}']
+  };
+  const baseGreet = H.greet, baseJob = H.job, baseHome = H.home;
+  H.greet = c => { const s = baseGreet(c); if (!c.p.king) return s; return E(KING_GREET[c.p.king][c.tr === 'close' || c.tr === 'devoted' || c.tr === 'like' ? 1 : 0]) + (/meeting|date/.test(s) ? ' ' + s.split(/(?<=[.!?])\s+/).slice(1).join(' ') : ''); };
+  H.job = c => { if (!c.p.king || !window.Lore) return baseJob(c); const L = Lore.KINGS[c.p.king]; return E('{I am the [t].|I\'m the [t].} {I rule [d] and run [m].|I rule [d] from [w].}', { t: L.title, d: L.domain, m: L.ministry, w: R.PLACES[L.seat].n }) + (chance(0.5) ? ' ' + E('{And I sit in the Conclave of Seven every Hexday.|Today I [a].}', { a: fp(lc(pick(c.p.job.acts))) }) : ''); };
+  H.home = c => { if (!c.p.king || !window.Lore) return baseHome(c); return E('{I live at [w], obviously.|[w]. It\'s a palace. It\'s fine.}', { w: R.PLACES[Lore.KINGS[c.p.king].seat].n }); };
+
+  H.ruler = (c, d, t) => H.court(c, d, t);
   const LIVING_INTENTS = [
+    ['court', / who (?:runs|rules|is in charge of) | who is in charge | (?:king|queen|lord|ruler) of (?:pride|greed|lust|envy|gluttony|wrath|sloth|hell|your circle|this circle) | sin kings? | the kings | septarchy | ember crown | the crown | who wears the crown | the conclave | conclave of seven | your (?:king|queen) | who is (?:vaelith|auraxa|sylvaine|nethrys|gorvath|karnasha|somnor) | what do you think (?:of|about) (?:the )?(?:king|queen) | the devil | satan | lucifer | dark lord /],
+    ['decree', / decree | decrees | new law | new rule | royal order | what did the (?:kings?|queens?|conclave) /],
+    ['lore', / history of hell | hell s history | how did hell (?:start|begin) | how old is hell | the fall | pact of ash | wrath wars? | great spill | charon s strike | empty throne | great rush | first flame | (?:tell me |any )(?:some |a )?(?:lore|history|old stories) | were you there when /],
+    ['forum', / the pit | forum | did you post | your posts? | my posts? | my thread | posted | trending | what are people (?:saying|posting) /],
     ['eta', / how far (?:away )?are you | how long (?:till|until|before) you (?:get here|arrive|are here) | eta | are you close | almost here | nearly here | where are you now /],
     ['social', / when did you (?:last )?see | last time you (?:saw|hung|met)| when did you last | what did you (?:and [a-z]+ |two |guys )?(?:do|get up to|talk about)| what do you (?:two )?talk about | what did you (?:do|talk about) with | did you (?:text|talk to|chat with|message|hear from) | has [a-z]+ (?:texted|messaged) | (?:dating|together|a thing|seeing each other|going out|in love|an item|crush on) | still friends | fall out | fell out | drifting | why do you hate | did you (?:two )?fight | (?:still )?get along | are you (?:two )?close | are you friends | what is [a-z]+ (?:up to|doing)| where is [a-z]+ | is [a-z]+ (?:at work|home|working|asleep|awake|out) | how (?:are|is) things with | what is new with | been up to | how is [a-z]+ doing | heard from | any news (?:about|on) | how do you know | how did you (?:two )?meet /],
     ['no_worries', / no (?:problem|problems|probs|prob|probz|worries|worry|stress|biggie|drama|dramas|sweat|bother|big deal|issues?) | all good | (?:that is|that s|its|it is) (?:fine|okay|ok|cool|alright) | all g | fair enough | totally fine | no hard feelings | dont worry about it | do not worry about it /],
