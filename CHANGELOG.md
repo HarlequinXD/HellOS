@@ -1,5 +1,14 @@
 # HellOS changelog
 
+## 6.13.0 — grammar and a hidden dictionary
+- **Grammar** (`js/core/grammar.js`): residents now pick sentences apart into parts of speech (nouns, pronouns, verbs and helper verbs, adjectives, adverbs, prepositions, conjunctions, determiners, interjections, question words) and work out who's doing what, when, the tense (past / present / future), and the kind of question. Verbs are turned into their base and -ing forms ("sold eyeballs" → "selling eyeballs", "went skating" → "go skating").
+- **After work:** "when do you knock off?", "you knocking off soon?", "what are you planning to do after work?", "any plans after work?", "you heading home soon?", "are you going home after work?", "are you going to the Lake of Fire after your shift?", "what are you doing after lunch / after that?" are answered from their real schedule. Working residents mention when they knock off, and "when?" gets the time.
+- **Questions understood by grammar:** "did you go to the Slop Market?", "are you working tomorrow?", "are you selling stuff?", "can you skate?", "have you ever been to Dis?", "do you play Serpent?", "what did you eat?" are checked against what they actually did, are doing or have planned.
+- **Hidden dictionary** (`js/core/lexicon.js`): about 1,500 words and phrases grouped by meaning, each with a part of speech and a feeling. Synonyms and slang count as the same thing ("grub" = food, "knackered" = tired, "goated" = good, "clock out" = finish work), so many more ways of saying things are understood, and residents pick up how you feel ("my day was a total nightmare" → sympathy).
+- **"What does X mean?"** Residents explain words in their own voice, from Hell words (obol, Cocytus, lich, AF) to slang (rizz, ngl). If they don't know a word, they ask you, remember your answer, and gossipy friends learn it too. Sometimes they ask about words you use that they've never heard.
+- **Grimoire → Words:** every word you've taught, who you taught and how many residents now know it.
+- Fixed missing spaces between sentences in some replies.
+
 ## 6.12.1 — "is it good?"
 - Ask a resident what they think of **anything they mention** or anything you name, in almost any wording: "is it good?", "is it bad though?", "is doom metal good?", "doom metal any good?", "is doom metal overrated?", "do you like it?", "do you rate it?", "would you recommend lava lattes?", "how was the Lake of Fire?", "what's the Slop Market like?", "is it worth it?", "should I try sulphur noodles?", "thoughts on harps?", "do you hate it?".
 - Residents keep track of everything they've just talked about (their music, food, drinks, games, hobbies, places, festivals, what they did today, the news, the weather, their job), so "it" and "that" mean the last thing they mentioned.
