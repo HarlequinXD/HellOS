@@ -1,0 +1,31 @@
+/* HellPlay catalog: metadata for every installable app. Each app's code lives in its own file
+ * and registers with OS.register({ id, store: CATALOG[id], ... }). */
+window.CATALOG = {
+  serpent: { name: 'Serpent', dev: 'Eden Exiles', cat: 'game', genre: 'Arcade', price: 0, rating: 4.6, downloads: '6.6M', size: 6.6, version: '1.3', tint: '#1A3A22', icon: 'snake',
+    desc: 'The original temptation. Guide the serpent around the garden, eat the forbidden fruit and grow longer. Do not bite your own tail. Earns souls for high scores.',
+    changes: 'Faster fruit. Slightly more forbidden.' },
+  hellmines: { name: 'Hellmines', dev: 'Pitfall Studios', cat: 'game', genre: 'Puzzle', price: 0, rating: 4.4, downloads: '3.1M', size: 4.2, version: '2.0', tint: '#3A2A10', icon: 'bomb',
+    desc: 'Clear the field without stepping on a hellmine. Numbers tell you how many mines lurk nearby. Long-press to plant a flag. Three difficulties, from Limbo to Treachery.',
+    changes: 'Added Treachery difficulty.' },
+  damned2048: { name: 'Damned 2048', dev: 'Ascension Labs', cat: 'game', genre: 'Puzzle', price: 0, rating: 4.7, downloads: '9.9M', size: 3.3, version: '1.1', tint: '#4A2A14', icon: 'tiles',
+    desc: 'Swipe to merge cursed tiles. Imps become demons, demons become archfiends. Reach the 2048 Throne to win eternal bragging rights.',
+    changes: 'New tile names for the upper ranks.' },
+  soulflap: { name: 'Soul Flap', dev: 'Belfry Games', cat: 'game', genre: 'Arcade', price: 13, rating: 4.2, downloads: '1.3M', size: 8.8, version: '1.0', tint: '#2A1A4A', icon: 'bat',
+    desc: 'Tap to flap your little bat wings through the bone pillars of the Ninth Circle. Simple. Cruel. Addictive. Every pillar is a soul.',
+    changes: 'Launch release.' },
+  brimblocks: { name: 'Brimblocks', dev: 'Infernal Bricks Co.', cat: 'game', genre: 'Puzzle', price: 30, rating: 4.8, downloads: '4.4M', size: 12.1, version: '3.2', tint: '#5A1A12', icon: 'blocks',
+    desc: 'Falling blocks of molten brimstone. Rotate, drop and clear lines before the pit fills up. The undisputed king of torment puzzles.',
+    changes: 'Hold piece and ghost preview.' },
+  paint: { name: 'Pentagram Paint', dev: 'Hex Arts', cat: 'app', genre: 'Creativity', price: 0, rating: 4.3, downloads: '2.2M', size: 5.5, version: '1.4', tint: '#4A1430', icon: 'brush',
+    desc: 'Draw with blood, ember and bone. Symmetry mode for perfect summoning circles. Save your art to Relics or set it as your wallpaper.',
+    changes: 'Five-fold symmetry for pentagrams.' },
+  torch: { name: 'Hellfire Torch', dev: 'HellOS Tools', cat: 'app', genre: 'Tools', price: 0, rating: 4.5, downloads: '13M', size: 1.1, version: '1.0', tint: '#5A2A0A', icon: 'torch',
+    desc: 'Light up the darkness with your real phone flashlight, or turn the whole screen into a burning lantern. Also adds the Hellfire Torch quick setting.',
+    changes: 'Screen lantern mode.', perms: 'Camera flash' },
+  whispers: { name: 'Whispers', dev: 'HellOS Tools', cat: 'app', genre: 'Tools', price: 0, rating: 4.1, downloads: '2.9M', size: 2.4, version: '1.2', tint: '#14303A', icon: 'mic',
+    desc: 'Record voices, chants and confessions with your real microphone. Play them back, rename them and keep them forever (or until the Rapture).',
+    changes: 'Rename recordings.', perms: 'Microphone' },
+  ouija: { name: 'Ouija', dev: 'Spirit Board Inc.', cat: 'app', genre: 'Entertainment', price: 6, rating: 3.9, downloads: '666K', size: 7.7, version: '1.0', tint: '#3A2410', icon: 'planchette',
+    desc: 'Ask the spirits anything. The planchette will drift across the board and spell out an answer. For entertainment only. Probably.',
+    changes: 'More talkative spirits.' }
+};

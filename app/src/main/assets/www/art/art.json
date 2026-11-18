@@ -1,0 +1,18 @@
+{
+  "_readme": "Point any key at a file inside www/art/ (e.g. \"icons/calls.png\"). null = keep the built-in vector art. See ART_GUIDE.md in the repo root.",
+  "boot": { "logo": null },
+  "wallpapers": { "lava": null, "bloodmoon": null, "ash": null, "abyss": null },
+  "icons": {
+    "calls": null, "pacts": null, "souls": null, "pyrecam": null, "relics": null, "brimstone": null,
+    "lament": null, "doomclock": null, "dates": null, "hellscape": null, "abyss": null, "scribe": null,
+    "abacus": null, "omens": null, "rites": null, "hellplay": null,
+    "serpent": null, "hellmines": null, "damned2048": null, "soulflap": null, "brimblocks": null,
+    "paint": null, "torch": null, "whispers": null, "ouija": null
+  },
+  "covers": { "t1": null, "t2": null, "t3": null, "t4": null, "t5": null, "t6": null, "t7": null, "t8": null },
+  "store": {
+    "serpent_banner": null, "serpent_shot1": null, "serpent_shot2": null, "serpent_shot3": null,
+    "hellmines_banner": null, "damned2048_banner": null, "soulflap_banner": null, "brimblocks_banner": null,
+    "paint_banner": null, "torch_banner": null, "whispers_banner": null, "ouija_banner": null
+  }
+}

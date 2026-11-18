@@ -1,0 +1,45 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.harlequinxd.hellos'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.harlequinxd.hellos'
+        minSdk 26
+        targetSdk 35
+        versionCode 1
+        versionName '6.6.6'
+    }
+
+    // A fixed debug key lives in the repo so every CI build installs over the last one.
+    signingConfigs {
+        hellos {
+            storeFile rootProject.file('keystore/hellos-debug.jks')
+            storePassword 'hellos666'
+            keyAlias 'hellos'
+            keyPassword 'hellos666'
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.hellos
+        }
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.hellos
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'androidx.webkit:webkit:1.12.1'
+}

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="hell_black">#0B0505</color>
+    <color name="hell_ember">#FF5A2A</color>
+    <style name="HellTheme" parent="@android:style/Theme.DeviceDefault.NoActionBar">
+        <item name="android:windowBackground">@color/hell_black</item>
+        <item name="android:statusBarColor">@color/hell_black</item>
+        <item name="android:navigationBarColor">@color/hell_black</item>
+    </style>
+</resources>
