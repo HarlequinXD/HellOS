@@ -359,6 +359,7 @@
   // days are Hell days (see helltime.js); a real timestamp is read relative to today
   const dayNum = d => d == null ? HellTime.day() : d > 1e9 ? HellTime.day() + Math.round((d - Date.now()) / 86400000) : d;
   const SERVICE = ['pizza', 'limbo_lounge', 'frost', 'acheron', 'throne', 'cocytus', 'night_market', 'baths', 'lake_fire', 'tower', 'kennels'];
+  const third0 = s => s;
   function holiday(p, n) { const f = HellTime.festival(n); return !!(f && f.major && SERVICE.indexOf(p.job.place) < 0); }
   function workday(p, n) { return p.shift && p.offDays.indexOf(HellTime.date(n).weekday) < 0 && !holiday(p, n); }
   const WEATHER = ['ash drizzle', 'a heatwave (even for here)', 'thick sulphur fog', 'a clear red sky', 'an ember storm', 'blood rain', 'a howling whirlwind', 'a cold snap from Cocytus', 'a blood moon', 'smoke so thick you can chew it'];
@@ -367,7 +368,7 @@
     const n = dayNum(date);
     const r = U.rng(SEED * 3 + n * 101);
     const d = HellTime.date(n);
-    const weather = pick(HellTime.SEASON_WEATHER[d.season], r);
+    const weather = HellWeather.at(4, n).cond.say;
     let headline = pick(HEADLINES, r);
     if (d.festival) headline = pick(['it’s ' + d.festival.name + ' today', d.festival.name + ' is on at ' + PLACES[d.festival.place].n, 'half of Hell is heading to ' + PLACES[d.festival.place].n + ' for ' + d.festival.name], r);
     return { weather, headline, n, date: d, festival: d.festival };
@@ -476,6 +477,18 @@
       add(eveEnd, eveEnd + 30, 'transit', 'headed to ' + PLACES[p.job.place].n, { kind: 'commute' });
       add(eveEnd + 30, 24 * 60, p.job.place, pick(p.job.acts, r), { kind: 'work' });
     } else add(eveEnd, 24 * 60, 'home', 'went to bed', { kind: 'sleep' });
+    // bad weather sends people indoors (and makes them a bit grumpy)
+    const OUTDOOR = ['lake_fire', 'styx', 'sands', 'whirlwind', 'cocytus', 'kennels'];
+    let weatherHit = 0;
+    out.forEach(b => {
+      if ((b.kind !== 'hobby' && b.kind !== 'social' && b.kind !== 'festival') || OUTDOOR.indexOf(b.place) < 0) return;
+      const w = HellWeather.atMinute(PLACES[b.place].c, n, b.s);
+      if (!HellWeather.bad(w.cond)) return;
+      weatherHit++;
+      if (b.kind === 'festival') { b.act = third0(b.act) + ' (in ' + w.cond.say + ')'; return; }
+      if (b.kind === 'social') { const alt = pick(['limbo_lounge', 'cinema', 'arcade', 'frost', 'pizza'], r); b.act = b.act.replace(/ with /, ' indoors with ') + ' (' + w.cond.say + ' outside)'; b.place = alt; return; }
+      b.act = 'stayed in because of the ' + w.cond.n.toLowerCase() + ' (wanted to go to ' + PLACES[b.place].n + ')'; b.place = 'home'; b.kind = 'home';
+    });
     // plans with the player override whatever they'd have done
     const myPlans = (Store.get('plans', []) || []).filter(x => x.rid === p.id && x.day === n && x.status !== 'cancelled');
     myPlans.forEach(pl => {
@@ -497,7 +510,7 @@
     const awake = out.filter(b => b.kind !== 'sleep' && b.kind !== 'social' && b.kind !== 'clash');
     const host = awake.length ? pick(awake, r) : null;
     if (host) host.incident = inc[0];
-    out.mood = inc[1] + (meet ? 1 : 0) + (clash ? -2 : 0) + (working ? -0.5 : 1) + Math.round((p.traits.warmth - 0.5) * 2);
+    out.mood = -weatherHit * 0.5 + inc[1] + (meet ? 1 : 0) + (clash ? -2 : 0) + (working ? -0.5 : 1) + Math.round((p.traits.warmth - 0.5) * 2);
     out.n = n; out.working = working;
     return out;
   }

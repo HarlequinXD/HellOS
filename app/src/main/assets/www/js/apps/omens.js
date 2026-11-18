@@ -1,8 +1,8 @@
 /* Omens: weather for the nine circles. Forecasts are deterministic per day and place. */
 (function () {
   const PLACES = [
-    { n: 'Wrath (Fifth Circle)', base: 38 }, { n: 'Limbo', base: 14 }, { n: 'Lust', base: 31 }, { n: 'Gluttony', base: 22 },
-    { n: 'Greed', base: 34 }, { n: 'City of Dis', base: 52 }, { n: 'Lake of Fire', base: 66 }, { n: 'Lake Cocytus', base: -40 }
+    { n: 'Wrath (Fifth Circle)', c: 4 }, { n: 'Limbo', c: 0 }, { n: 'Lust', c: 1 }, { n: 'Gluttony', c: 2 },
+    { n: 'Greed', c: 3 }, { n: 'City of Dis', c: 5 }, { n: 'Lake of Fire', c: 6 }, { n: 'Lake Cocytus', c: 8 }, { n: 'Malebolge (Fraud)', c: 7 }
   ];
   const CONDS = [
     { n: 'Sulphur haze', i: 'cloud' }, { n: 'Brimstone showers', i: 'rain' }, { n: 'Ember storm', i: 'bolt' },
@@ -20,17 +20,8 @@
       h('img', { src: Art.get('weather', String(cond.art || 0)), alt: '' }));
   }
   function place() { return PLACES[Store.get('omensPlace', 0)] || PLACES[0]; }
-  // n = Hell day number, hour = Hell hour; seasons shift the temperature
-  const SEASON_TEMP = [0, 12, -3, -14];
-  function wx(p, n, hour) {
-    const r = U.rng(p.n + ':h' + n + (hour == null ? '' : ':' + hour));
-    const day = U.rng(p.n + ':h' + n);
-    const dayBase = p.base + SEASON_TEMP[HellTime.date(n).season] + Math.round((day() - 0.5) * 10);
-    const temp = hour == null ? dayBase : Math.round(dayBase - 6 + 10 * Math.sin((hour - 9) / 24 * Math.PI * 2) * 0.6 + (r() - 0.5) * 3);
-    let cond = p.base < 0 ? { n: 'Frozen solid', i: 'cloud', art:7 } : CONDS[Math.floor((hour == null ? day() : (day() * 0.7 + r() * 0.3)) * CONDS.length)];
-    if(cond.art===3&&hour!=null&&(hour<6||hour>=19))cond={n:'Clear night',i:'moon',art:8};
-    return { temp, cond, hi: dayBase + 4, lo: dayBase - 7, sulphur: Math.round(day() * 10), screams: Math.round(10 + day() * 60) };
-  }
+  // the one in-game weather system (weather.js), by circle, Hell day and Hell hour
+  function wx(p, n, hour) { return HellWeather.at(p.c, n, hour); }
   window.Omens = {
     currentSymbol(size){return symbol(wx(place(),HellTime.day(),Math.floor(HellTime.min()/60)).cond,size)},
     summary() { const p = place(); const w = wx(p, HellTime.day(), Math.floor(HellTime.min() / 60)); return w.temp + '° · ' + w.cond.n; }

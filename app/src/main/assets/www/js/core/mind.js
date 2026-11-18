@@ -344,7 +344,10 @@
     const nb = R.now(p), tl = R.day(p);
     const tr = tier(st.aff);
     const name = recall(st, 'name');
-    return { p, st, nb, tl, tr: tr.id, pname: name ? name.v : '', world: R.world(), pet: petName(p, tr.id) };
+    const world = Object.assign({}, R.world());
+    const wNow = HellWeather.now(p.circle);
+    world.weather = wNow.cond.say; world.temp = wNow.temp;
+    return { p, st, nb, tl, tr: tr.id, pname: name ? name.v : '', world, pet: petName(p, tr.id) };
   }
   const coldTier = c => c.tr === 'hate' || c.tr === 'dislike';
   function guarded(c, base) { if ((c.tr === 'hate' && chance(0.6)) || (c.tr === 'dislike' && chance(0.3))) { c.refused = true; return E(REFUSE, { pet: c.pet }); } return null; }
@@ -655,7 +658,10 @@
   };
   H.kind = c => E('{I\'m {a|an}|{A|An}} [k]{.|, obviously.|. Can\'t you tell?}', { k: c.p.kind });
   H.myname = c => E('{I\'m [n].|It\'s [n].|[n].|The name\'s [n].|[n], at your service.|They call me [n].}{| Don\'t wear it out.| You should save it.| Nice to meet you.| And you are?}', { n: c.p.name });
-  H.weather = c => E('{It\'s|We\'ve got|Today it\'s|Outside it\'s|Forecast says} [w]{.| as usual.| again. Lovely.|. Bring a cloak.|. Typical Hell.}', { w: c.world.weather });
+  H.weather = c => {
+    const later = HellWeather.at(c.p.circle, HellTime.day(), (Math.floor(HellTime.min() / 60) + 3) % 24).cond;
+    return E('{It\'s|We\'ve got|Right now it\'s|Outside it\'s} [w] {here in|over in|down in} [ci], [t]°{.| as usual.|. Lovely.|. Bring a cloak.|. Typical Hell.}', { w: c.world.weather, ci: R.CIRCLES[c.p.circle], t: c.world.temp }) + (later.say !== c.world.weather ? E(' {Omens says|Supposedly} [l] later.', { l: later.say }) : '');
+  };
   H.news = c => E('{Did you hear|Apparently|Big news:|You heard?|Word is|Everyone\'s saying} [h]{!|.|. Wild.|. Classic Hell.|. I\'m not even surprised.}', { h: c.world.headline });
   H.joke = c => E(JOKES, { kind: c.p.kind, place: c.p.job.place ? R.PLACES[c.p.job.place].n : 'the Throne' });
   H.time = () => E('{It\'s|About} [t]{.|. Time flies when you\'re damned.|. Not that time means much here.}', { t: HellTime.clock() });
@@ -809,7 +815,7 @@
       if (c.p.job.place === key) Journal.place(key, 'staff:' + c.p.id, c.p.name + ' works here as ' + c.p.job.title, c.p.id);
       if (c.p.fav.place === R.PLACES[key].n) Journal.place(key, 'fav:' + c.p.id, c.p.name + '’s favourite place', c.p.id);
     },
-    weather: c => Journal.world('weather:' + HD(), HellTime.label() + ': ' + cap(c.world.weather) + ' (' + HellTime.date().seasonName + ')', c.p.id),
+    weather: c => Journal.world('weather:' + HD() + ':' + c.p.circle, HellTime.label() + ', ' + R.CIRCLES[c.p.circle] + ': ' + cap(c.world.weather) + ', ' + c.world.temp + '° (' + HellTime.date().seasonName + ')', c.p.id),
     news: c => Journal.world('news:' + HD(), HellTime.label() + ': ' + cap(c.world.headline), c.p.id),
     date: c => { const f = HellTime.date().festival; if (f) RECORD.festival(c); },
     season: c => { const d = HellTime.date(); Journal.world('season:' + d.season, d.seasonName + ': ' + HellTime.SEASONS[d.season].blurb, c.p.id); },

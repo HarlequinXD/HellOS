@@ -42,7 +42,7 @@ OS.register({
             h('div.muted', { style: 'font-size:13px' }, d.year + ' AF (After the Fall) · day ' + (d.doy + 1) + ' of ' + T.YEAR_DAYS),
             d.festival ? h('div', { style: 'margin-top:8px;color:var(--accent);font-weight:700' }, '✦ Today: ' + d.festival.name) : null),
           UI.section('Season: ' + season.name),
-          h('div', { style: 'padding:0 20px 8px;font-size:14px;line-height:1.5' }, season.blurb, h('div.muted', { style: 'font-size:12px;margin-top:4px' }, 'Weather today: ' + Residents.world().weather)),
+          h('div', { style: 'padding:0 20px 8px;font-size:14px;line-height:1.5' }, season.blurb, h('div.muted', { style: 'font-size:12px;margin-top:4px' }, 'Weather now (Wrath): ' + Omens.summary())),
           UI.section('Coming festivals'),
           h('div.list', up.map(x => UI.li({ icon: 'flame', title: x.f.name, sub: (x.inDays === 0 ? 'Today' : x.inDays === 1 ? 'Tomorrow' : 'In ' + x.inDays + ' days, ' + T.label(x.n)) + ' · ' + Residents.PLACES[x.f.place].n, onClick: () => OS.alert(x.f.name, x.f.blurb + '\n\nWhere: ' + Residents.PLACES[x.f.place].n + (x.f.major ? '\n\nA holiday: most of Hell has the day off.' : '')) }))),
           UI.section('Calendar'),

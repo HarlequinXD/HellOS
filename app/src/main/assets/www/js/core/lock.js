@@ -168,7 +168,7 @@
       if (pad) return;
       if (clockOnly) {
         const ui = layer.querySelector('.lock');
-        if (ui && ui._clock) { ui._clock.textContent = U.time(new Date()); ui._date.textContent = U.dateLong(new Date()); return; }
+        if (ui && ui._clock) { ui._clock.textContent = U.time(new Date()); ui._date.textContent = U.dateLong(new Date()); const wl = ui.querySelector('.wline'); if (wl && wl.textContent !== weatherLine()) render(); return; }
       }
       render();
     },

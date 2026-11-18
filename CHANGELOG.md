@@ -6,6 +6,8 @@
 - **Dates** is now a Hell calendar: 28-day months, the Six Nameless Days, festivals and rest days marked, your plans with residents listed, and events set in Hell time. Older events are converted.
 - **Omens** forecasts by Hell hour and Hell weekday, and the seasons change the temperature (the Searing is hot, the Hollow Frost is cold).
 - Change the pace of time in Almanac; Rites → Date & time points there.
+- **One in-game weather system** (`js/core/weather.js`) driven by Hell time, the season and the circle: Omens, the home and lock screen widgets, the Almanac and what residents say all show the same weather. Each circle has its own (Cocytus is always frozen, the Lake of Fire is always hot), the weather changes through the day, and seasons bring their own: ember storms in the Kindling, hellfire in the Searing, ashfall and blood rain in the Ashfall, black frost and cinder sleet in the Hollow Frost.
+- **Weather changes residents' days:** in storms, blood rain, hellfire or black frost they skip outdoor hobbies (the Lake of Fire, Styx Marsh, the Burning Sands…), move meet-ups indoors, and are a bit grumpier. Ask them about the weather and they describe their own circle's, plus what Omens says is coming.
 
 ## 6.11.0 — conversations that feel alive
 - **Follow-ups:** "why?", "how?", "what happened?", "who?", "where?", "really?", "tell me more", "oh no", "same" now build on what the resident just said: the story behind their weird day, why they hate their rival, what their boss is like, more about a friend or a place, why they like or hate something.
