@@ -9,7 +9,7 @@ OS.register({
     const known = () => new Set((Store.get('contacts', []) || []).map(c => { const r = Chat.resident(c); return r ? r.id : -1; }));
     const affOf = id => { const m = Store.get('minds', {})[id]; return m ? m.aff : R.get(id).baseAff; };
     const talked = id => !!Store.get('minds', {})[id];
-    const KIND_ICON = { sleep: 'moon', work: 'gear', lunch: 'flame', commute: 'navigate', hobby: 'star', social: 'users', errand: 'bag', clash: 'bolt', home: 'home', festival: 'flame' };
+    const KIND_ICON = { sleep: 'moon', work: 'gear', lunch: 'flame', commute: 'navigate', hobby: 'star', social: 'users', errand: 'bag', clash: 'bolt', home: 'home', festival: 'flame', player: 'heart' };
     const stack = UI.stack(win, listPage);
     if (args && args.rid != null) stack.push(p => profile(p, args.rid));
     win.onIntent = a => { if (a && a.rid != null) { stack.reset(); stack.push(p => profile(p, a.rid)); } };

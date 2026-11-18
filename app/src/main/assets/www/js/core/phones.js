@@ -23,6 +23,7 @@
   // per-activity: chance they hear it, mean minutes between glances, busy factor
   const ACT = {
     home: { hear: 0.9, glance: 3, busy: 1 },
+    player: { hear: 1, glance: 0.5, busy: 1 },
     lunch: { hear: 0.85, glance: 2, busy: 1 },
     errand: { hear: 0.6, glance: 7, busy: 0.8 },
     commute: { hear: 0.55, glance: 8, busy: 0.6 },
@@ -106,7 +107,7 @@
     const hb = habits(p);
     const st = window.Mind ? Mind.state(p.id) : { aff: 0 };
     const tier = window.Mind ? Mind.tier(st.aff).id : 'neutral';
-    const holding = now - (active()[p.id] || 0) < 2 * MIN && nb.kind !== 'sleep';
+    const holding = (now - (active()[p.id] || 0) < 2 * MIN && nb.kind !== 'sleep') || nb.kind === 'player';
     e.spot = spotFor(p, nb.kind);
     e.kind = nb.kind;
     if (holding) { e.stage = 'reaching'; e.how = 'hand'; e.spot = 'hand'; e.at = now + rand(0.5, 2) * 1000; e.reach = null; return; }

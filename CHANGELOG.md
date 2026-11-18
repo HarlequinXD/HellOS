@@ -1,5 +1,16 @@
 # HellOS changelog
 
+## 6.11.0 — conversations that feel alive
+- **Follow-ups:** "why?", "how?", "what happened?", "who?", "where?", "really?", "tell me more", "oh no", "same" now build on what the resident just said: the story behind their weird day, why they hate their rival, what their boss is like, more about a friend or a place, why they like or hate something.
+- **Plans with you:** ask a resident to hang out ("wanna grab dinner tonight at the Night Market?", "meet me at the Lake of Fire tomorrow at 8", "come to the Great Broil"). They say yes, no, or offer another time if they're working or asleep, depending on how much they like you. The plan goes into their day (Census shows it), they text "I'm here!" when they arrive, and you reply "I'm here" or "omw" to show up. Turn up and they like you more; stand them up and they won't forget. "Are we still on?" and "I can't make it" work too, and residents who like you sometimes invite you.
+- **Opinions on anything:** "what do you think of harps / HellPlay / Mondays / spiders?" Based on their tastes and consistent each time. Agree or disagree and they react (proud ones argue back).
+- **Favours:** borrow souls (they remember you owe them; gifting souls pays them back), ask for advice ("should I quit?"), ask for help, tell them a secret (gossips may leak it), and pass on a hello to their friends.
+- **Shared history:** "remember when…" and "you promised" recall what actually happened between you: first chat, gifts, loans, nights out, being stood up, fights, making up, secrets.
+- **Feelings both ways:** comfort them on a bad day, ask what's wrong, tease them ("you're such a nerd lol") and they tease back, or insult them for real and they sulk until you say sorry. "I miss you", "are you mad at me?".
+- **Your own news:** "guess what", "I got a new job", "I failed my exam", "my cat died". They react, remember, and ask how it's going later.
+- **35 more everyday topics:** food, music, games, sleep, pets, birthdays, outfits, Heaven, what Hell is like, who runs it, missing Earth, crushes, "are you real?", recommendations and more. Residents now recognise about 110 kinds of message plus 12 kinds of follow-up.
+- If a player writes about wanting to die or self-harm, the resident steps out of character and points them to real help.
+
 ## 6.10.0 — Hell time, festivals and your Grimoire
 - **Hell has its own time.** The world no longer follows the real clock. One Hell day lasts one real hour by default (change it in Almanac: 24 minutes, 1, 2 or 6 hours, or real time). Residents' routines, phone replies, missed-call callbacks and festivals all run on Hell time.
 - **A Hell calendar:** the year is 342 days counted from **6666 AF** (After the Fall): 12 months of 28 days (Smoulder, Cinderwane, Kindlemoon, Blazeth, Scorchtide, Pyrecrest, Ashveil, Greymere, Embersink, Rimeholt, Glacius, Frostgrave), then the **Six Nameless Days** outside the calendar.
