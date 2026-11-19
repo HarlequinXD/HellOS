@@ -23,7 +23,7 @@
       S('the Long Bar', 'bar', 'a bar so long the far end is in a different time zone', ['ember ale', 'bloody marys', 'frost mead', 'sulphur soda'], 'ember ale'),
       S('the Karaoke Stage', 'stage', 'karaoke every night, judged by banshees', ['karaoke', 'torch songs', 'duets'], 'a power ballad'),
       S('the Waiting Room Booths', 'booths', 'cosy booths that used to be an actual waiting room', ['late-night chats', 'cursed garlic bread'], 'cursed garlic bread')] },
-    library: { what: 'a huge library where every book ever banned on Earth ends up, run by very loud banshee librarians', open: [9, 21], spots: [
+    library: { what: 'a huge library where every book ever banned Up Top ends up, run by very loud banshee librarians', open: [9, 21], spots: [
       S('the Forbidden Stacks', 'room', 'the shelves of banned books, and some that ban you back', ['forbidden books', 'cursed scrolls'], 'a cursed scroll'),
       S('the Reading Crypt', 'room', 'a quiet crypt for reading, and napping', ['naps', 'quiet reading'], 'a nap in the big armchair'),
       S('the Shush Café', 'café', 'a tiny café where you have to whisper your order', ['Styx tea', 'charred toast', 'very black coffee'], 'Styx tea')] },
@@ -51,7 +51,7 @@
       S('Old Mag’s Eyeball Barrel', 'stall', 'pickled eyeballs, sold by the scoop', ['pickled eyeballs', 'pickled toes'], 'pickled eyeballs'),
       S('the Bat Wing Stand', 'stall', 'bat wings every way you can think of', ['bat-wing tacos', 'brimstone wings'], 'bat-wing tacos'),
       S('Mystery Meat Corner', 'stall', 'nobody asks, nobody tells', ['mystery stew', 'grave dirt brownies'], 'grave dirt brownies'),
-      S('the Earth Chocolate Stall', 'stall', 'one stall that might sell real Earth chocolate', ['Earth chocolate (maybe)', 'hot chocolate (hotter than usual)'], 'hot chocolate (hotter than usual)')] },
+      S('the Up Top Chocolate Stall', 'stall', 'one stall that might sell real Up Top chocolate', ['Up Top chocolate (maybe)', 'hot chocolate (hotter than usual)'], 'hot chocolate (hotter than usual)')] },
     baths: { what: 'hot sulphur springs in the Third Circle that bubbled up after the Great Spill', open: [7, 23], spots: [
       S('the Big Pool', 'pool', 'the main hot spring, always crowded', ['soaking', 'gossip'], 'a long soak'),
       S('the Deep Pool', 'pool', 'they say it goes all the way down to the Seventh Circle', ['diving', 'dares'], 'a dare to touch the bottom'),

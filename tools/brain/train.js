@@ -21,7 +21,7 @@ const ctx = { console, Math, Date, JSON, Set, Map, Object, Array, String, Number
 ctx.window = ctx; ctx.document = { createElement: () => ({}) };
 ctx.Store = { get: (k, d) => (k in store ? store[k] : d), set: (k, v) => { store[k] = v; }, emit() {}, on() {}, update(k, d, f) { const v = ctx.Store.get(k, d); const r = f(v); store[k] = r === undefined ? v : r; }, settings: () => ({ souls: 66 }), setting() {} };
 vm.createContext(ctx);
-['util.js', 'helltime.js', 'weather.js', 'grammar.js', 'lexicon.js', 'residents.js', 'mind.js', 'brain.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(CORE, f), 'utf8'), ctx, { filename: f }));
+['util.js', 'helltime.js', 'weather.js', 'grammar.js', 'lexicon.js', 'uptop.js', 'residents.js', 'lore.js', 'spots.js', 'hellfolk.js', 'talkbank.js', 'mind.js', 'brain.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(CORE, f), 'utf8'), ctx, { filename: f }));
 const { Mind, Brain, Residents: R, Lexicon } = ctx;
 
 // ---------------------------------------------------------------- seeds from the rules
@@ -59,6 +59,20 @@ const HAND = {
   person: ['do you know __n__', 'what do you think of __n__', 'have you seen __n__', 'how is __n__', 'tell me about __n__', 'is __n__ nice', 'who is __n__', 'did you see __n__ today'],
   // questions about the residents' lives with each other (answered from the live Census and their phones)
   social: ['what is __n__ up to', 'where is __n__ right now', 'what is __n__ doing', 'when did you last see __n__', 'when was the last time you saw __n__', 'what did you and __n__ do', 'what did you two talk about', 'what did you talk about with __n__', 'are you and __n__ dating', 'are you and __n__ a thing', 'do you have a crush on __n__', 'is __n__ your girlfriend', 'is __n__ your boyfriend', 'did you text __n__ today', 'has __n__ messaged you', 'have you heard from __n__', 'are you still friends with __n__', 'did you and __n__ fall out', 'do you get along with __n__', 'why do you hate __n__', 'did you two fight', 'how do you know __n__', 'how did you and __n__ meet', 'any news about __n__', 'what has __n__ been up to', 'how are things with __n__', 'are you close with __n__', 'you seeing __n__ later', 'hows __n__ going', 'is __n__ at work', 'is __n__ home'],
+  pastlife: ['what was life like up top', 'what did you do before you died', 'what was your job when you were alive', 'tell me about your old life', 'who were you before', 'what were you up top', 'did you have a job up top', 'what was your life like'],
+  death: ['how did you die', 'what killed you', 'how did u die', 'when did you die', 'how old were you when you died', 'what was your cause of death'],
+  night_dream: ['did you dream last night', 'any weird dreams', 'what did you dream about', 'have any nightmares', 'dream anything good'],
+  joke: ['tell me a joke', 'know any jokes', 'make me laugh', 'say something funny', 'got a joke', 'joke pls', 'tell me something funny'],
+  story: ['tell me a story', 'story time', 'anything interesting happen', 'got any stories', 'any gossip', 'spill the tea', 'tell me something interesting'],
+  wyr: ['would you rather fly or be invisible', 'would you rather live in limbo or the ninth circle', 'wyr eat pizza or ribs'],
+  embarrass: ['most embarrassing moment', 'whats your most embarrassing story', 'ever been embarrassed', 'cringiest thing you did'],
+  advice: ['i need some advice', 'any advice', 'what should i do about my boss', 'give me advice', 'can you help me decide something'],
+  memory: ['whats your favourite memory', 'best memory', 'happiest day of your life', 'fondest memory'],
+  species_q: ['what are you', 'what is it like being a demon', 'what is a lich', 'what are imps like', 'are you a ghoul', 'what even are you'],
+  faction_q: ['are you in a union', 'are you in a gang', 'what guild are you in', 'are you in any clubs', 'what is the ashen hand', 'tell me about the imp union'],
+  miss_what: ['what do you miss', 'what do you miss most', 'do you miss anything from up top'],
+  uptop_now: ['what is it like up top', 'whats up top like', 'tell me about up top', 'how is up top these days'],
+  uptop_q: ['who was cassian the unlucky', 'what was the auric empire', 'have you heard of grellhold', 'tell me about the lantern age', 'who was tomas inkwell', 'what was the first great war'],
   court: ['who rules hell', 'who is in charge down here', 'who runs this place', 'who is the king of wrath', 'who is the queen of lust', 'what do you think of the kings', 'who rules your circle', 'who is your king', 'who has the ember crown', 'who wears the crown', 'what is the septarchy', 'what is the conclave', 'tell me about the sin kings', 'are the kings any good', 'who is the boss of hell', 'is satan real', 'who is the devil', 'what do you think of the king of pride', 'which king do you like best', 'who is your favourite king'],
   decree: ['any new decrees', 'what was todays decree', 'what did the king decree', 'any new laws', 'what do you think of the new law', 'did you see the decree', 'what did the conclave decide', 'new rules today', 'what is the latest decree', 'thoughts on the new decree'],
   lore: ['tell me about the history of hell', 'how did hell start', 'how old is hell', 'what was the fall', 'what is the pact of ash', 'tell me some lore', 'what were the wrath wars', 'what happened in the great spill', 'why is the throne empty', 'tell me about charons strike', 'were you there for the fall', 'tell me a story about the old days', 'whats the history of this place'],
@@ -72,7 +86,7 @@ const HAND = {
   frame_q: ['have you ever been to dis', 'have you ever skated', 'you ever been to the lake', 'have you ever met charon', 'ever tried ghost pepper soup'],
   none: [],
   // more natural ways people say things
-  how_are: ['how ya going', 'hows it hanging', 'you alright', 'how have you been keeping', 'how are things with you', 'everything good with you', 'all good', 'how you feeling', 'u good', 'how r u holding up', 'what is new with you', 'hows life treating you'],
+  how_are: ['how ya going', 'hows it hanging', 'you alright', 'how have you been keeping', 'how are things with you', 'everything good with you', 'all good', 'how you feeling', 'u good', 'how r u holding up', 'what is new with you', 'hows life treating you', 'how is everything', 'hows everything with you', 'how are things on your side', 'everything alright over there'],
   doing_now: ['what you up to rn', 'whatcha doing', 'what are you doing at the moment', 'up to much', 'what is going on with you right now', 'what keeps you busy right now', 'what are u up to'],
   where_now: ['where you at', 'where are you right now', 'whereabouts are you', 'what are you near', 'where r u', 'you home or out'],
   day: ['how did your day go', 'good day', 'how was work today', 'did anything happen today', 'anything fun happen today', 'tell me about your day', 'how did today treat you', 'how did your shift go'],
@@ -80,7 +94,7 @@ const HAND = {
   tomorrow: ['what are you up to tomorrow', 'got anything on tomorrow', 'plans for tomorrow', 'what is happening tomorrow', 'busy tomorrow'],
   tonight: ['what are you doing tonight', 'plans tonight', 'got anything on tonight', 'whats happening tonight'],
   job: ['whats your gig', 'what is your job again', 'what do you do for work', 'what is your line of work', 'where are you employed', 'what do you do for a living', 'are you employed', 'whats your occupation'],
-  home: ['where are you based', 'which circle do you live in', 'whereabouts do you live', 'where is home for you'],
+  home: ['where are you based', 'which circle do you live in', 'whereabouts do you live', 'where is home for you', 'do you live alone', 'who lives with you', 'do you have roommates', 'who do you share a place with'],
   origin: ['how did you get sent down here', 'what got you damned', 'why did you get sent to hell', 'what did you do wrong', 'how did you end up down here', 'where did you live before'],
   age: ['how long have you been dead', 'when did you get here', 'how many years have you been down here'],
   identity: ['tell me a bit about you', 'who are you exactly', 'what is your deal', 'what is your story', 'introduce yourself please'],
@@ -101,7 +115,7 @@ const HAND = {
   bye: ['gotta go', 'talk later', 'catch ya', 'see you around', 'i am off', 'night night', 'peace out'],
   thanks: ['thank you so much', 'appreciate it', 'you are a legend thanks', 'ta'],
   sorry: ['i am so sorry', 'i apologise', 'my apologies', 'forgive me please', 'i did not mean it'],
-  compliment: ['you are the absolute best', 'you are alright actually', 'you are the best', 'i like you', 'you are awesome', 'you are a legend', 'you are so sweet', 'you are great company'],
+  compliment: ['you are the absolute best', 'you are alright actually', 'you are the best', 'i like you', 'you are awesome', 'you are a legend', 'you are so sweet', 'you are great company', 'you are really smart', 'you are brilliant', 'so smart honestly', 'you are genuinely clever', 'you are very wise'],
   insult: ['you are useless', 'you suck', 'shut up', 'you are so annoying', 'nobody likes you', 'you are pathetic', 'get lost'],
   love: ['love ya', 'i love u', 'luv you'],
   secret: ['tell me a secret', 'any secrets', 'what are you hiding', 'tell me something nobody knows'],
