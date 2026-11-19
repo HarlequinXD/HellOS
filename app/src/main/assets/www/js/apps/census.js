@@ -210,6 +210,12 @@ OS.register({
               h('div', 'Afraid of ' + L.fear + '.'),
               h('div', 'Quirk: ' + p.first + ' ' + L.quirk + '.'),
               tr === 'close' || tr === 'devoted' ? h('div', { style: 'color:var(--accent)' }, '🔓 Secret: ' + p.first + ' ' + L.secret + '.') : h('div.muted', '🔒 ' + p.first + ' has a secret. Get close and ask.')),
+            (() => { const L = !hide && window.UpTop ? UpTop.pastLife(p) : null; if (!L) return null; const wl = t => OS.open('brimstone', { url: 'hell://infernopedia.hell/wiki/' + encodeURIComponent(t) });
+              return h('div', UI.section('Life Up Top'), h('div.list',
+                UI.li({ icon: 'globe', title: cap1(L.job) + ' in ' + L.city.name, sub: L.nation.name.replace(/^the /, '').replace(/^./, m => m.toUpperCase()) + ' · ' + L.era.name.replace(/^the /, ''), onClick: () => wl(L.city.name) }),
+                UI.li({ icon: 'clock', title: 'Born ' + L.born + ' CR, died ' + L.died + ' CR', sub: 'Died of ' + L.how + ', aged ' + L.age, onClick: () => wl(L.era.name.replace(/^the /, '').replace(/^./, m => m.toUpperCase())) }),
+                L.ruler ? UI.li({ icon: 'user', title: 'Lived under ' + L.ruler.title + ' ' + L.ruler.name + (L.ruler.epithet ? ' ' + L.ruler.epithet : ''), sub: L.war ? 'During ' + L.war.name : '', onClick: () => wl(L.nation.name.replace(/^the /, '').replace(/^./, m => m.toUpperCase())) }) : null)); })(),
+            (() => { const F = !hide && window.Hellfolk ? Hellfolk.factionsOf(p) : []; if (!F.length) return null; return h('div', UI.section('Factions'), h('div.list', F.map(f => UI.li({ icon: 'users', title: f.name.replace(/^the /, '').replace(/^./, m => m.toUpperCase()), sub: f.kind + ' · ' + R.PLACES[f.hq].n, onClick: () => OS.open('brimstone', { url: 'hell://infernopedia.hell/wiki/' + encodeURIComponent(f.name.replace(/^the /, '').replace(/^./, m => m.toUpperCase())) }) })))); })(),
             hide ? null : UI.section('Personality'),
             hide ? null : h('div', { style: 'padding:0 20px 6px;font-size:13px' }, 'Texts like: ', h('b', R.VOICES[p.voice.id].label)),
             ...(hide ? [] : [trait('Warmth', p.traits.warmth), trait('Temper', p.traits.temper), trait('Humour', p.traits.humor), trait('Honesty', p.traits.honesty),

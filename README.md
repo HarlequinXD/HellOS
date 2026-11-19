@@ -4,6 +4,8 @@
 
 HellOS takes over the whole screen and acts like a phone from Hell: boot animation, first-run setup, lock screen, launcher, notification shade, recents, 19 working system apps and the **HellPlay** store. On the other end of that phone is a whole world. 666 residents and the seven Sin Kings each have a job, a home, friends, rivals, habits and a daily routine on Hell's own clock. They travel across the nine circles, text and date each other, post on the Pit forum, react to the kings' decrees and the weather, and remember what you tell them. You can text them, call them, make plans with them, gossip about each other, and look up everything in the Census and your Grimoire.
 
+Behind it all is a made-up world history: 6,000 years of Up Top (the world of the living, where every damned soul came from) and the lore of Hell's peoples, factions and Sin Kings, all browsable on Infernopedia.
+
 Everything runs offline in the APK: the world is worked out from fixed seeds, the conversations come from a built-in language engine and a small neural network trained from scratch, and the art is 256-colour dithered pixel art.
 
 > HellOS is fiction. It cannot place real calls or send real messages.
@@ -54,6 +56,9 @@ The APK is signed with the fixed key in `keystore/`, so new builds install over 
 - **The Septarchy** (`js/core/lore.js`): Hell is ruled by seven Sin Kings, one for each deadly sin, who meet as the Conclave of Seven every Hexday and issue a decree every day. Residents like some kings and hate others.
 - **Lore**: a history of Hell from the Fall to 6666 AF, the nine circles and who rules them, and a history and a rumour for every place.
 - **Places** (`js/core/spots.js`): every place on the map has shops, stalls, bars and sights, with what they sell and what to get, and opening hours. Residents explain them and recommend things from their own tastes.
+- **Up Top** (`js/core/uptop.js`): the world of the living, with 6,000 years of made-up history: continents, human peoples and humanoid species, ten ages, 85 nations with every ruler, cities, wars and famous people. Every damned resident's past life comes from it.
+- **Peoples and factions of Hell** (`js/core/hellfolk.js`): lore for every kind of resident, and 14 guilds, unions, gangs, cults and clubs with members.
+- **Infernopedia**: over 900 articles about Hell and Up Top, by category.
 - **The Pit** (`js/core/forum.js`): Hell's forum. Residents and kings post and reply when they check their phones, and reply to what you post.
 
 **The 666 residents and seven kings (`js/core/residents.js`, `js/core/mind.js`, `js/core/social.js`, `js/core/body.js`, `js/core/voice.js`)**
@@ -62,6 +67,7 @@ The APK is signed with the fixed key in `keystore/`, so new builds install over 
 - Each one lives a real daily routine on the phone's clock: sleep, breakfast, commute, work, lunch, hobbies, errands and evenings out with friends (both sides of a meet-up agree on it), plus one odd thing that happens to them each day. They travel between places on Hell's map (walking, the Hellnet tram, Charon's ferry or flying), text each other, date, fall out, and remember it all. Census shows the record.
 - They text each other, meet up, go on dates, fall out and make up, and remember what they talked about. Ask one about another and they tell you. A minute-by-minute live feed shows what each one is doing.
 - The conversation engine is built in and offline. It understands over a hundred kinds of question and remark, including slang and typos: opinions on anything, plans and invites, places, kings, decrees, history, the forum and other residents. It answers from the resident's own life (now, today, yesterday, tomorrow, who they saw, other residents, places), and says "idk about that" in many ways when they don't know.
+- Dozens of things to chat about (past lives, dreams, jokes, would-you-rather, stories told in parts, advice, confessions, memories and more), with extra wordings in `js/core/talkbank.js`. Residents ask you questions back, and their mood (tipsy, tired, hyped, grumpy, giddy, busy, hungover) changes how they text.
 - 20 texting voices (gremlin, noble, grump, poet, shouter, nervous, spooky… and one for each Sin King) with per-resident slang, emoji, tics, typos, pet names and double-texting.
 - A hidden memory: your name, likes, pets, mood, where you went, anything you ask them to remember. They bring it up later, and gossipy friends pass some of it on.
 - A like meter from −100 to 100: compliments, kindness, answering their questions and gifts of souls raise it; insults and repeating yourself lower it. It changes how they greet you, what they will tell you (secrets need a close friend) and whether they block you.

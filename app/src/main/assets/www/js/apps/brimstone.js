@@ -20,7 +20,48 @@
     { t: 'Weather: brimstone showers expected through the weekend', b: 'Omens forecasts sulphur haze followed by moderate brimstone. Umbrellas will melt. Bring two.' }
   ];
   // the lore of Hell adds hundreds of pages (lore.js)
-  const allWiki = () => window.Lore ? Object.assign({}, WIKI, Lore.wiki()) : WIKI;
+  // Infernopedia: Hell (lore.js, hellfolk.js) and Up Top (uptop.js), built once per Hell day
+  let wikiCache = null, wikiDay = -1, wikiCat = null, linkRe = null;
+  function allWiki() {
+    if (wikiCache && wikiDay === HellTime.day()) return wikiCache;
+    const up = window.UpTop ? UpTop.articles() : {}, folk = window.Hellfolk ? Hellfolk.articles() : {};
+    wikiCache = Object.assign({}, WIKI, window.Lore ? Lore.wiki() : {}, folk, up);
+    wikiDay = HellTime.day();
+    // which category each article belongs to
+    wikiCat = {};
+    Object.keys(WIKI).concat(Object.keys(window.Lore ? Lore.wiki() : {}), Object.keys(folk)).forEach(k => { wikiCat[k] = 'Hell'; });
+    Object.keys(up).forEach(k => { wikiCat[k] = 'Up Top'; });
+    // titles that link themselves inside other articles
+    const titles = Object.keys(wikiCache).filter(k => k.length > 4 && !/^\d\. /.test(k)).sort((a, b) => b.length - a.length).map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    linkRe = new RegExp('\\b(' + titles.join('|') + ')\\b', 'g');
+    return wikiCache;
+  }
+  // the Up Top and Hell category trees
+  function categories() {
+    const W = allWiki(), keys = Object.keys(W);
+    const UT = window.UpTop ? UpTop.world() : null, cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+    const t = n => cap(n.replace(/^the /, ''));
+    const sortY = (arr, f) => arr.slice().sort((a, b) => f(a) - f(b));
+    const C = {};
+    C['Up Top'] = { blurb: 'The world of the living, where every soul in Hell came from: six thousand years of empires, kingdoms and republics, peoples and species, wars and famous lives.', subs: ['Up Top: Ages', 'Up Top: Continents', 'Up Top: Peoples and species', 'Up Top: Nations', 'Up Top: Cities', 'Up Top: Wars', 'Up Top: Famous people'], top: ['Up Top', 'History of Up Top', 'Peoples of Up Top', 'Species of Up Top'] };
+    if (UT) {
+      C['Up Top: Ages'] = { list: UpTop.ERAS.map(e => t(e.name)) };
+      C['Up Top: Continents'] = { list: UpTop.CONTINENTS.map(c => t(c.name)) };
+      C['Up Top: Peoples and species'] = { list: UpTop.PEOPLES.map(p => p.name + (p.human ? ' (people)' : ' (species)')) };
+      C['Up Top: Nations'] = { list: sortY(UT.nations, n => n.s).map(n => t(n.name)), note: n => n };
+      C['Up Top: Cities'] = { list: UT.cities.map(c => c.name).sort() };
+      C['Up Top: Wars'] = { list: sortY(UT.wars, x => x.s).map(x => t(x.name)) };
+      C['Up Top: Famous people'] = { list: UT.people.filter(p => !/^(Chief Reeve|Speaker|President|First Speaker|Burgomaster|Archon|Chancellor) /.test(p.name)).map(p => p.name).sort() };
+    }
+    C['Hell'] = { blurb: 'Everything about Hell: its history, the Sin Kings and the Septarchy, the nine circles, its places, its peoples and its factions.', subs: ['Hell: History and government', 'Hell: The Sin Kings', 'Hell: The nine circles', 'Hell: Places', 'Hell: Peoples', 'Hell: Factions'], top: ['History of Hell', 'Septarchy', 'Peoples of Hell', 'Factions of Hell'] };
+    C['Hell: History and government'] = { list: ['History of Hell', 'Septarchy', 'Conclave of Seven', 'Ember Crown', 'Pact of Ash', 'Empty Throne', 'Nine Circles', 'Souls', 'HellOS', 'Charon', 'Cerberus', 'Styx', 'Brimstone', 'Lucien Graves'] };
+    C['Hell: The Sin Kings'] = { list: window.Lore ? Lore.SINS.map(s => Residents.king(s).name) : [] };
+    C['Hell: The nine circles'] = { list: keys.filter(k => /^\d\. /.test(k)) };
+    C['Hell: Places'] = { list: window.Lore ? Object.keys(Lore.PLACES).map(k => { const n = Residents.PLACES[k].n.replace(/^the /, ''); return n.charAt(0).toUpperCase() + n.slice(1); }) : [] };
+    C['Hell: Peoples'] = { list: ['Peoples of Hell'].concat(window.Hellfolk ? Object.keys(Hellfolk.SPECIES).map(k => cap(Hellfolk.SPECIES[k].plural)) : []) };
+    C['Hell: Factions'] = { list: ['Factions of Hell'].concat(window.Hellfolk ? Hellfolk.FACTIONS.map(f => t(f.name)) : []) };
+    return C;
+  }
   function buildIndex() {
     const W = allWiki();
     const forum = window.Forum ? Forum.feed(2).slice(0, 80).map(t => ({ url: 'hell://pit.hell/t/' + t.id, title: t.title + ' – The Pit', snip: (t.body || '') + ' · ' + t.replies.length + ' replies' })) : [];
@@ -132,7 +173,7 @@
         if (host === 'seek.hell' || host === 'seek') return seek(q.get('q'));
         if (host === 'news.hell') return path[0] === 'd' ? dailyArticle(+path[1], +path[2]) : path[0] ? article(+path[0]) : news();
         if (host === 'court.hell') return court();
-        if (host === 'infernopedia.hell') return wiki(path[1] || 'HellOS');
+        if (host === 'infernopedia.hell') return wiki(path[1] || 'Index');
         if (host === 'pit.hell') return path[0] === 't' ? pitThread(path[1]) : path[0] === 'u' ? pitUser(path[1]) : path[0] === 'new' ? pitNew(path[1]) : pit(path[0] === 'b' ? path[1] : null);
         if (host === 'mail.hell') return mail(path[0] || '');
         if (host === 'beelzepizza.hell') return pizza();
@@ -147,7 +188,7 @@
           const sbg = Art.get('backgrounds', 'brimstone_seek');
           return h('div.seekhome', { style: sbg ? `min-height:100%;background:linear-gradient(rgba(11,5,5,.35),rgba(11,5,5,.8)),url("${sbg}") center/cover no-repeat` : null }, h('div.logo', { style: sbg ? 'color:#FFD9C2;text-shadow:0 2px 16px #000' : null }, 'Seek'), inp,
             h('div', { style: 'display:flex;gap:10px;flex-wrap:wrap;justify-content:center' },
-              [['hell://news.hell', 'Daily Damnation'], ['hell://pit.hell', 'The Pit'], ['hell://court.hell', 'The Conclave'], ['hell://infernopedia.hell/wiki/History%20of%20Hell', 'Infernopedia'], ['hell://beelzepizza.hell', 'Pizza']].map(([u, t]) => h('button.btnp', { onclick() { go(u); } }, t))));
+              [['hell://news.hell', 'Daily Damnation'], ['hell://pit.hell', 'The Pit'], ['hell://court.hell', 'The Conclave'], ['hell://infernopedia.hell/wiki/Index', 'Infernopedia'], ['hell://beelzepizza.hell', 'Pizza']].map(([u, t]) => h('button.btnp', { onclick() { go(u); } }, t))));
         }
         const words = query.toLowerCase().split(/\s+/).filter(Boolean);
         const res = buildIndex().map(r => ({ r, s: words.reduce((a, w) => a + ((r.title + ' ' + r.snip).toLowerCase().includes(w) ? 1 : 0), 0) })).filter(x => x.s > 0).sort((a, b) => b.s - a.s).map(x => x.r);
@@ -179,19 +220,39 @@
         return site(banner(i === 3 ? 'styx_ferry' : 'news'), link('hell://news.hell', '← Daily Damnation'), h('h1', n.t), h('p', { style: 'font-style:italic' }, 'By Staff Demon · ' + U.dateShort(new Date())), h('p', n.b), h('p', 'More details are expected as soon as anyone escapes to report them. This story will be updated, eternally.'));
       }
       function wiki(topic) {
-        const W = allWiki(), keys = Object.keys(W);
-        const wl = k => link('hell://infernopedia.hell/wiki/' + encodeURIComponent(k), k);
-        if (topic === 'Index') {
-          const groups = [['Hell', ['History of Hell', 'Septarchy', 'Conclave of Seven', 'Ember Crown', 'Pact of Ash', 'Empty Throne', 'Nine Circles', 'Souls', 'HellOS']], ['The Sin Kings', window.Lore ? Lore.SINS.map(s => Residents.king(s).name) : []], ['The nine circles', keys.filter(k => /^\d\. /.test(k))], ['Places', window.Lore ? Object.keys(Lore.PLACES).map(k => { const n = Residents.PLACES[k].n.replace(/^the /, ''); return n.charAt(0).toUpperCase() + n.slice(1); }) : []], ['People and things', ['Charon', 'Cerberus', 'Styx', 'Brimstone', 'Lucien Graves']]];
-          return site(banner('infernopedia'), h('h1', 'Infernopedia: all articles'), groups.map(([g, ks]) => [h('h2', g), h('ul', ks.filter(k => W[k]).map(k => h('li', wl(k))))]));
+        const W = allWiki(), keys = Object.keys(W), C = categories();
+        const wl = (k, label) => link('hell://infernopedia.hell/wiki/' + encodeURIComponent(k), label || k.replace(/^Category:/, '').replace(/^(Up Top|Hell): /, ''));
+        const head = () => h('div', { style: 'font-family:var(--ui);font-size:12px;color:#6B5047;display:flex;gap:10px;flex-wrap:wrap' }, h('span', 'Infernopedia, the free damned encyclopedia'), wl('Index', 'All categories'), wl('Category:Hell', 'Hell'), wl('Category:Up Top', 'Up Top'), h('a', { href: '#', onclick(e) { e.preventDefault(); go('hell://infernopedia.hell/wiki/' + encodeURIComponent(keys[Math.floor(Math.random() * keys.length)])); } }, 'Random article'));
+        if (topic === 'Index' || topic === 'Main Page') {
+          return site(banner('infernopedia'), head(), h('h1', 'Infernopedia'), h('p', keys.length.toLocaleString() + ' articles about Hell and Up Top, written by the damned.'),
+            ['Hell', 'Up Top'].map(cn => [h('h2', wl('Category:' + cn, cn)), h('p', C[cn].blurb), h('ul', C[cn].subs.map(sc => h('li', wl('Category:' + sc), ' (' + C[sc].list.filter(k => W[k]).length + ')')))]));
+        }
+        if (/^Category:/.test(topic)) {
+          const cn = topic.replace(/^Category:/, ''), cat = C[cn];
+          if (!cat) return site(head(), h('h1', topic), h('p', 'No such category.'));
+          if (cat.subs) return site(banner('infernopedia'), head(), h('h1', 'Category: ' + cn), h('p', cat.blurb), h('h2', 'Start here'), h('ul', cat.top.filter(k => W[k]).map(k => h('li', wl(k)))), h('h2', 'Subcategories'), h('ul', cat.subs.map(sc => h('li', wl('Category:' + sc), ' (' + C[sc].list.filter(k => W[k]).length + ')'))));
+          const list = cat.list.filter(k => W[k]);
+          return site(banner('infernopedia'), head(), h('h1', cn.replace(': ', ' · ')), h('p', list.length + ' articles.'), h('ul', list.map(k => h('li', wl(k), h('span', { style: 'font-size:12px;color:#6B5047' }, ' · ' + W[k].replace(/\n[\s\S]*$/, '').slice(0, 70) + '…')))));
         }
         const text = W[topic];
         const king = window.Lore ? Lore.SINS.find(s => Residents.king(s).name === topic) : null;
-        const related = keys.filter(k => k !== topic && (text || '').indexOf(k.replace(/^\d\. /, '').replace(/^(King|Queen) /, '')) >= 0).slice(0, 12);
-        return site(banner(topic === 'Charon' || topic === 'Styx' ? 'styx_ferry' : 'infernopedia'), h('div', { style: 'font-family:var(--ui);font-size:12px;color:#6B5047' }, 'Infernopedia, the free damned encyclopedia'),
-          h('h1', topic), text ? String(text).split(/\n\n+/).map(par => h('p', par)) : h('p', 'Infernopedia does not have an article with this exact name.'),
+        // link other articles named in the text
+        const linked = par => {
+          const out = []; let last = 0, m; linkRe.lastIndex = 0;
+          while ((m = linkRe.exec(par))) { if (m[1] === topic) continue; out.push(par.slice(last, m.index), wl(m[1], m[1])); last = m.index + m[1].length; }
+          out.push(par.slice(last)); return out;
+        };
+        const related = keys.filter(k => k !== topic && k.length > 4 && (text || '').indexOf(k.replace(/^\d\. /, '').replace(/^(King|Queen) /, '')) >= 0).slice(0, 10);
+        const cat = wikiCat[topic];
+        // residents who lived there, for Up Top articles
+        let locals = [];
+        if (cat === 'Up Top' && window.UpTop) locals = Residents.all.filter(p => { const L = UpTop.pastLife(p); return L && (L.city.name === topic || ('' + L.nation.name).replace(/^the /, '').toLowerCase() === topic.toLowerCase() || L.era.name.replace(/^the /, '').toLowerCase() === topic.toLowerCase()); }).slice(0, 8);
+        return site(banner(topic === 'Charon' || topic === 'Styx' ? 'styx_ferry' : 'infernopedia'), head(),
+          h('h1', topic), cat ? h('div', { style: 'font-family:var(--ui);font-size:12px;margin:-6px 0 8px' }, 'Category: ', wl('Category:' + cat, cat)) : null,
+          text ? String(text).split(/\n\n+/).map(par => h('p', linked(par))) : h('p', 'Infernopedia does not have an article with this exact name.'),
           king ? h('p', h('a', { href: '#', onclick(e) { e.preventDefault(); OS.open('census', { rid: Residents.KING_IDS[king] }); } }, 'Find ' + Residents.king(king).first + ' in the Census'), ' · ', link('hell://court.hell', 'The Conclave of Seven')) : null,
-          h('h2', 'See also'), h('ul', (related.length ? related : ['History of Hell', 'Septarchy', 'Conclave of Seven'].filter(k => W[k] && k !== topic)).map(k => h('li', wl(k))), h('li', wl('Index'))));
+          locals.length ? [h('h2', 'Residents of Hell who lived here'), h('ul', locals.map(p => h('li', h('a', { href: '#', onclick(e) { e.preventDefault(); OS.open('census', { rid: p.id }); } }, p.name), ' · ' + UpTop.pastLife(p).job + ', died ' + UpTop.pastLife(p).died + ' CR')))] : null,
+          h('h2', 'See also'), h('ul', (related.length ? related : ['History of Hell', 'Up Top', 'Septarchy'].filter(k => W[k] && k !== topic)).map(k => h('li', wl(k))), h('li', wl('Index', 'All categories'))));
       }
       // ---------------------------------------------------------------- the Conclave's official site
       function court() {
