@@ -30,7 +30,7 @@
     L.classList.remove('hidden');
     const c = state.contactId ? Chat.contact(state.contactId) : null;
     const avaArt = state.contactId ? Art.get('avatars', state.contactId) : state.res ? Art.get('avatars', state.res.cid) : null;
-    const ava = h('div.cava', { style: c ? { background: c.color } : null }, avaArt ? h('img', { src: avaArt, alt: '' }) : (c ? U.initials(c.name) : icon('user', 50)));
+    const ava = h('div.cava' + (avaArt && !/^data:/.test(avaArt) ? '.lic-art' : ''), { style: c && !(avaArt && !/^data:/.test(avaArt)) ? { background: c.color } : null }, avaArt ? h('img', { src: avaArt, alt: '' }) : (c ? U.initials(c.name) : icon('user', 50)));
     const stateEl = h('div.cstate', opts.status || '');
     const cap = h('div.caption', { 'aria-live': 'polite' });
     state.ui = { status: stateEl, caption: cap };

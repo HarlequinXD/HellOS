@@ -131,9 +131,10 @@
           const ids = Object.keys(CATALOG).filter(id => CATALOG[id].cat === (tab === 'games' ? 'game' : 'app'));
           const featured = ids.slice().sort((a, b) => CATALOG[b].rating - CATALOG[a].rating)[0];
           const fm = CATALOG[featured];
-          const heroArt = Art.get('store', featured + '_banner');
+          const hb = Art.banner(featured), heroArt = hb.bg;
           content.appendChild(h('div.scroll',
             h('button.st-hero' + (heroArt ? '.art' : ''), { style: 'width:calc(100% - 28px);text-align:left;color:var(--text)' + (heroArt ? `;background-image:linear-gradient(transparent 30%, rgba(11,5,5,.85)),url("${heroArt}")` : ''), onclick() { stack.push(p => detail(p, featured)); } },
+              hb.icon ? h('img', { src: hb.icon, alt: '', style: 'position:absolute;right:14px;top:10px;width:72px;height:72px;image-rendering:pixelated;filter:drop-shadow(0 4px 8px #000)' }) : null,
               h('div.k', tab === 'games' ? 'Game of the eternity' : 'Editor’s choice'), h('div.h', fm.name), h('div', { style: 'font-size:13px;color:#F2C3A8' }, fm.desc.slice(0, 80) + '…')),
             UI.section(tab === 'games' ? 'Free to play' : 'Free tools'),
             h('div.st-row', ids.filter(i => !CATALOG[i].price).map(card)),
@@ -197,11 +198,11 @@
         const shots = h('div.st-shots');
         for (let i = 1; i <= 3; i++) { const a = Art.get('store', id + '_shot' + i); if (a) shots.appendChild(h('div', { role: 'img', 'aria-label': 'Illustration', style: `background-image:url("${a}")` })); }
         if (!shots.children.length) shots.appendChild(h('div', icon(m.icon, 40)));
-        const bannerArt = Art.get('store', id + '_banner');
+        const bnr = Art.banner(id), bannerArt = bnr.bg;
         return h('div.st-detail', { style: 'flex:1;display:flex;flex-direction:column;min-height:0' },
           UI.appbar({ title: '', actions: [{ icon: 'share', label: 'Share', onClick: () => OS.toast('Link sent to the Ninth Circle') }] }),
           h('div.scroll',
-            bannerArt ? h('div.banner', { role: 'img', 'aria-label': m.name + ' illustration', style: `background-image:url("${bannerArt}")` }) : null,
+            bannerArt ? h('div.banner', { role: 'img', 'aria-label': m.name + ' illustration', style: `background-image:url("${bannerArt}");position:relative` }, bnr.icon ? h('img', { src: bnr.icon, alt: '', style: 'position:absolute;right:9%;top:50%;transform:translateY(-50%);height:78%;image-rendering:pixelated' }) : null) : null,
             h('div.top', OS.appIcon(OS.apps[id] || { id, icon: m.icon, tint: m.tint }, 84),
               h('div.grow', h('div', { style: 'font-size:22px;font-weight:700' }, m.name), h('div', { style: 'color:var(--accent);font-weight:600;font-size:14px' }, m.dev), h('div.muted', { style: 'font-size:12px' }, m.genre + (m.perms ? ' · uses ' + m.perms : '')))),
             h('div.stats', h('div', h('b', m.rating + ' ★'), 'rating'), h('div', h('b', m.downloads), 'downloads'), h('div', h('b', m.size + ' MB'), 'size'), h('div', h('b', 'Damned'), 'rated')),

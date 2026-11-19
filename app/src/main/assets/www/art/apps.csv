@@ -1,0 +1,29 @@
+app_id,display_name,group,motif,asset_path
+calls,Calls,System,Bone handset,art/icons/app--calls.png
+pacts,Pacts,System,Wax-sealed contract,art/icons/app--pacts.png
+souls,Souls,System,Enchanted skull,art/icons/app--souls.png
+pyrecam,Pyre Cam,System,Fire lens camera,art/icons/app--pyrecam.png
+relics,Relics,System,Cursed picture frame,art/icons/app--relics.png
+brimstone,Brimstone,System,Molten globe,art/icons/app--brimstone.png
+lament,Lament,System,Cursed vinyl record,art/icons/app--lament.png
+doomclock,Doom Clock,System,Blood-moon clock,art/icons/app--doomclock.png
+dates,Dates,System,Torn infernal calendar,art/icons/app--dates.png
+hellscape,Hellscape,System,Crossroads map,art/icons/app--hellscape.png
+abyss,Abyss,System,Abyssal folder,art/icons/app--abyss.png
+scribe,Scribe,System,Cinder quill,art/icons/app--scribe.png
+abacus,Abacus,System,Hellforged calculator,art/icons/app--abacus.png
+omens,Omens,System,Eclipsed sun and storm,art/icons/app--omens.png
+rites,Rites,System,Forged ritual gear,art/icons/app--rites.png
+hellplay,HellPlay,System,Infernal shop bag,art/icons/app--hellplay.png
+census,Census,System,Three resident skulls,art/icons/app--census.png
+grimoire,Grimoire,System,Spellbound book,art/icons/app--grimoire.png
+almanac,Almanac,System,Seasonal hourglass,art/icons/app--almanac.png
+serpent,Serpent,HellPlay,Serpent and forbidden fruit,art/icons/app--serpent.png
+hellmines,Hellmines,HellPlay,Spiked brimstone mine,art/icons/app--hellmines.png
+damned2048,Damned 2048,HellPlay,Ascending cursed tiles,art/icons/app--damned2048.png
+soulflap,Soul Flap,HellPlay,Ember-eyed bat,art/icons/app--soulflap.png
+brimblocks,Brimblocks,HellPlay,Molten falling blocks,art/icons/app--brimblocks.png
+paint,Pentagram Paint,HellPlay,Blood-ink brush,art/icons/app--paint.png
+torch,Hellfire Torch,HellPlay,Hellfire torch,art/icons/app--torch.png
+whispers,Whispers,HellPlay,Spectral microphone,art/icons/app--whispers.png
+ouija,Ouija,HellPlay,Bone planchette,art/icons/app--ouija.png

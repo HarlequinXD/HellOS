@@ -1,0 +1,676 @@
+resident_id,contact_id,display_name,pronouns,kind,circle,job,role,asset_path
+0,c_lucien,Lucien Graves,he/him,demon,Fraud,Attorney of the Damned,resident,art/avatars/c_lucien--lucien-graves.png
+1,c_vex,Vex,he/him,imp,Heresy,professional menace (part-time arcade tech),resident,art/avatars/c_vex--vex.png
+2,c_charon,Charon,they/them,wraith,Limbo,Ferryman of the Styx,resident,art/avatars/c_charon--charon.png
+3,c_mortis,Mortis,they/them,skeleton,Heresy,gravedigger,resident,art/avatars/c_mortis--mortis.png
+4,c_morgana,Morgana,she/her,witch,Fraud,witch and owner of the Cauldron,resident,art/avatars/c_morgana--morgana.png
+5,c_pizza,Beelzebub,he/him,demon,Gluttony,owner of Beelzebub’s Pizza,resident,art/avatars/c_pizza--beelzebub.png
+6,c_r6,Winifred Gallows,she/her,fallen angel,Heresy,paralegal,resident,art/avatars/c_r6--winifred-gallows.png
+7,c_r7,Tobias,she/her,wraith,Heresy,night-market cook,resident,art/avatars/c_r7--tobias.png
+8,c_r8,Cordelia Grimsby,he/him,harpy,Violence,between torments,resident,art/avatars/c_r8--cordelia-grimsby.png
+9,c_r9,Mabel Vigil,he/him,gargoyle,Gluttony,kennel keeper,resident,art/avatars/c_r9--mabel-vigil.png
+10,c_r10,Thaddeus Lament,they/them,demon,Limbo,between torments,resident,art/avatars/c_r10--thaddeus-lament.png
+11,c_r11,Agatha Rattlebone,they/them,demon,Gluttony,pizza cook,resident,art/avatars/c_r11--agatha-rattlebone.png
+12,c_r12,Agatha Who Was Promised Nothing,she/her,demon,Limbo,iron smith,resident,art/avatars/c_r12--agatha-who-was-promised-nothing.png
+13,c_r13,Ursula Oddbody,he/him,imp,Greed,pizza cook,resident,art/avatars/c_r13--ursula-oddbody.png
+14,c_r14,Bram the Mildly Cursed,he/him,damned soul,Gluttony,iron smith,resident,art/avatars/c_r14--bram-the-mildly-cursed.png
+15,c_r15,Lucinda Thistlebone,he/him,witch,Gluttony,between torments,resident,art/avatars/c_r15--lucinda-thistlebone.png
+16,c_r16,Pandora Underhill,she/her,succubus,Greed,forum moderator,resident,art/avatars/c_r16--pandora-underhill.png
+17,c_r17,Rook,they/them,revenant,Wrath,kennel keeper,resident,art/avatars/c_r17--rook.png
+18,c_r18,Lenore Ravenscar,he/him,gargoyle,Greed,judgement clerk,resident,art/avatars/c_r18--lenore-ravenscar.png
+19,c_r19,Lenore Tarrow,they/them,revenant,Violence,brimstone miner,resident,art/avatars/c_r19--lenore-tarrow.png
+20,c_r20,Asmodeus Wormwood,he/him,fallen angel,Wrath,brimstone miner,resident,art/avatars/c_r20--asmodeus-wormwood.png
+21,c_r21,Gideon Sootworth,he/him,imp,Wrath,iron smith,resident,art/avatars/c_r21--gideon-sootworth.png
+22,c_r22,Remiel Nocturne,he/him,wraith,Wrath,brimstone miner,resident,art/avatars/c_r22--remiel-nocturne.png
+23,c_r23,Hazel Hollowbone,she/her,wraith,Treachery,pizza cook,resident,art/avatars/c_r23--hazel-hollowbone.png
+24,c_r24,Flick Hemlock,he/him,wraith,Fraud,pizza cook,resident,art/avatars/c_r24--flick-hemlock.png
+25,c_r25,Ipos,she/her,damned soul,Violence,stockbroker,resident,art/avatars/c_r25--ipos.png
+26,c_r26,Fergus Hemlock,she/her,damned soul,Fraud,potion apprentice,resident,art/avatars/c_r26--fergus-hemlock.png
+27,c_r27,Nib Cinders,they/them,imp,Greed,mall clerk,resident,art/avatars/c_r27--nib-cinders.png
+28,c_r28,Pandora Quietus,she/her,imp,Treachery,throne guard,resident,art/avatars/c_r28--pandora-quietus.png
+29,c_r29,Horace Hallowell,they/them,imp,Fraud,stockbroker,resident,art/avatars/c_r29--horace-hallowell.png
+30,c_r30,Dregs Who Was Promised Nothing,they/them,ghoul,Wrath,paralegal,resident,art/avatars/c_r30--dregs-who-was-promised-nothing.png
+31,c_r31,Verity Underhill,she/her,damned soul,Heresy,arena fighter,resident,art/avatars/c_r31--verity-underhill.png
+32,c_r32,Naberius Ashgrave,he/him,wraith,Fraud,gym trainer,resident,art/avatars/c_r32--naberius-ashgrave.png
+33,c_r33,Mortimer Ironwood,he/him,demon,Limbo,librarian,resident,art/avatars/c_r33--mortimer-ironwood.png
+34,c_r34,Eligos Ravenscar,she/her,revenant,Greed,forum moderator,resident,art/avatars/c_r34--eligos-ravenscar.png
+35,c_r35,Stolas Oddbody,he/him,succubus,Treachery,ice warden,resident,art/avatars/c_r35--stolas-oddbody.png
+36,c_r36,Moth Crowe,she/her,wraith,Greed,gym trainer,resident,art/avatars/c_r36--moth-crowe.png
+37,c_r37,Elspeth Mournfield,he/him,damned soul,Wrath,soul sorter,resident,art/avatars/c_r37--elspeth-mournfield.png
+38,c_r38,Scab Ravenscar,he/him,damned soul,Heresy,barista,resident,art/avatars/c_r38--scab-ravenscar.png
+39,c_r39,Dante Embers,she/her,demon,Heresy,arcade technician,resident,art/avatars/c_r39--dante-embers.png
+40,c_r40,Elspeth Wick,she/her,ghoul,Limbo,between torments,resident,art/avatars/c_r40--elspeth-wick.png
+41,c_r41,Tallow Cobweb,he/him,imp,Treachery,gravedigger,resident,art/avatars/c_r41--tallow-cobweb.png
+42,c_r42,Wendell,he/him,revenant,Violence,gym trainer,resident,art/avatars/c_r42--wendell.png
+43,c_r43,Ignatius,she/her,imp,Gluttony,night-market cook,resident,art/avatars/c_r43--ignatius.png
+44,c_r44,Juniper Rotwood,he/him,gargoyle,Treachery,throne guard,resident,art/avatars/c_r44--juniper-rotwood.png
+45,c_r45,Hollis Sulfurton,they/them,banshee,Violence,arena fighter,resident,art/avatars/c_r45--hollis-sulfurton.png
+46,c_r46,Magnolia Knell,they/them,demon,Gluttony,between torments,resident,art/avatars/c_r46--magnolia-knell.png
+47,c_r47,Agatha,they/them,fallen angel,Violence,gym trainer,resident,art/avatars/c_r47--agatha.png
+48,c_r48,Paimon Ravenscar,she/her,harpy,Violence,judgement clerk,resident,art/avatars/c_r48--paimon-ravenscar.png
+49,c_r49,Ursula Tombsworth,she/her,gargoyle,Treachery,night-market cook,resident,art/avatars/c_r49--ursula-tombsworth.png
+50,c_r50,Carmilla Vexmoor,he/him,revenant,Greed,forum moderator,resident,art/avatars/c_r50--carmilla-vexmoor.png
+51,c_r51,Petra Quench,she/her,lich,Fraud,soul sorter,resident,art/avatars/c_r51--petra-quench.png
+52,c_r52,Wren Nocturne,they/them,revenant,Treachery,spa attendant,resident,art/avatars/c_r52--wren-nocturne.png
+53,c_r53,Ivo Hollowbone,they/them,cultist,Greed,iron smith,resident,art/avatars/c_r53--ivo-hollowbone.png
+54,c_r54,Tabitha Lament,she/her,ghoul,Gluttony,kennel keeper,resident,art/avatars/c_r54--tabitha-lament.png
+55,c_r55,Wilhelmina Quietus,she/her,demon,Heresy,gravedigger,resident,art/avatars/c_r55--wilhelmina-quietus.png
+56,c_r56,Abaddon Jinx,she/her,damned soul,Fraud,between torments,resident,art/avatars/c_r56--abaddon-jinx.png
+57,c_r57,Grub Ravenscar,he/him,banshee,Lust,barista,resident,art/avatars/c_r57--grub-ravenscar.png
+58,c_r58,Otto Crowe,he/him,demon,Wrath,arcade technician,resident,art/avatars/c_r58--otto-crowe.png
+59,c_r59,Horace Inkwell,she/her,succubus,Gluttony,lava lifeguard,resident,art/avatars/c_r59--horace-inkwell.png
+60,c_r60,Wren of the Third Pit,he/him,lich,Treachery,ice warden,resident,art/avatars/c_r60--wren-of-the-third-pit.png
+61,c_r61,Agnes Inkwell,he/him,succubus,Treachery,throne guard,resident,art/avatars/c_r61--agnes-inkwell.png
+62,c_r62,Agatha Brimley,he/him,damned soul,Violence,pizza cook,resident,art/avatars/c_r62--agatha-brimley.png
+63,c_r63,Zeke Nettles,she/her,succubus,Violence,mall clerk,resident,art/avatars/c_r63--zeke-nettles.png
+64,c_r64,Ingrid Vigil,she/her,demon,Limbo,night-market cook,resident,art/avatars/c_r64--ingrid-vigil.png
+65,c_r65,Orrin Gravelock,they/them,succubus,Lust,arena fighter,resident,art/avatars/c_r65--orrin-gravelock.png
+66,c_r66,Beleth Ravenscar,they/them,damned soul,Wrath,marsh ranger,resident,art/avatars/c_r66--beleth-ravenscar.png
+67,c_r67,Rufus Brimley,they/them,wraith,Violence,brimstone miner,resident,art/avatars/c_r67--rufus-brimley.png
+68,c_r68,Moth Cinders,he/him,damned soul,Violence,brimstone miner,resident,art/avatars/c_r68--moth-cinders.png
+69,c_r69,Orobas Ashby,he/him,banshee,Violence,lava lifeguard,resident,art/avatars/c_r69--orobas-ashby.png
+70,c_r70,Obadiah Oddbody,she/her,demon,Limbo,between torments,resident,art/avatars/c_r70--obadiah-oddbody.png
+71,c_r71,Gideon Fallow,they/them,gargoyle,Fraud,mall clerk,resident,art/avatars/c_r71--gideon-fallow.png
+72,c_r72,Mortimer Vexmoor,he/him,harpy,Limbo,bartender,resident,art/avatars/c_r72--mortimer-vexmoor.png
+73,c_r73,Imelda Embers,he/him,incubus,Treachery,ferry deckhand,resident,art/avatars/c_r73--imelda-embers.png
+74,c_r74,Malphas Rattlebone,he/him,demon,Gluttony,soul sorter,resident,art/avatars/c_r74--malphas-rattlebone.png
+75,c_r75,Tad Mothwing,he/him,damned soul,Lust,arcade technician,resident,art/avatars/c_r75--tad-mothwing.png
+76,c_r76,Cassius Ravenscar,she/her,damned soul,Wrath,stockbroker,resident,art/avatars/c_r76--cassius-ravenscar.png
+77,c_r77,Pandora Lockjaw,she/her,ghoul,Gluttony,market vendor,resident,art/avatars/c_r77--pandora-lockjaw.png
+78,c_r78,Percival Mournfield,he/him,banshee,Limbo,judgement clerk,resident,art/avatars/c_r78--percival-mournfield.png
+79,c_r79,Vesper Sulfurton,she/her,ghoul,Heresy,night-market cook,resident,art/avatars/c_r79--vesper-sulfurton.png
+80,c_r80,Bones Duskwell,she/her,imp,Wrath,arena fighter,resident,art/avatars/c_r80--bones-duskwell.png
+81,c_r81,Clementine Quench,she/her,demon,Heresy,night-market cook,resident,art/avatars/c_r81--clementine-quench.png
+82,c_r82,Soot Darkmoor,they/them,ghoul,Violence,brimstone miner,resident,art/avatars/c_r82--soot-darkmoor.png
+83,c_r83,Fergus Blight,she/her,gargoyle,Wrath,marsh ranger,resident,art/avatars/c_r83--fergus-blight.png
+84,c_r84,Yara Ashby,he/him,wraith,Treachery,ferry deckhand,resident,art/avatars/c_r84--yara-ashby.png
+85,c_r85,Wren Whitlock,she/her,witch,Wrath,barista,resident,art/avatars/c_r85--wren-whitlock.png
+86,c_r86,Mortimer Nightshade,he/him,banshee,Gluttony,forum moderator,resident,art/avatars/c_r86--mortimer-nightshade.png
+87,c_r87,Damien the Unforgiven (Allegedly),she/her,demon,Limbo,librarian,resident,art/avatars/c_r87--damien-the-unforgiven-allegedly.png
+88,c_r88,Ember Wormwood,he/him,demon,Heresy,night-market cook,resident,art/avatars/c_r88--ember-wormwood.png
+89,c_r89,Isolde Coldwater,they/them,fallen angel,Fraud,tavern keeper,resident,art/avatars/c_r89--isolde-coldwater.png
+90,c_r90,Rowena Hollowbone,she/her,fallen angel,Heresy,gravedigger,resident,art/avatars/c_r90--rowena-hollowbone.png
+91,c_r91,Mildew the Twice-Damned,she/her,lich,Fraud,projectionist,resident,art/avatars/c_r91--mildew-the-twice-damned.png
+92,c_r92,Wendell of the Third Pit,he/him,fallen angel,Lust,between torments,resident,art/avatars/c_r92--wendell-of-the-third-pit.png
+93,c_r93,Lenore Hemlock,she/her,demon,Fraud,iron smith,resident,art/avatars/c_r93--lenore-hemlock.png
+94,c_r94,Marbas of the Long Queue,they/them,revenant,Limbo,librarian,resident,art/avatars/c_r94--marbas-of-the-long-queue.png
+95,c_r95,Jude Nocturne,he/him,gargoyle,Violence,brimstone miner,resident,art/avatars/c_r95--jude-nocturne.png
+96,c_r96,Pazuzu the Late,she/her,harpy,Heresy,brimstone miner,resident,art/avatars/c_r96--pazuzu-the-late.png
+97,c_r97,Furfur Charwell,she/her,incubus,Greed,forum moderator,resident,art/avatars/c_r97--furfur-charwell.png
+98,c_r98,Pandora,he/him,harpy,Lust,spa attendant,resident,art/avatars/c_r98--pandora.png
+99,c_r99,Valac Who Was Promised Nothing,he/him,witch,Lust,gym trainer,resident,art/avatars/c_r99--valac-who-was-promised-nothing.png
+100,c_r100,Hazel Quench,she/her,banshee,Treachery,tavern keeper,resident,art/avatars/c_r100--hazel-quench.png
+101,c_r101,Lucinda Sallow,she/her,witch,Treachery,ice warden,resident,art/avatars/c_r101--lucinda-sallow.png
+102,c_r102,Griselda Vane,she/her,revenant,Greed,night-market cook,resident,art/avatars/c_r102--griselda-vane.png
+103,c_r103,Morrigan Fallow,she/her,fallen angel,Wrath,barista,resident,art/avatars/c_r103--morrigan-fallow.png
+104,c_r104,Edgar Wraithe,she/her,damned soul,Greed,forum moderator,resident,art/avatars/c_r104--edgar-wraithe.png
+105,c_r105,Belial Mournfield,she/her,demon,Violence,potion apprentice,resident,art/avatars/c_r105--belial-mournfield.png
+106,c_r106,Ezra,she/her,ghoul,Limbo,librarian,resident,art/avatars/c_r106--ezra.png
+107,c_r107,Lazarus Hollowbone,he/him,damned soul,Greed,potion apprentice,resident,art/avatars/c_r107--lazarus-hollowbone.png
+108,c_r108,Cordelia Vexmoor,she/her,demon,Greed,judgement clerk,resident,art/avatars/c_r108--cordelia-vexmoor.png
+109,c_r109,Raven Umber,he/him,demon,Violence,brimstone miner,resident,art/avatars/c_r109--raven-umber.png
+110,c_r110,Cinder Cinders,she/her,damned soul,Wrath,arena fighter,resident,art/avatars/c_r110--cinder-cinders.png
+111,c_r111,Zepar,she/her,demon,Limbo,pizza cook,resident,art/avatars/c_r111--zepar.png
+112,c_r112,Uma,he/him,harpy,Violence,night-market cook,resident,art/avatars/c_r112--uma.png
+113,c_r113,Kasimir Dreadmore,he/him,cultist,Greed,gym trainer,resident,art/avatars/c_r113--kasimir-dreadmore.png
+114,c_r114,Pazuzu Jinx,he/him,skeleton,Gluttony,arcade technician,resident,art/avatars/c_r114--pazuzu-jinx.png
+115,c_r115,Yara,she/her,damned soul,Limbo,projectionist,resident,art/avatars/c_r115--yara.png
+116,c_r116,Ash Duskwell,she/her,imp,Fraud,between torments,resident,art/avatars/c_r116--ash-duskwell.png
+117,c_r117,Constance Sulfurton,she/her,gargoyle,Lust,ferry deckhand,resident,art/avatars/c_r117--constance-sulfurton.png
+118,c_r118,Verity,they/them,gargoyle,Fraud,between torments,resident,art/avatars/c_r118--verity.png
+119,c_r119,Ezra Marrow,she/her,damned soul,Treachery,ferry deckhand,resident,art/avatars/c_r119--ezra-marrow.png
+120,c_r120,Ursula Vigil,they/them,demon,Limbo,bartender,resident,art/avatars/c_r120--ursula-vigil.png
+121,c_r121,Lucinda Hemlock,he/him,damned soul,Wrath,between torments,resident,art/avatars/c_r121--lucinda-hemlock.png
+122,c_r122,Agatha Quietus,she/her,imp,Greed,soul sorter,resident,art/avatars/c_r122--agatha-quietus.png
+123,c_r123,Clementine Sulfurton,he/him,gargoyle,Violence,lava lifeguard,resident,art/avatars/c_r123--clementine-sulfurton.png
+124,c_r124,Dmitri Cobweb,he/him,hellhound-kin,Gluttony,kennel keeper,resident,art/avatars/c_r124--dmitri-cobweb.png
+125,c_r125,Pandora Vexmoor,she/her,harpy,Wrath,Hellnet engineer,resident,art/avatars/c_r125--pandora-vexmoor.png
+126,c_r126,Agnes Vexmoor,she/her,imp,Violence,lava lifeguard,resident,art/avatars/c_r126--agnes-vexmoor.png
+127,c_r127,Scab Nocturne,she/her,ghoul,Fraud,Hellnet engineer,resident,art/avatars/c_r127--scab-nocturne.png
+128,c_r128,Gideon the Unwashed,they/them,succubus,Gluttony,kennel keeper,resident,art/avatars/c_r128--gideon-the-unwashed.png
+129,c_r129,Crumb,she/her,fallen angel,Limbo,ferry deckhand,resident,art/avatars/c_r129--crumb.png
+130,c_r130,Zeke Wraithe,she/her,cultist,Limbo,bartender,resident,art/avatars/c_r130--zeke-wraithe.png
+131,c_r131,Vapula Flintlock,she/her,skeleton,Gluttony,ice warden,resident,art/avatars/c_r131--vapula-flintlock.png
+132,c_r132,Azazel Vigil,he/him,damned soul,Limbo,between torments,resident,art/avatars/c_r132--azazel-vigil.png
+133,c_r133,Magnolia Fangsley,she/her,damned soul,Gluttony,ice warden,resident,art/avatars/c_r133--magnolia-fangsley.png
+134,c_r134,Morrigan Knell,he/him,hellhound-kin,Gluttony,market vendor,resident,art/avatars/c_r134--morrigan-knell.png
+135,c_r135,Kiki Inkwell,they/them,incubus,Gluttony,between torments,resident,art/avatars/c_r135--kiki-inkwell.png
+136,c_r136,Ursula,he/him,skeleton,Heresy,gravedigger,resident,art/avatars/c_r136--ursula.png
+137,c_r137,Lazarus,he/him,imp,Heresy,between torments,resident,art/avatars/c_r137--lazarus.png
+138,c_r138,Valac Sootworth,she/her,demon,Greed,choir singer,resident,art/avatars/c_r138--valac-sootworth.png
+139,c_r139,Sallos Who Was Promised Nothing,he/him,damned soul,Heresy,pizza cook,resident,art/avatars/c_r139--sallos-who-was-promised-nothing.png
+140,c_r140,Nero Nightshade,they/them,witch,Limbo,tavern keeper,resident,art/avatars/c_r140--nero-nightshade.png
+141,c_r141,Griselda Lament,they/them,hellhound-kin,Heresy,projectionist,resident,art/avatars/c_r141--griselda-lament.png
+142,c_r142,Gristle Quench,she/her,revenant,Heresy,pizza cook,resident,art/avatars/c_r142--gristle-quench.png
+143,c_r143,Thaddeus Sallow,she/her,damned soul,Greed,arcade technician,resident,art/avatars/c_r143--thaddeus-sallow.png
+144,c_r144,Vesper,he/him,gargoyle,Fraud,throne guard,resident,art/avatars/c_r144--vesper.png
+145,c_r145,Gideon Tarrow,she/her,demon,Greed,forum moderator,resident,art/avatars/c_r145--gideon-tarrow.png
+146,c_r146,Paimon Hollowbone,he/him,incubus,Lust,arcade technician,resident,art/avatars/c_r146--paimon-hollowbone.png
+147,c_r147,Yara Sootworth,she/her,banshee,Fraud,projectionist,resident,art/avatars/c_r147--yara-sootworth.png
+148,c_r148,Abaddon Vane,he/him,ghoul,Greed,gravedigger,resident,art/avatars/c_r148--abaddon-vane.png
+149,c_r149,Xaphan Cinders,they/them,lich,Greed,choir singer,resident,art/avatars/c_r149--xaphan-cinders.png
+150,c_r150,Grub Embers,she/her,damned soul,Wrath,marsh ranger,resident,art/avatars/c_r150--grub-embers.png
+151,c_r151,Remiel Marrow,he/him,skeleton,Treachery,stockbroker,resident,art/avatars/c_r151--remiel-marrow.png
+152,c_r152,Lucinda Umber,he/him,demon,Treachery,iron smith,resident,art/avatars/c_r152--lucinda-umber.png
+153,c_r153,Esme Darkmoor,they/them,wraith,Greed,gym trainer,resident,art/avatars/c_r153--esme-darkmoor.png
+154,c_r154,Abaddon Duskwell,he/him,imp,Limbo,choir singer,resident,art/avatars/c_r154--abaddon-duskwell.png
+155,c_r155,Obadiah,he/him,cultist,Fraud,paralegal,resident,art/avatars/c_r155--obadiah.png
+156,c_r156,Remiel Lockjaw,she/her,hellhound-kin,Greed,pizza cook,resident,art/avatars/c_r156--remiel-lockjaw.png
+157,c_r157,Beleth,she/her,fallen angel,Limbo,bartender,resident,art/avatars/c_r157--beleth.png
+158,c_r158,Valac Jinx,she/her,imp,Limbo,arena fighter,resident,art/avatars/c_r158--valac-jinx.png
+159,c_r159,Grub Wraithe,she/her,revenant,Fraud,night-market cook,resident,art/avatars/c_r159--grub-wraithe.png
+160,c_r160,Rowena Gravelock,he/him,imp,Lust,marsh ranger,resident,art/avatars/c_r160--rowena-gravelock.png
+161,c_r161,Remiel Ravenscar,she/her,demon,Limbo,ferry deckhand,resident,art/avatars/c_r161--remiel-ravenscar.png
+162,c_r162,Paimon Knell,they/them,wraith,Limbo,gravedigger,resident,art/avatars/c_r162--paimon-knell.png
+163,c_r163,Nero the Twice-Damned,she/her,damned soul,Wrath,brimstone miner,resident,art/avatars/c_r163--nero-the-twice-damned.png
+164,c_r164,Marbas Tombsworth,she/her,damned soul,Limbo,gravedigger,resident,art/avatars/c_r164--marbas-tombsworth.png
+165,c_r165,Jezebel Tarrow,she/her,fallen angel,Heresy,arcade technician,resident,art/avatars/c_r165--jezebel-tarrow.png
+166,c_r166,Marbas Gravelock,she/her,damned soul,Gluttony,tavern keeper,resident,art/avatars/c_r166--marbas-gravelock.png
+167,c_r167,Crumb Cinders,she/her,damned soul,Limbo,librarian,resident,art/avatars/c_r167--crumb-cinders.png
+168,c_r168,Thaddeus Tombsworth,she/her,incubus,Wrath,arena fighter,resident,art/avatars/c_r168--thaddeus-tombsworth.png
+169,c_r169,Zagan the Overdue,she/her,demon,Fraud,gym trainer,resident,art/avatars/c_r169--zagan-the-overdue.png
+170,c_r170,Edgar Quietus,they/them,fallen angel,Treachery,between torments,resident,art/avatars/c_r170--edgar-quietus.png
+171,c_r171,Marbas the Overdue,he/him,succubus,Gluttony,market vendor,resident,art/avatars/c_r171--marbas-the-overdue.png
+172,c_r172,Petra Darkmoor,she/her,lich,Violence,delivery imp,resident,art/avatars/c_r172--petra-darkmoor.png
+173,c_r173,Hollis Coldwater,they/them,imp,Treachery,gravedigger,resident,art/avatars/c_r173--hollis-coldwater.png
+174,c_r174,Zeke Nocturne,he/him,demon,Heresy,between torments,resident,art/avatars/c_r174--zeke-nocturne.png
+175,c_r175,Juniper Nightshade,she/her,ghoul,Limbo,ferry deckhand,resident,art/avatars/c_r175--juniper-nightshade.png
+176,c_r176,Nyx Rattlebone,he/him,imp,Limbo,tavern keeper,resident,art/avatars/c_r176--nyx-rattlebone.png
+177,c_r177,Dagon Mothwing,they/them,demon,Limbo,ferry deckhand,resident,art/avatars/c_r177--dagon-mothwing.png
+178,c_r178,Odette Wormwood,she/her,demon,Fraud,soul sorter,resident,art/avatars/c_r178--odette-wormwood.png
+179,c_r179,Leraje Mothwing,she/her,cultist,Fraud,ice warden,resident,art/avatars/c_r179--leraje-mothwing.png
+180,c_r180,Crumb Nightshade,he/him,ghoul,Treachery,projectionist,resident,art/avatars/c_r180--crumb-nightshade.png
+181,c_r181,Gertrude Cinders,she/her,hellhound-kin,Treachery,throne guard,resident,art/avatars/c_r181--gertrude-cinders.png
+182,c_r182,Percival Cobweb,he/him,damned soul,Wrath,projectionist,resident,art/avatars/c_r182--percival-cobweb.png
+183,c_r183,Carmilla Darkmoor,they/them,ghoul,Limbo,bath keeper,resident,art/avatars/c_r183--carmilla-darkmoor.png
+184,c_r184,Bram the Unwashed,she/her,ghoul,Heresy,night-market cook,resident,art/avatars/c_r184--bram-the-unwashed.png
+185,c_r185,Uma Blight,she/her,damned soul,Violence,marsh ranger,resident,art/avatars/c_r185--uma-blight.png
+186,c_r186,Edgar Nettles,she/her,imp,Limbo,ferry deckhand,resident,art/avatars/c_r186--edgar-nettles.png
+187,c_r187,Pazuzu Pyre,she/her,ghoul,Treachery,between torments,resident,art/avatars/c_r187--pazuzu-pyre.png
+188,c_r188,Florian Nocturne,he/him,damned soul,Violence,pizza cook,resident,art/avatars/c_r188--florian-nocturne.png
+189,c_r189,Yorick Ravenscar,she/her,hellhound-kin,Fraud,projectionist,resident,art/avatars/c_r189--yorick-ravenscar.png
+190,c_r190,Nero Rotwood,she/her,damned soul,Wrath,tavern keeper,resident,art/avatars/c_r190--nero-rotwood.png
+191,c_r191,Ingrid Fallow,she/her,demon,Heresy,gravedigger,resident,art/avatars/c_r191--ingrid-fallow.png
+192,c_r192,Quill Lockjaw,they/them,demon,Wrath,brimstone miner,resident,art/avatars/c_r192--quill-lockjaw.png
+193,c_r193,Ingrid Rotwood,she/her,damned soul,Greed,delivery imp,resident,art/avatars/c_r193--ingrid-rotwood.png
+194,c_r194,Nox Nightshade,she/her,hellhound-kin,Heresy,brimstone miner,resident,art/avatars/c_r194--nox-nightshade.png
+195,c_r195,Agnes Lament,she/her,damned soul,Treachery,ferry deckhand,resident,art/avatars/c_r195--agnes-lament.png
+196,c_r196,Dmitri Bonebright,she/her,skeleton,Gluttony,gym trainer,resident,art/avatars/c_r196--dmitri-bonebright.png
+197,c_r197,Ivo Rotwood,she/her,succubus,Heresy,kennel keeper,resident,art/avatars/c_r197--ivo-rotwood.png
+198,c_r198,Jezebel the Slightly Singed,he/him,damned soul,Violence,brimstone miner,resident,art/avatars/c_r198--jezebel-the-slightly-singed.png
+199,c_r199,Soot Wormwood,she/her,demon,Greed,gym trainer,resident,art/avatars/c_r199--soot-wormwood.png
+200,c_r200,Tabitha Ravenscar,she/her,ghoul,Heresy,kennel keeper,resident,art/avatars/c_r200--tabitha-ravenscar.png
+201,c_r201,Raven Pockmark,they/them,cultist,Wrath,barista,resident,art/avatars/c_r201--raven-pockmark.png
+202,c_r202,Kiki Vexmoor,he/him,ghoul,Limbo,librarian,resident,art/avatars/c_r202--kiki-vexmoor.png
+203,c_r203,Bram Charwell,he/him,wraith,Limbo,between torments,resident,art/avatars/c_r203--bram-charwell.png
+204,c_r204,Cordelia Wick,she/her,demon,Wrath,marsh ranger,resident,art/avatars/c_r204--cordelia-wick.png
+205,c_r205,Azazel Cobweb,she/her,ghoul,Treachery,throne guard,resident,art/avatars/c_r205--azazel-cobweb.png
+206,c_r206,Jasper Withers,she/her,incubus,Treachery,marsh ranger,resident,art/avatars/c_r206--jasper-withers.png
+207,c_r207,Carmilla Kettleburn,they/them,damned soul,Gluttony,between torments,resident,art/avatars/c_r207--carmilla-kettleburn.png
+208,c_r208,Odette Rattlebone,they/them,witch,Heresy,bartender,resident,art/avatars/c_r208--odette-rattlebone.png
+209,c_r209,Xaphan Hemlock,they/them,succubus,Greed,gym trainer,resident,art/avatars/c_r209--xaphan-hemlock.png
+210,c_r210,Bertram Quietus,they/them,imp,Heresy,arcade technician,resident,art/avatars/c_r210--bertram-quietus.png
+211,c_r211,Magnolia Lockjaw,they/them,fallen angel,Limbo,bartender,resident,art/avatars/c_r211--magnolia-lockjaw.png
+212,c_r212,Vapula,he/him,ghoul,Wrath,marsh ranger,resident,art/avatars/c_r212--vapula.png
+213,c_r213,Fenrir Wormwood,she/her,harpy,Wrath,lava lifeguard,resident,art/avatars/c_r213--fenrir-wormwood.png
+214,c_r214,Tabitha Smolder,he/him,gargoyle,Limbo,bartender,resident,art/avatars/c_r214--tabitha-smolder.png
+215,c_r215,Cordelia,she/her,damned soul,Fraud,Hellnet engineer,resident,art/avatars/c_r215--cordelia.png
+216,c_r216,Mortimer Cobweb,she/her,demon,Greed,barista,resident,art/avatars/c_r216--mortimer-cobweb.png
+217,c_r217,Wren Scorch,she/her,damned soul,Violence,gym trainer,resident,art/avatars/c_r217--wren-scorch.png
+218,c_r218,Orobas Vane,she/her,incubus,Lust,soul sorter,resident,art/avatars/c_r218--orobas-vane.png
+219,c_r219,Asmodeus Mothwing,he/him,damned soul,Limbo,marsh ranger,resident,art/avatars/c_r219--asmodeus-mothwing.png
+220,c_r220,Carmilla Vane,he/him,revenant,Gluttony,between torments,resident,art/avatars/c_r220--carmilla-vane.png
+221,c_r221,Edgar of the Long Queue,he/him,cultist,Greed,gym trainer,resident,art/avatars/c_r221--edgar-of-the-long-queue.png
+222,c_r222,Rowena Tombsworth,he/him,wraith,Heresy,between torments,resident,art/avatars/c_r222--rowena-tombsworth.png
+223,c_r223,Mortimer Marrow,he/him,skeleton,Heresy,gravedigger,resident,art/avatars/c_r223--mortimer-marrow.png
+224,c_r224,Zepar Nocturne,she/her,demon,Limbo,ferry deckhand,resident,art/avatars/c_r224--zepar-nocturne.png
+225,c_r225,Zepar of the Third Pit,she/her,damned soul,Violence,paralegal,resident,art/avatars/c_r225--zepar-of-the-third-pit.png
+226,c_r226,Bram the Overdue,she/her,damned soul,Greed,between torments,resident,art/avatars/c_r226--bram-the-overdue.png
+227,c_r227,Petra Lockjaw,he/him,banshee,Violence,market vendor,resident,art/avatars/c_r227--petra-lockjaw.png
+228,c_r228,Vlad Lament,she/her,imp,Violence,gravedigger,resident,art/avatars/c_r228--vlad-lament.png
+229,c_r229,Flick Gloam,they/them,incubus,Violence,iron smith,resident,art/avatars/c_r229--flick-gloam.png
+230,c_r230,Zillah Crowe,he/him,incubus,Lust,spa attendant,resident,art/avatars/c_r230--zillah-crowe.png
+231,c_r231,Thaddeus Sootworth,he/him,incubus,Wrath,barista,resident,art/avatars/c_r231--thaddeus-sootworth.png
+232,c_r232,Zepar Duskwell,he/him,gargoyle,Fraud,arena fighter,resident,art/avatars/c_r232--zepar-duskwell.png
+233,c_r233,Jude Ashgrave,she/her,revenant,Wrath,forum moderator,resident,art/avatars/c_r233--jude-ashgrave.png
+234,c_r234,Esme Inkwell,they/them,hellhound-kin,Gluttony,bath keeper,resident,art/avatars/c_r234--esme-inkwell.png
+235,c_r235,Wisp,he/him,cultist,Fraud,bartender,resident,art/avatars/c_r235--wisp.png
+236,c_r236,Bram the Slightly Singed,she/her,demon,Limbo,bartender,resident,art/avatars/c_r236--bram-the-slightly-singed.png
+237,c_r237,Dorcas Underhill,he/him,demon,Wrath,soul sorter,resident,art/avatars/c_r237--dorcas-underhill.png
+238,c_r238,Ingrid Embers,she/her,cultist,Violence,lava lifeguard,resident,art/avatars/c_r238--ingrid-embers.png
+239,c_r239,Morrigan Whitlock,he/him,witch,Violence,throne guard,resident,art/avatars/c_r239--morrigan-whitlock.png
+240,c_r240,Lotte,he/him,skeleton,Treachery,tavern keeper,resident,art/avatars/c_r240--lotte.png
+241,c_r241,Winifred Coldwater,she/her,fallen angel,Violence,brimstone miner,resident,art/avatars/c_r241--winifred-coldwater.png
+242,c_r242,Fausta Tombsworth,she/her,damned soul,Fraud,arcade technician,resident,art/avatars/c_r242--fausta-tombsworth.png
+243,c_r243,Lenore Mothwing,they/them,demon,Limbo,forum moderator,resident,art/avatars/c_r243--lenore-mothwing.png
+244,c_r244,Tabitha Hallowell,she/her,hellhound-kin,Treachery,ferry deckhand,resident,art/avatars/c_r244--tabitha-hallowell.png
+245,c_r245,Ivo the Overdue,she/her,gargoyle,Violence,lava lifeguard,resident,art/avatars/c_r245--ivo-the-overdue.png
+246,c_r246,Flick the Slightly Singed,they/them,fallen angel,Limbo,librarian,resident,art/avatars/c_r246--flick-the-slightly-singed.png
+247,c_r247,Morrigan Gallows,she/her,harpy,Heresy,pizza cook,resident,art/avatars/c_r247--morrigan-gallows.png
+248,c_r248,Ezra Darkmoor,she/her,imp,Fraud,barista,resident,art/avatars/c_r248--ezra-darkmoor.png
+249,c_r249,Nyx Underhill,they/them,demon,Limbo,lava lifeguard,resident,art/avatars/c_r249--nyx-underhill.png
+250,c_r250,Magnolia Scorch,she/her,lich,Fraud,between torments,resident,art/avatars/c_r250--magnolia-scorch.png
+251,c_r251,Sybil Kettleburn,she/her,incubus,Greed,night-market cook,resident,art/avatars/c_r251--sybil-kettleburn.png
+252,c_r252,Sybil Pockmark,she/her,damned soul,Gluttony,lava lifeguard,resident,art/avatars/c_r252--sybil-pockmark.png
+253,c_r253,Dagon Cobweb,he/him,damned soul,Treachery,ice warden,resident,art/avatars/c_r253--dagon-cobweb.png
+254,c_r254,Lenore Gallows,she/her,hellhound-kin,Greed,stockbroker,resident,art/avatars/c_r254--lenore-gallows.png
+255,c_r255,Cinder the Overdue,she/her,banshee,Heresy,spa attendant,resident,art/avatars/c_r255--cinder-the-overdue.png
+256,c_r256,Pandora the Twice-Damned,she/her,damned soul,Gluttony,projectionist,resident,art/avatars/c_r256--pandora-the-twice-damned.png
+257,c_r257,Morrigan the Late,he/him,ghoul,Lust,kennel keeper,resident,art/avatars/c_r257--morrigan-the-late.png
+258,c_r258,Malphas Knell,they/them,damned soul,Wrath,throne guard,resident,art/avatars/c_r258--malphas-knell.png
+259,c_r259,Rook Yarrow,he/him,wraith,Treachery,ice warden,resident,art/avatars/c_r259--rook-yarrow.png
+260,c_r260,Vapula Wormwood,she/her,skeleton,Lust,soul sorter,resident,art/avatars/c_r260--vapula-wormwood.png
+261,c_r261,Wisp Dirge,they/them,demon,Lust,librarian,resident,art/avatars/c_r261--wisp-dirge.png
+262,c_r262,Fausta Lockjaw,he/him,demon,Gluttony,forum moderator,resident,art/avatars/c_r262--fausta-lockjaw.png
+263,c_r263,Ezra Embers,she/her,damned soul,Limbo,ferry deckhand,resident,art/avatars/c_r263--ezra-embers.png
+264,c_r264,Ipos Tarrow,she/her,demon,Violence,lava lifeguard,resident,art/avatars/c_r264--ipos-tarrow.png
+265,c_r265,Moth Bonebright,he/him,ghoul,Fraud,librarian,resident,art/avatars/c_r265--moth-bonebright.png
+266,c_r266,Tallow,he/him,cultist,Fraud,projectionist,resident,art/avatars/c_r266--tallow.png
+267,c_r267,Lucinda,she/her,demon,Limbo,bath keeper,resident,art/avatars/c_r267--lucinda.png
+268,c_r268,Tabitha the Overdue,she/her,demon,Fraud,potion apprentice,resident,art/avatars/c_r268--tabitha-the-overdue.png
+269,c_r269,Hazel Vane,they/them,gargoyle,Treachery,stockbroker,resident,art/avatars/c_r269--hazel-vane.png
+270,c_r270,Vapula Ironwood,he/him,ghoul,Lust,spa attendant,resident,art/avatars/c_r270--vapula-ironwood.png
+271,c_r271,Prudence Ashgrave,she/her,wraith,Heresy,between torments,resident,art/avatars/c_r271--prudence-ashgrave.png
+272,c_r272,Ivo Sulfurton,he/him,demon,Lust,stockbroker,resident,art/avatars/c_r272--ivo-sulfurton.png
+273,c_r273,Zepar Darkmoor,he/him,revenant,Fraud,paralegal,resident,art/avatars/c_r273--zepar-darkmoor.png
+274,c_r274,Klaus Lockjaw,she/her,imp,Greed,gym trainer,resident,art/avatars/c_r274--klaus-lockjaw.png
+275,c_r275,Rufus Pyre,they/them,cultist,Gluttony,market vendor,resident,art/avatars/c_r275--rufus-pyre.png
+276,c_r276,Ursula Withers,he/him,harpy,Violence,between torments,resident,art/avatars/c_r276--ursula-withers.png
+277,c_r277,Wilhelmina Wick,he/him,gargoyle,Treachery,tavern keeper,resident,art/avatars/c_r277--wilhelmina-wick.png
+278,c_r278,Griselda Hallowell,she/her,wraith,Heresy,choir singer,resident,art/avatars/c_r278--griselda-hallowell.png
+279,c_r279,Rowena Mothwing,she/her,banshee,Limbo,projectionist,resident,art/avatars/c_r279--rowena-mothwing.png
+280,c_r280,Cordelia Toll,they/them,demon,Greed,stockbroker,resident,art/avatars/c_r280--cordelia-toll.png
+281,c_r281,Lazarus Dreadmore,he/him,damned soul,Limbo,pizza cook,resident,art/avatars/c_r281--lazarus-dreadmore.png
+282,c_r282,Bertram Darkmoor,they/them,hellhound-kin,Treachery,tavern keeper,resident,art/avatars/c_r282--bertram-darkmoor.png
+283,c_r283,Leraje the Unwashed,she/her,gargoyle,Treachery,arena fighter,resident,art/avatars/c_r283--leraje-the-unwashed.png
+284,c_r284,Wilhelmina Gravelock,he/him,damned soul,Greed,night-market cook,resident,art/avatars/c_r284--wilhelmina-gravelock.png
+285,c_r285,Sallos Quietus,she/her,witch,Treachery,tavern keeper,resident,art/avatars/c_r285--sallos-quietus.png
+286,c_r286,Salem Pockmark,she/her,gargoyle,Lust,arena fighter,resident,art/avatars/c_r286--salem-pockmark.png
+287,c_r287,Quill Mothwing,she/her,wraith,Violence,barista,resident,art/avatars/c_r287--quill-mothwing.png
+288,c_r288,Bertram Underhill,he/him,lich,Treachery,gym trainer,resident,art/avatars/c_r288--bertram-underhill.png
+289,c_r289,Carmilla Crowe,she/her,lich,Heresy,arcade technician,resident,art/avatars/c_r289--carmilla-crowe.png
+290,c_r290,Prudence Marrow,she/her,wraith,Fraud,gym trainer,resident,art/avatars/c_r290--prudence-marrow.png
+291,c_r291,Sprocket Fangsley,they/them,incubus,Fraud,paralegal,resident,art/avatars/c_r291--sprocket-fangsley.png
+292,c_r292,Agatha Grimsby,she/her,fallen angel,Treachery,mall clerk,resident,art/avatars/c_r292--agatha-grimsby.png
+293,c_r293,Paimon Crowe,she/her,banshee,Heresy,iron smith,resident,art/avatars/c_r293--paimon-crowe.png
+294,c_r294,Otto of the Long Queue,she/her,fallen angel,Treachery,ice warden,resident,art/avatars/c_r294--otto-of-the-long-queue.png
+295,c_r295,Lenore Quietus,he/him,witch,Fraud,bath keeper,resident,art/avatars/c_r295--lenore-quietus.png
+296,c_r296,Zillah Duskwell,he/him,damned soul,Limbo,potion apprentice,resident,art/avatars/c_r296--zillah-duskwell.png
+297,c_r297,Nell Ashby,they/them,succubus,Limbo,bartender,resident,art/avatars/c_r297--nell-ashby.png
+298,c_r298,Clementine Jinx,she/her,demon,Limbo,between torments,resident,art/avatars/c_r298--clementine-jinx.png
+299,c_r299,Wisp Grimsby,he/him,damned soul,Fraud,between torments,resident,art/avatars/c_r299--wisp-grimsby.png
+300,c_r300,Odette,they/them,hellhound-kin,Heresy,arcade technician,resident,art/avatars/c_r300--odette.png
+301,c_r301,Fenrir Ashby,she/her,damned soul,Lust,ice warden,resident,art/avatars/c_r301--fenrir-ashby.png
+302,c_r302,Azazel,she/her,ghoul,Lust,barista,resident,art/avatars/c_r302--azazel.png
+303,c_r303,Ash Charwell,they/them,ghoul,Wrath,barista,resident,art/avatars/c_r303--ash-charwell.png
+304,c_r304,Morrigan,he/him,fallen angel,Limbo,librarian,resident,art/avatars/c_r304--morrigan.png
+305,c_r305,Pandora Gravelock,he/him,banshee,Fraud,projectionist,resident,art/avatars/c_r305--pandora-gravelock.png
+306,c_r306,Thorn Nocturne,she/her,hellhound-kin,Treachery,barista,resident,art/avatars/c_r306--thorn-nocturne.png
+307,c_r307,Tristan Fallow,she/her,demon,Greed,brimstone miner,resident,art/avatars/c_r307--tristan-fallow.png
+308,c_r308,Soot Rotwood,he/him,demon,Heresy,forum moderator,resident,art/avatars/c_r308--soot-rotwood.png
+309,c_r309,Jasper the Unwashed,they/them,imp,Lust,judgement clerk,resident,art/avatars/c_r309--jasper-the-unwashed.png
+310,c_r310,Cordelia Cinders,he/him,wraith,Heresy,judgement clerk,resident,art/avatars/c_r310--cordelia-cinders.png
+311,c_r311,Obadiah Nocturne,she/her,damned soul,Limbo,lava lifeguard,resident,art/avatars/c_r311--obadiah-nocturne.png
+312,c_r312,Ash the Unforgiven (Allegedly),she/her,wraith,Limbo,delivery imp,resident,art/avatars/c_r312--ash-the-unforgiven-allegedly.png
+313,c_r313,Kasimir Cindervale,he/him,harpy,Fraud,arcade technician,resident,art/avatars/c_r313--kasimir-cindervale.png
+314,c_r314,Damien Gloam,she/her,wraith,Heresy,potion apprentice,resident,art/avatars/c_r314--damien-gloam.png
+315,c_r315,Abaddon Hexley,he/him,imp,Heresy,gravedigger,resident,art/avatars/c_r315--abaddon-hexley.png
+316,c_r316,Orobas Ashgrave,he/him,damned soul,Violence,paralegal,resident,art/avatars/c_r316--orobas-ashgrave.png
+317,c_r317,Grub Oddbody,he/him,damned soul,Treachery,throne guard,resident,art/avatars/c_r317--grub-oddbody.png
+318,c_r318,Verity Knell,she/her,demon,Wrath,ice warden,resident,art/avatars/c_r318--verity-knell.png
+319,c_r319,Mabel Umber,they/them,demon,Greed,stockbroker,resident,art/avatars/c_r319--mabel-umber.png
+320,c_r320,Kiki Cinders,she/her,harpy,Fraud,forum moderator,resident,art/avatars/c_r320--kiki-cinders.png
+321,c_r321,Tristan,she/her,damned soul,Gluttony,judgement clerk,resident,art/avatars/c_r321--tristan.png
+322,c_r322,Cassius the Twice-Damned,she/her,imp,Heresy,arena fighter,resident,art/avatars/c_r322--cassius-the-twice-damned.png
+323,c_r323,Silas Smolder,she/her,wraith,Wrath,marsh ranger,resident,art/avatars/c_r323--silas-smolder.png
+324,c_r324,Obadiah Grimsby,they/them,damned soul,Lust,judgement clerk,resident,art/avatars/c_r324--obadiah-grimsby.png
+325,c_r325,Grub Inkwell,he/him,damned soul,Violence,market vendor,resident,art/avatars/c_r325--grub-inkwell.png
+326,c_r326,Azazel Gravelock,he/him,cultist,Limbo,throne guard,resident,art/avatars/c_r326--azazel-gravelock.png
+327,c_r327,Mortimer the Twice-Damned,they/them,harpy,Fraud,marsh ranger,resident,art/avatars/c_r327--mortimer-the-twice-damned.png
+328,c_r328,Soot Hexley,he/him,ghoul,Wrath,night-market cook,resident,art/avatars/c_r328--soot-hexley.png
+329,c_r329,Petra Rattlebone,she/her,succubus,Greed,choir singer,resident,art/avatars/c_r329--petra-rattlebone.png
+330,c_r330,Mortimer Darkmoor,he/him,revenant,Gluttony,delivery imp,resident,art/avatars/c_r330--mortimer-darkmoor.png
+331,c_r331,Bram Scorch,they/them,damned soul,Violence,bartender,resident,art/avatars/c_r331--bram-scorch.png
+332,c_r332,Dagon Brimley,he/him,succubus,Wrath,Hellnet engineer,resident,art/avatars/c_r332--dagon-brimley.png
+333,c_r333,Esme Sallow,he/him,ghoul,Greed,choir singer,resident,art/avatars/c_r333--esme-sallow.png
+334,c_r334,Stolas Sootworth,he/him,skeleton,Wrath,arena fighter,resident,art/avatars/c_r334--stolas-sootworth.png
+335,c_r335,Crumb Gravelock,he/him,incubus,Wrath,bath keeper,resident,art/avatars/c_r335--crumb-gravelock.png
+336,c_r336,Bones Dreadmore,they/them,harpy,Limbo,ice warden,resident,art/avatars/c_r336--bones-dreadmore.png
+337,c_r337,Lazarus Ravenscar,they/them,banshee,Heresy,arcade technician,resident,art/avatars/c_r337--lazarus-ravenscar.png
+338,c_r338,Pandora Darkmoor,he/him,imp,Heresy,iron smith,resident,art/avatars/c_r338--pandora-darkmoor.png
+339,c_r339,Hazel Lament,they/them,hellhound-kin,Violence,lava lifeguard,resident,art/avatars/c_r339--hazel-lament.png
+340,c_r340,Dante Rattlebone,they/them,damned soul,Gluttony,market vendor,resident,art/avatars/c_r340--dante-rattlebone.png
+341,c_r341,Basil Lament,she/her,damned soul,Violence,paralegal,resident,art/avatars/c_r341--basil-lament.png
+342,c_r342,Corvin Thistlebone,he/him,damned soul,Heresy,brimstone miner,resident,art/avatars/c_r342--corvin-thistlebone.png
+343,c_r343,Kasimir Wormwood,he/him,hellhound-kin,Treachery,paralegal,resident,art/avatars/c_r343--kasimir-wormwood.png
+344,c_r344,Kasimir Vigil,they/them,succubus,Treachery,ice warden,resident,art/avatars/c_r344--kasimir-vigil.png
+345,c_r345,Thaddeus Cindervale,they/them,gargoyle,Gluttony,bath keeper,resident,art/avatars/c_r345--thaddeus-cindervale.png
+346,c_r346,Silas the Overdue,they/them,gargoyle,Treachery,throne guard,resident,art/avatars/c_r346--silas-the-overdue.png
+347,c_r347,Naberius,she/her,witch,Fraud,choir singer,resident,art/avatars/c_r347--naberius.png
+348,c_r348,Remiel,she/her,demon,Wrath,gym trainer,resident,art/avatars/c_r348--remiel.png
+349,c_r349,Cinder Pockmark,she/her,demon,Fraud,Hellnet engineer,resident,art/avatars/c_r349--cinder-pockmark.png
+350,c_r350,Marbas Underhill,he/him,incubus,Violence,forum moderator,resident,art/avatars/c_r350--marbas-underhill.png
+351,c_r351,Hazel,they/them,skeleton,Wrath,marsh ranger,resident,art/avatars/c_r351--hazel.png
+352,c_r352,Isolde Embers,he/him,succubus,Fraud,Hellnet engineer,resident,art/avatars/c_r352--isolde-embers.png
+353,c_r353,Agatha Bonebright,they/them,cultist,Wrath,ice warden,resident,art/avatars/c_r353--agatha-bonebright.png
+354,c_r354,Nib the Mildly Cursed,he/him,ghoul,Greed,forum moderator,resident,art/avatars/c_r354--nib-the-mildly-cursed.png
+355,c_r355,Mabel Tarrow,she/her,demon,Greed,barista,resident,art/avatars/c_r355--mabel-tarrow.png
+356,c_r356,Crumb Dreadmore,she/her,ghoul,Wrath,pizza cook,resident,art/avatars/c_r356--crumb-dreadmore.png
+357,c_r357,Lotte Wraithe,she/her,incubus,Wrath,judgement clerk,resident,art/avatars/c_r357--lotte-wraithe.png
+358,c_r358,Leraje Darkmoor,they/them,damned soul,Limbo,librarian,resident,art/avatars/c_r358--leraje-darkmoor.png
+359,c_r359,Orrin Hollowbone,they/them,demon,Lust,soul sorter,resident,art/avatars/c_r359--orrin-hollowbone.png
+360,c_r360,Dante Smolder,she/her,damned soul,Fraud,potion apprentice,resident,art/avatars/c_r360--dante-smolder.png
+361,c_r361,Verity Mothwing,he/him,wraith,Greed,gym trainer,resident,art/avatars/c_r361--verity-mothwing.png
+362,c_r362,Lenore of the Third Pit,they/them,imp,Fraud,iron smith,resident,art/avatars/c_r362--lenore-of-the-third-pit.png
+363,c_r363,Corvin Brimley,he/him,skeleton,Lust,Hellnet engineer,resident,art/avatars/c_r363--corvin-brimley.png
+364,c_r364,Hazel Umber,he/him,witch,Limbo,arena fighter,resident,art/avatars/c_r364--hazel-umber.png
+365,c_r365,Ingrid,she/her,wraith,Limbo,librarian,resident,art/avatars/c_r365--ingrid.png
+366,c_r366,Soot Tarrow,he/him,skeleton,Lust,librarian,resident,art/avatars/c_r366--soot-tarrow.png
+367,c_r367,Xaphan Rotwood,they/them,damned soul,Lust,spa attendant,resident,art/avatars/c_r367--xaphan-rotwood.png
+368,c_r368,Obadiah the Late,she/her,damned soul,Fraud,projectionist,resident,art/avatars/c_r368--obadiah-the-late.png
+369,c_r369,Florian Yarrow,she/her,harpy,Greed,stockbroker,resident,art/avatars/c_r369--florian-yarrow.png
+370,c_r370,Flick Ashby,she/her,damned soul,Wrath,ferry deckhand,resident,art/avatars/c_r370--flick-ashby.png
+371,c_r371,Paimon Sallow,they/them,damned soul,Greed,stockbroker,resident,art/avatars/c_r371--paimon-sallow.png
+372,c_r372,Gideon Vexmoor,he/him,hellhound-kin,Treachery,tavern keeper,resident,art/avatars/c_r372--gideon-vexmoor.png
+373,c_r373,Florian Toll,she/her,gargoyle,Limbo,librarian,resident,art/avatars/c_r373--florian-toll.png
+374,c_r374,Corvin Sootworth,he/him,ghoul,Limbo,ice warden,resident,art/avatars/c_r374--corvin-sootworth.png
+375,c_r375,Sprocket Nettles,he/him,hellhound-kin,Treachery,tavern keeper,resident,art/avatars/c_r375--sprocket-nettles.png
+376,c_r376,Fergus Vigil,they/them,cultist,Violence,lava lifeguard,resident,art/avatars/c_r376--fergus-vigil.png
+377,c_r377,Gristle Whitlock,they/them,damned soul,Heresy,gravedigger,resident,art/avatars/c_r377--gristle-whitlock.png
+378,c_r378,Hollis Vigil,she/her,lich,Heresy,pizza cook,resident,art/avatars/c_r378--hollis-vigil.png
+379,c_r379,Ronove Jinx,she/her,ghoul,Wrath,Hellnet engineer,resident,art/avatars/c_r379--ronove-jinx.png
+380,c_r380,Kasimir Cinders,she/her,succubus,Heresy,arcade technician,resident,art/avatars/c_r380--kasimir-cinders.png
+381,c_r381,Yorick,she/her,imp,Lust,stockbroker,resident,art/avatars/c_r381--yorick.png
+382,c_r382,Zepar Crowe,he/him,damned soul,Heresy,kennel keeper,resident,art/avatars/c_r382--zepar-crowe.png
+383,c_r383,Vesper Ashgrave,he/him,damned soul,Fraud,between torments,resident,art/avatars/c_r383--vesper-ashgrave.png
+384,c_r384,Orobas the Slightly Singed,she/her,hellhound-kin,Wrath,lava lifeguard,resident,art/avatars/c_r384--orobas-the-slightly-singed.png
+385,c_r385,Sybil Lockjaw,he/him,witch,Greed,marsh ranger,resident,art/avatars/c_r385--sybil-lockjaw.png
+386,c_r386,Ipos Smolder,she/her,demon,Limbo,ferry deckhand,resident,art/avatars/c_r386--ipos-smolder.png
+387,c_r387,Wisp Vane,she/her,imp,Lust,tavern keeper,resident,art/avatars/c_r387--wisp-vane.png
+388,c_r388,Gideon Oddbody,she/her,demon,Lust,librarian,resident,art/avatars/c_r388--gideon-oddbody.png
+389,c_r389,Bertram Vane,she/her,cultist,Gluttony,bath keeper,resident,art/avatars/c_r389--bertram-vane.png
+390,c_r390,Scab Crowe,he/him,skeleton,Fraud,Hellnet engineer,resident,art/avatars/c_r390--scab-crowe.png
+391,c_r391,Remiel Oddbody,she/her,skeleton,Heresy,iron smith,resident,art/avatars/c_r391--remiel-oddbody.png
+392,c_r392,Tabitha Kettleburn,he/him,demon,Wrath,arena fighter,resident,art/avatars/c_r392--tabitha-kettleburn.png
+393,c_r393,Yorick Whitlock,she/her,witch,Wrath,ice warden,resident,art/avatars/c_r393--yorick-whitlock.png
+394,c_r394,Azazel Umber,she/her,ghoul,Treachery,soul sorter,resident,art/avatars/c_r394--azazel-umber.png
+395,c_r395,Sable Mothwing,she/her,damned soul,Lust,iron smith,resident,art/avatars/c_r395--sable-mothwing.png
+396,c_r396,Sallos Nightshade,he/him,revenant,Limbo,ferry deckhand,resident,art/avatars/c_r396--sallos-nightshade.png
+397,c_r397,Obadiah Fangsley,they/them,damned soul,Treachery,iron smith,resident,art/avatars/c_r397--obadiah-fangsley.png
+398,c_r398,Dregs Spindle,he/him,demon,Gluttony,spa attendant,resident,art/avatars/c_r398--dregs-spindle.png
+399,c_r399,Verity Vigil,she/her,skeleton,Limbo,bartender,resident,art/avatars/c_r399--verity-vigil.png
+400,c_r400,Jezebel Coldwater,she/her,revenant,Wrath,barista,resident,art/avatars/c_r400--jezebel-coldwater.png
+401,c_r401,Thorn,they/them,damned soul,Heresy,brimstone miner,resident,art/avatars/c_r401--thorn.png
+402,c_r402,Tad Dreadmore,they/them,ghoul,Gluttony,ice warden,resident,art/avatars/c_r402--tad-dreadmore.png
+403,c_r403,Jasper Dreadmore,he/him,revenant,Violence,bartender,resident,art/avatars/c_r403--jasper-dreadmore.png
+404,c_r404,Ember Toll,she/her,banshee,Limbo,librarian,resident,art/avatars/c_r404--ember-toll.png
+405,c_r405,Stolas Inkwell,he/him,succubus,Greed,lava lifeguard,resident,art/avatars/c_r405--stolas-inkwell.png
+406,c_r406,Beleth Blackthorn,he/him,cultist,Wrath,arena fighter,resident,art/avatars/c_r406--beleth-blackthorn.png
+407,c_r407,Paimon Bonebright,he/him,imp,Violence,delivery imp,resident,art/avatars/c_r407--paimon-bonebright.png
+408,c_r408,Kasimir Jinx,they/them,wraith,Violence,lava lifeguard,resident,art/avatars/c_r408--kasimir-jinx.png
+409,c_r409,Eligos Fallow,he/him,demon,Fraud,arcade technician,resident,art/avatars/c_r409--eligos-fallow.png
+410,c_r410,Kasimir Flintlock,she/her,damned soul,Limbo,spa attendant,resident,art/avatars/c_r410--kasimir-flintlock.png
+411,c_r411,Wilhelmina Rattlebone,he/him,wraith,Limbo,throne guard,resident,art/avatars/c_r411--wilhelmina-rattlebone.png
+412,c_r412,Wilhelmina Nettles,she/her,damned soul,Treachery,ferry deckhand,resident,art/avatars/c_r412--wilhelmina-nettles.png
+413,c_r413,Nero Lockjaw,he/him,cultist,Lust,judgement clerk,resident,art/avatars/c_r413--nero-lockjaw.png
+414,c_r414,Corvin,she/her,skeleton,Heresy,spa attendant,resident,art/avatars/c_r414--corvin.png
+415,c_r415,Ingrid Grimsby,they/them,imp,Fraud,judgement clerk,resident,art/avatars/c_r415--ingrid-grimsby.png
+416,c_r416,Tabitha Cinders,she/her,wraith,Greed,forum moderator,resident,art/avatars/c_r416--tabitha-cinders.png
+417,c_r417,Damien Sootworth,she/her,hellhound-kin,Lust,market vendor,resident,art/avatars/c_r417--damien-sootworth.png
+418,c_r418,Belial Charwell,she/her,skeleton,Fraud,night-market cook,resident,art/avatars/c_r418--belial-charwell.png
+419,c_r419,Cinder Ironwood,they/them,ghoul,Lust,soul sorter,resident,art/avatars/c_r419--cinder-ironwood.png
+420,c_r420,Furfur,they/them,demon,Greed,arena fighter,resident,art/avatars/c_r420--furfur.png
+421,c_r421,Dmitri Oddbody,she/her,damned soul,Fraud,between torments,resident,art/avatars/c_r421--dmitri-oddbody.png
+422,c_r422,Fergus Scorch,he/him,wraith,Limbo,librarian,resident,art/avatars/c_r422--fergus-scorch.png
+423,c_r423,Jasper Quietus,she/her,witch,Limbo,librarian,resident,art/avatars/c_r423--jasper-quietus.png
+424,c_r424,Juniper Thistlebone,he/him,banshee,Treachery,potion apprentice,resident,art/avatars/c_r424--juniper-thistlebone.png
+425,c_r425,Cordelia Jinx,he/him,demon,Limbo,between torments,resident,art/avatars/c_r425--cordelia-jinx.png
+426,c_r426,Clementine Pockmark,he/him,damned soul,Greed,between torments,resident,art/avatars/c_r426--clementine-pockmark.png
+427,c_r427,Elspeth Jinx,she/her,demon,Gluttony,tavern keeper,resident,art/avatars/c_r427--elspeth-jinx.png
+428,c_r428,Tallow Charwell,he/him,witch,Fraud,judgement clerk,resident,art/avatars/c_r428--tallow-charwell.png
+429,c_r429,Raven Brimley,he/him,succubus,Limbo,librarian,resident,art/avatars/c_r429--raven-brimley.png
+430,c_r430,Klaus Mothwing,he/him,incubus,Violence,ferry deckhand,resident,art/avatars/c_r430--klaus-mothwing.png
+431,c_r431,Alastor Sulfurton,they/them,gargoyle,Wrath,arena fighter,resident,art/avatars/c_r431--alastor-sulfurton.png
+432,c_r432,Thaddeus Pockmark,he/him,demon,Gluttony,brimstone miner,resident,art/avatars/c_r432--thaddeus-pockmark.png
+433,c_r433,Elspeth Charwell,they/them,revenant,Lust,judgement clerk,resident,art/avatars/c_r433--elspeth-charwell.png
+434,c_r434,Gristle Vane,she/her,imp,Treachery,tavern keeper,resident,art/avatars/c_r434--gristle-vane.png
+435,c_r435,Rowena Quench,she/her,gargoyle,Heresy,bath keeper,resident,art/avatars/c_r435--rowena-quench.png
+436,c_r436,Cassius,she/her,fallen angel,Wrath,ferry deckhand,resident,art/avatars/c_r436--cassius.png
+437,c_r437,Fenrir Whitlock,she/her,damned soul,Limbo,soul sorter,resident,art/avatars/c_r437--fenrir-whitlock.png
+438,c_r438,Ignatius Brimley,he/him,damned soul,Lust,throne guard,resident,art/avatars/c_r438--ignatius-brimley.png
+439,c_r439,Jezebel Smolder,he/him,damned soul,Treachery,tavern keeper,resident,art/avatars/c_r439--jezebel-smolder.png
+440,c_r440,Gremory Nettles,he/him,banshee,Lust,throne guard,resident,art/avatars/c_r440--gremory-nettles.png
+441,c_r441,Tabitha Fallow,she/her,ghoul,Wrath,arena fighter,resident,art/avatars/c_r441--tabitha-fallow.png
+442,c_r442,Flick Coldwater,she/her,demon,Greed,gym trainer,resident,art/avatars/c_r442--flick-coldwater.png
+443,c_r443,Imelda Wick,she/her,witch,Violence,brimstone miner,resident,art/avatars/c_r443--imelda-wick.png
+444,c_r444,Salem Knell,she/her,imp,Heresy,arcade technician,resident,art/avatars/c_r444--salem-knell.png
+445,c_r445,Fergus Lament,he/him,ghoul,Violence,choir singer,resident,art/avatars/c_r445--fergus-lament.png
+446,c_r446,Asmodeus Gravelock,he/him,imp,Fraud,gravedigger,resident,art/avatars/c_r446--asmodeus-gravelock.png
+447,c_r447,Kiki the Slightly Singed,he/him,imp,Lust,spa attendant,resident,art/avatars/c_r447--kiki-the-slightly-singed.png
+448,c_r448,Beleth Mournfield,she/her,hellhound-kin,Wrath,marsh ranger,resident,art/avatars/c_r448--beleth-mournfield.png
+449,c_r449,Fausta,she/her,revenant,Lust,spa attendant,resident,art/avatars/c_r449--fausta.png
+450,c_r450,Magnolia Lament,he/him,damned soul,Lust,gym trainer,resident,art/avatars/c_r450--magnolia-lament.png
+451,c_r451,Corvin Lament,he/him,skeleton,Heresy,arcade technician,resident,art/avatars/c_r451--corvin-lament.png
+452,c_r452,Horace Grimsby,she/her,skeleton,Gluttony,bath keeper,resident,art/avatars/c_r452--horace-grimsby.png
+453,c_r453,Clementine Duskwell,they/them,succubus,Lust,soul sorter,resident,art/avatars/c_r453--clementine-duskwell.png
+454,c_r454,Sprocket,she/her,revenant,Heresy,kennel keeper,resident,art/avatars/c_r454--sprocket.png
+455,c_r455,Leraje Lament,they/them,incubus,Lust,judgement clerk,resident,art/avatars/c_r455--leraje-lament.png
+456,c_r456,Crumb Quietus,he/him,harpy,Fraud,throne guard,resident,art/avatars/c_r456--crumb-quietus.png
+457,c_r457,Nell Vexmoor,he/him,damned soul,Limbo,librarian,resident,art/avatars/c_r457--nell-vexmoor.png
+458,c_r458,Vlad Grimsby,he/him,cultist,Violence,gravedigger,resident,art/avatars/c_r458--vlad-grimsby.png
+459,c_r459,Leraje the Slightly Singed,they/them,fallen angel,Gluttony,market vendor,resident,art/avatars/c_r459--leraje-the-slightly-singed.png
+460,c_r460,Belial Bonebright,she/her,damned soul,Wrath,night-market cook,resident,art/avatars/c_r460--belial-bonebright.png
+461,c_r461,Grub Hallowell,they/them,lich,Gluttony,bath keeper,resident,art/avatars/c_r461--grub-hallowell.png
+462,c_r462,Zeke Gravelock,he/him,cultist,Fraud,projectionist,resident,art/avatars/c_r462--zeke-gravelock.png
+463,c_r463,Zeke,she/her,gargoyle,Wrath,soul sorter,resident,art/avatars/c_r463--zeke.png
+464,c_r464,Kasimir Blackthorn,he/him,ghoul,Heresy,gravedigger,resident,art/avatars/c_r464--kasimir-blackthorn.png
+465,c_r465,Seraphine Hallowell,he/him,lich,Violence,ferry deckhand,resident,art/avatars/c_r465--seraphine-hallowell.png
+466,c_r466,Jude Tombsworth,he/him,wraith,Greed,judgement clerk,resident,art/avatars/c_r466--jude-tombsworth.png
+467,c_r467,Vesper Knell,they/them,ghoul,Lust,ferry deckhand,resident,art/avatars/c_r467--vesper-knell.png
+468,c_r468,Ivo Ashby,he/him,imp,Greed,bartender,resident,art/avatars/c_r468--ivo-ashby.png
+469,c_r469,Esme Wormwood,he/him,imp,Lust,spa attendant,resident,art/avatars/c_r469--esme-wormwood.png
+470,c_r470,Stolas the Late,she/her,damned soul,Gluttony,bartender,resident,art/avatars/c_r470--stolas-the-late.png
+471,c_r471,Esme Mournfield,she/her,demon,Fraud,choir singer,resident,art/avatars/c_r471--esme-mournfield.png
+472,c_r472,Salem Rotwood,they/them,damned soul,Heresy,projectionist,resident,art/avatars/c_r472--salem-rotwood.png
+473,c_r473,Ash Withers,she/her,gargoyle,Greed,bath keeper,resident,art/avatars/c_r473--ash-withers.png
+474,c_r474,Elspeth the Twice-Damned,he/him,damned soul,Heresy,between torments,resident,art/avatars/c_r474--elspeth-the-twice-damned.png
+475,c_r475,Asmodeus,she/her,witch,Violence,gym trainer,resident,art/avatars/c_r475--asmodeus.png
+476,c_r476,Florian Quench,she/her,ghoul,Lust,kennel keeper,resident,art/avatars/c_r476--florian-quench.png
+477,c_r477,Agatha Sallow,she/her,demon,Fraud,projectionist,resident,art/avatars/c_r477--agatha-sallow.png
+478,c_r478,Nib Ashgrave,he/him,damned soul,Greed,bath keeper,resident,art/avatars/c_r478--nib-ashgrave.png
+479,c_r479,Xaphan Dreadmore,he/him,imp,Limbo,librarian,resident,art/avatars/c_r479--xaphan-dreadmore.png
+480,c_r480,Elspeth Quench,she/her,imp,Gluttony,projectionist,resident,art/avatars/c_r480--elspeth-quench.png
+481,c_r481,Mildew Gravelock,she/her,demon,Treachery,ice warden,resident,art/avatars/c_r481--mildew-gravelock.png
+482,c_r482,Fergus Hexley,she/her,demon,Violence,brimstone miner,resident,art/avatars/c_r482--fergus-hexley.png
+483,c_r483,Eligos,she/her,harpy,Violence,brimstone miner,resident,art/avatars/c_r483--eligos.png
+484,c_r484,Vlad Blackthorn,he/him,demon,Fraud,mall clerk,resident,art/avatars/c_r484--vlad-blackthorn.png
+485,c_r485,Ignatius Nightshade,he/him,damned soul,Fraud,stockbroker,resident,art/avatars/c_r485--ignatius-nightshade.png
+486,c_r486,Remiel Quench,he/him,damned soul,Violence,projectionist,resident,art/avatars/c_r486--remiel-quench.png
+487,c_r487,Jude Jinx,she/her,ghoul,Heresy,market vendor,resident,art/avatars/c_r487--jude-jinx.png
+488,c_r488,Corvin Rotwood,she/her,ghoul,Limbo,throne guard,resident,art/avatars/c_r488--corvin-rotwood.png
+489,c_r489,Xaphan Cobweb,he/him,damned soul,Lust,soul sorter,resident,art/avatars/c_r489--xaphan-cobweb.png
+490,c_r490,Mabel,he/him,damned soul,Gluttony,soul sorter,resident,art/avatars/c_r490--mabel.png
+491,c_r491,Verity Dirge,she/her,demon,Lust,judgement clerk,resident,art/avatars/c_r491--verity-dirge.png
+492,c_r492,Jasper Crowe,she/her,skeleton,Heresy,ferry deckhand,resident,art/avatars/c_r492--jasper-crowe.png
+493,c_r493,Tobias Gravelock,she/her,demon,Lust,gym trainer,resident,art/avatars/c_r493--tobias-gravelock.png
+494,c_r494,Eligos Rattlebone,she/her,demon,Treachery,ice warden,resident,art/avatars/c_r494--eligos-rattlebone.png
+495,c_r495,Constance Wraithe,she/her,skeleton,Wrath,spa attendant,resident,art/avatars/c_r495--constance-wraithe.png
+496,c_r496,Naberius Wormwood,she/her,wraith,Wrath,arena fighter,resident,art/avatars/c_r496--naberius-wormwood.png
+497,c_r497,Ash Hollowbone,she/her,damned soul,Violence,lava lifeguard,resident,art/avatars/c_r497--ash-hollowbone.png
+498,c_r498,Belial Vigil,she/her,damned soul,Lust,spa attendant,resident,art/avatars/c_r498--belial-vigil.png
+499,c_r499,Bram Quietus,he/him,lich,Treachery,barista,resident,art/avatars/c_r499--bram-quietus.png
+500,c_r500,Lazarus Yarrow,she/her,banshee,Heresy,judgement clerk,resident,art/avatars/c_r500--lazarus-yarrow.png
+501,c_r501,Cassius Umber,he/him,demon,Limbo,ferry deckhand,resident,art/avatars/c_r501--cassius-umber.png
+502,c_r502,Moth,she/her,skeleton,Gluttony,delivery imp,resident,art/avatars/c_r502--moth.png
+503,c_r503,Kiki Underhill,he/him,skeleton,Lust,bath keeper,resident,art/avatars/c_r503--kiki-underhill.png
+504,c_r504,Flick Brimley,she/her,lich,Greed,librarian,resident,art/avatars/c_r504--flick-brimley.png
+505,c_r505,Odette Ashgrave,he/him,incubus,Limbo,between torments,resident,art/avatars/c_r505--odette-ashgrave.png
+506,c_r506,Cinder,they/them,fallen angel,Heresy,potion apprentice,resident,art/avatars/c_r506--cinder.png
+507,c_r507,Tallow Nettles,he/him,lich,Lust,judgement clerk,resident,art/avatars/c_r507--tallow-nettles.png
+508,c_r508,Isolde Cinders,he/him,imp,Wrath,judgement clerk,resident,art/avatars/c_r508--isolde-cinders.png
+509,c_r509,Gideon,she/her,imp,Greed,tavern keeper,resident,art/avatars/c_r509--gideon.png
+510,c_r510,Silas Hallowell,he/him,wraith,Violence,market vendor,resident,art/avatars/c_r510--silas-hallowell.png
+511,c_r511,Belial Rotwood,they/them,demon,Wrath,arena fighter,resident,art/avatars/c_r511--belial-rotwood.png
+512,c_r512,Quill Hollowbone,she/her,demon,Heresy,judgement clerk,resident,art/avatars/c_r512--quill-hollowbone.png
+513,c_r513,Lucinda Inkwell,they/them,gargoyle,Limbo,librarian,resident,art/avatars/c_r513--lucinda-inkwell.png
+514,c_r514,Hester Pyre,he/him,lich,Greed,market vendor,resident,art/avatars/c_r514--hester-pyre.png
+515,c_r515,Leraje Dreadmore,he/him,cultist,Violence,lava lifeguard,resident,art/avatars/c_r515--leraje-dreadmore.png
+516,c_r516,Dante Hallowell,they/them,damned soul,Lust,arena fighter,resident,art/avatars/c_r516--dante-hallowell.png
+517,c_r517,Dorcas Rattlebone,they/them,damned soul,Fraud,tavern keeper,resident,art/avatars/c_r517--dorcas-rattlebone.png
+518,c_r518,Percival,he/him,ghoul,Violence,soul sorter,resident,art/avatars/c_r518--percival.png
+519,c_r519,Yorick Hallowell,they/them,imp,Lust,judgement clerk,resident,art/avatars/c_r519--yorick-hallowell.png
+520,c_r520,Gertrude Crowe,he/him,damned soul,Lust,marsh ranger,resident,art/avatars/c_r520--gertrude-crowe.png
+521,c_r521,Elspeth Cinders,he/him,witch,Gluttony,between torments,resident,art/avatars/c_r521--elspeth-cinders.png
+522,c_r522,Fenrir Rotwood,she/her,demon,Heresy,arcade technician,resident,art/avatars/c_r522--fenrir-rotwood.png
+523,c_r523,Sable Blight,she/her,incubus,Treachery,tavern keeper,resident,art/avatars/c_r523--sable-blight.png
+524,c_r524,Crumb Scorch,he/him,witch,Heresy,night-market cook,resident,art/avatars/c_r524--crumb-scorch.png
+525,c_r525,Thaddeus of the Third Pit,he/him,demon,Lust,paralegal,resident,art/avatars/c_r525--thaddeus-of-the-third-pit.png
+526,c_r526,Zillah the Mildly Cursed,she/her,gargoyle,Treachery,throne guard,resident,art/avatars/c_r526--zillah-the-mildly-cursed.png
+527,c_r527,Nox Smolder,she/her,imp,Heresy,gravedigger,resident,art/avatars/c_r527--nox-smolder.png
+528,c_r528,Wendell Fallow,they/them,damned soul,Lust,judgement clerk,resident,art/avatars/c_r528--wendell-fallow.png
+529,c_r529,Asmodeus Blackthorn,she/her,skeleton,Fraud,gym trainer,resident,art/avatars/c_r529--asmodeus-blackthorn.png
+530,c_r530,Elspeth,he/him,damned soul,Wrath,marsh ranger,resident,art/avatars/c_r530--elspeth.png
+531,c_r531,Asmodeus Withers,she/her,skeleton,Violence,marsh ranger,resident,art/avatars/c_r531--asmodeus-withers.png
+532,c_r532,Kiki Pockmark,he/him,damned soul,Lust,between torments,resident,art/avatars/c_r532--kiki-pockmark.png
+533,c_r533,Edgar Vane,he/him,demon,Treachery,ice warden,resident,art/avatars/c_r533--edgar-vane.png
+534,c_r534,Grub Quench,he/him,revenant,Treachery,throne guard,resident,art/avatars/c_r534--grub-quench.png
+535,c_r535,Gertrude Charwell,she/her,imp,Greed,delivery imp,resident,art/avatars/c_r535--gertrude-charwell.png
+536,c_r536,Remiel Grimsby,he/him,witch,Limbo,kennel keeper,resident,art/avatars/c_r536--remiel-grimsby.png
+537,c_r537,Damien Quietus,he/him,hellhound-kin,Fraud,pizza cook,resident,art/avatars/c_r537--damien-quietus.png
+538,c_r538,Nox of the Long Queue,he/him,damned soul,Wrath,barista,resident,art/avatars/c_r538--nox-of-the-long-queue.png
+539,c_r539,Remiel Rotwood,she/her,revenant,Fraud,throne guard,resident,art/avatars/c_r539--remiel-rotwood.png
+540,c_r540,Azazel Cindervale,he/him,damned soul,Lust,judgement clerk,resident,art/avatars/c_r540--azazel-cindervale.png
+541,c_r541,Dagon Kettleburn,she/her,revenant,Limbo,ferry deckhand,resident,art/avatars/c_r541--dagon-kettleburn.png
+542,c_r542,Rook the Twice-Damned,she/her,damned soul,Gluttony,kennel keeper,resident,art/avatars/c_r542--rook-the-twice-damned.png
+543,c_r543,Clementine Vane,he/him,hellhound-kin,Heresy,gravedigger,resident,art/avatars/c_r543--clementine-vane.png
+544,c_r544,Rufus Sulfurton,he/him,demon,Gluttony,gravedigger,resident,art/avatars/c_r544--rufus-sulfurton.png
+545,c_r545,Lazarus Charwell,he/him,incubus,Heresy,between torments,resident,art/avatars/c_r545--lazarus-charwell.png
+546,c_r546,Nero of the Long Queue,they/them,incubus,Lust,throne guard,resident,art/avatars/c_r546--nero-of-the-long-queue.png
+547,c_r547,Pip Umber,he/him,witch,Gluttony,ferry deckhand,resident,art/avatars/c_r547--pip-umber.png
+548,c_r548,Carmilla Lament,he/him,ghoul,Lust,judgement clerk,resident,art/avatars/c_r548--carmilla-lament.png
+549,c_r549,Ignatius Fallow,she/her,gargoyle,Fraud,Hellnet engineer,resident,art/avatars/c_r549--ignatius-fallow.png
+550,c_r550,Dorcas Grimsby,they/them,succubus,Gluttony,gravedigger,resident,art/avatars/c_r550--dorcas-grimsby.png
+551,c_r551,Lotte Hemlock,she/her,hellhound-kin,Fraud,between torments,resident,art/avatars/c_r551--lotte-hemlock.png
+552,c_r552,Florian,he/him,witch,Greed,marsh ranger,resident,art/avatars/c_r552--florian.png
+553,c_r553,Wisp Inkwell,she/her,skeleton,Gluttony,gravedigger,resident,art/avatars/c_r553--wisp-inkwell.png
+554,c_r554,Rowena Darkmoor,they/them,hellhound-kin,Violence,brimstone miner,resident,art/avatars/c_r554--rowena-darkmoor.png
+555,c_r555,Ophelia,he/him,hellhound-kin,Heresy,gravedigger,resident,art/avatars/c_r555--ophelia.png
+556,c_r556,Winifred Mothwing,he/him,gargoyle,Treachery,tavern keeper,resident,art/avatars/c_r556--winifred-mothwing.png
+557,c_r557,Mabel Underhill,he/him,damned soul,Wrath,choir singer,resident,art/avatars/c_r557--mabel-underhill.png
+558,c_r558,Juniper Darkmoor,he/him,demon,Greed,paralegal,resident,art/avatars/c_r558--juniper-darkmoor.png
+559,c_r559,Malphas Vigil,they/them,imp,Lust,between torments,resident,art/avatars/c_r559--malphas-vigil.png
+560,c_r560,Wisp Sulfurton,she/her,demon,Heresy,iron smith,resident,art/avatars/c_r560--wisp-sulfurton.png
+561,c_r561,Zillah Pyre,he/him,revenant,Gluttony,stockbroker,resident,art/avatars/c_r561--zillah-pyre.png
+562,c_r562,Fergus,they/them,wraith,Limbo,bartender,resident,art/avatars/c_r562--fergus.png
+563,c_r563,Otto Embers,she/her,ghoul,Fraud,mall clerk,resident,art/avatars/c_r563--otto-embers.png
+564,c_r564,Pip Nightshade,he/him,gargoyle,Treachery,barista,resident,art/avatars/c_r564--pip-nightshade.png
+565,c_r565,Dorcas Tombsworth,they/them,skeleton,Limbo,ferry deckhand,resident,art/avatars/c_r565--dorcas-tombsworth.png
+566,c_r566,Dante Nightshade,he/him,demon,Violence,projectionist,resident,art/avatars/c_r566--dante-nightshade.png
+567,c_r567,Cassius Blight,he/him,hellhound-kin,Treachery,paralegal,resident,art/avatars/c_r567--cassius-blight.png
+568,c_r568,Magnolia Kettleburn,she/her,imp,Fraud,paralegal,resident,art/avatars/c_r568--magnolia-kettleburn.png
+569,c_r569,Pandora Rattlebone,she/her,succubus,Fraud,librarian,resident,art/avatars/c_r569--pandora-rattlebone.png
+570,c_r570,Grub,she/her,damned soul,Violence,barista,resident,art/avatars/c_r570--grub.png
+571,c_r571,Zagan Wick,he/him,damned soul,Heresy,paralegal,resident,art/avatars/c_r571--zagan-wick.png
+572,c_r572,Paimon Tarrow,he/him,demon,Lust,judgement clerk,resident,art/avatars/c_r572--paimon-tarrow.png
+573,c_r573,Fergus Charwell,he/him,damned soul,Limbo,between torments,resident,art/avatars/c_r573--fergus-charwell.png
+574,c_r574,Rowena Scorch,she/her,damned soul,Limbo,bartender,resident,art/avatars/c_r574--rowena-scorch.png
+575,c_r575,Stolas the Unwashed,she/her,demon,Greed,market vendor,resident,art/avatars/c_r575--stolas-the-unwashed.png
+576,c_r576,Kasimir Crowe,she/her,incubus,Gluttony,kennel keeper,resident,art/avatars/c_r576--kasimir-crowe.png
+577,c_r577,Nib Thistlebone,she/her,damned soul,Violence,ferry deckhand,resident,art/avatars/c_r577--nib-thistlebone.png
+578,c_r578,Flick the Late,they/them,banshee,Greed,pizza cook,resident,art/avatars/c_r578--flick-the-late.png
+579,c_r579,Vapula Ravenscar,he/him,ghoul,Greed,barista,resident,art/avatars/c_r579--vapula-ravenscar.png
+580,c_r580,Alastor Thistlebone,they/them,witch,Lust,judgement clerk,resident,art/avatars/c_r580--alastor-thistlebone.png
+581,c_r581,Tallow Lockjaw,she/her,imp,Limbo,bartender,resident,art/avatars/c_r581--tallow-lockjaw.png
+582,c_r582,Pip of the Long Queue,he/him,ghoul,Treachery,kennel keeper,resident,art/avatars/c_r582--pip-of-the-long-queue.png
+583,c_r583,Beleth Pyre,he/him,fallen angel,Fraud,potion apprentice,resident,art/avatars/c_r583--beleth-pyre.png
+584,c_r584,Sable Hemlock,she/her,damned soul,Greed,marsh ranger,resident,art/avatars/c_r584--sable-hemlock.png
+585,c_r585,Obadiah Bonebright,he/him,wraith,Violence,brimstone miner,resident,art/avatars/c_r585--obadiah-bonebright.png
+586,c_r586,Otto Duskwell,he/him,succubus,Gluttony,kennel keeper,resident,art/avatars/c_r586--otto-duskwell.png
+587,c_r587,Odette Wraithe,she/her,skeleton,Gluttony,kennel keeper,resident,art/avatars/c_r587--odette-wraithe.png
+588,c_r588,Tallow Inkwell,he/him,lich,Violence,brimstone miner,resident,art/avatars/c_r588--tallow-inkwell.png
+589,c_r589,Belial Nightshade,she/her,succubus,Treachery,iron smith,resident,art/avatars/c_r589--belial-nightshade.png
+590,c_r590,Wendell Flintlock,they/them,banshee,Wrath,marsh ranger,resident,art/avatars/c_r590--wendell-flintlock.png
+591,c_r591,Sprocket Sootworth,they/them,hellhound-kin,Limbo,bartender,resident,art/avatars/c_r591--sprocket-sootworth.png
+592,c_r592,Zagan Vexmoor,she/her,skeleton,Limbo,throne guard,resident,art/avatars/c_r592--zagan-vexmoor.png
+593,c_r593,Gideon Vane,he/him,ghoul,Limbo,throne guard,resident,art/avatars/c_r593--gideon-vane.png
+594,c_r594,Tobias Blight,she/her,damned soul,Gluttony,barista,resident,art/avatars/c_r594--tobias-blight.png
+595,c_r595,Flick Quietus,she/her,hellhound-kin,Fraud,potion apprentice,resident,art/avatars/c_r595--flick-quietus.png
+596,c_r596,Ash Tarrow,she/her,demon,Fraud,mall clerk,resident,art/avatars/c_r596--ash-tarrow.png
+597,c_r597,Bertram Gloam,she/her,witch,Limbo,forum moderator,resident,art/avatars/c_r597--bertram-gloam.png
+598,c_r598,Mortimer Toll,he/him,demon,Treachery,between torments,resident,art/avatars/c_r598--mortimer-toll.png
+599,c_r599,Isolde Oddbody,he/him,damned soul,Greed,forum moderator,resident,art/avatars/c_r599--isolde-oddbody.png
+600,c_r600,Grub Nettles,they/them,damned soul,Treachery,mall clerk,resident,art/avatars/c_r600--grub-nettles.png
+601,c_r601,Percival Smolder,she/her,demon,Treachery,tavern keeper,resident,art/avatars/c_r601--percival-smolder.png
+602,c_r602,Nero Whitlock,they/them,revenant,Treachery,Hellnet engineer,resident,art/avatars/c_r602--nero-whitlock.png
+603,c_r603,Ursula Knell,she/her,banshee,Heresy,gravedigger,resident,art/avatars/c_r603--ursula-knell.png
+604,c_r604,Ipos the Late,she/her,damned soul,Lust,potion apprentice,resident,art/avatars/c_r604--ipos-the-late.png
+605,c_r605,Percival Gravelock,he/him,cultist,Heresy,throne guard,resident,art/avatars/c_r605--percival-gravelock.png
+606,c_r606,Bones Sulfurton,he/him,hellhound-kin,Gluttony,market vendor,resident,art/avatars/c_r606--bones-sulfurton.png
+607,c_r607,Belial Wraithe,she/her,imp,Wrath,marsh ranger,resident,art/avatars/c_r607--belial-wraithe.png
+608,c_r608,Damien Hallowell,he/him,witch,Greed,arena fighter,resident,art/avatars/c_r608--damien-hallowell.png
+609,c_r609,Nyx Knell,they/them,fallen angel,Violence,bath keeper,resident,art/avatars/c_r609--nyx-knell.png
+610,c_r610,Verity Blight,they/them,harpy,Greed,potion apprentice,resident,art/avatars/c_r610--verity-blight.png
+611,c_r611,Soot Ironwood,they/them,harpy,Fraud,potion apprentice,resident,art/avatars/c_r611--soot-ironwood.png
+612,c_r612,Petra Pockmark,he/him,imp,Lust,Hellnet engineer,resident,art/avatars/c_r612--petra-pockmark.png
+613,c_r613,Jude Rattlebone,he/him,demon,Heresy,night-market cook,resident,art/avatars/c_r613--jude-rattlebone.png
+614,c_r614,Remiel Darkmoor,he/him,damned soul,Limbo,between torments,resident,art/avatars/c_r614--remiel-darkmoor.png
+615,c_r615,Dorcas Gloam,they/them,witch,Limbo,projectionist,resident,art/avatars/c_r615--dorcas-gloam.png
+616,c_r616,Wren Cindervale,she/her,demon,Fraud,lava lifeguard,resident,art/avatars/c_r616--wren-cindervale.png
+617,c_r617,Tabitha Hexley,they/them,witch,Treachery,throne guard,resident,art/avatars/c_r617--tabitha-hexley.png
+618,c_r618,Yara Gloam,he/him,hellhound-kin,Treachery,paralegal,resident,art/avatars/c_r618--yara-gloam.png
+619,c_r619,Vesper Thistlebone,she/her,succubus,Lust,Hellnet engineer,resident,art/avatars/c_r619--vesper-thistlebone.png
+620,c_r620,Prudence Toll,he/him,damned soul,Lust,gravedigger,resident,art/avatars/c_r620--prudence-toll.png
+621,c_r621,Klaus Sootworth,she/her,succubus,Gluttony,pizza cook,resident,art/avatars/c_r621--klaus-sootworth.png
+622,c_r622,Nero Quench,she/her,demon,Wrath,Hellnet engineer,resident,art/avatars/c_r622--nero-quench.png
+623,c_r623,Nero Wormwood,he/him,hellhound-kin,Lust,between torments,resident,art/avatars/c_r623--nero-wormwood.png
+624,c_r624,Clementine Gloam,he/him,damned soul,Heresy,ice warden,resident,art/avatars/c_r624--clementine-gloam.png
+625,c_r625,Rowena Blackthorn,she/her,demon,Wrath,barista,resident,art/avatars/c_r625--rowena-blackthorn.png
+626,c_r626,Sybil Bonebright,he/him,demon,Violence,between torments,resident,art/avatars/c_r626--sybil-bonebright.png
+627,c_r627,Furfur Pyre,he/him,imp,Greed,gym trainer,resident,art/avatars/c_r627--furfur-pyre.png
+628,c_r628,Moth Fangsley,he/him,incubus,Treachery,iron smith,resident,art/avatars/c_r628--moth-fangsley.png
+629,c_r629,Klaus Sulfurton,he/him,hellhound-kin,Lust,bath keeper,resident,art/avatars/c_r629--klaus-sulfurton.png
+630,c_r630,Sable Fallow,she/her,damned soul,Greed,forum moderator,resident,art/avatars/c_r630--sable-fallow.png
+631,c_r631,Wilhelmina Underhill,they/them,demon,Lust,between torments,resident,art/avatars/c_r631--wilhelmina-underhill.png
+632,c_r632,Malphas Hollowbone,she/her,hellhound-kin,Wrath,kennel keeper,resident,art/avatars/c_r632--malphas-hollowbone.png
+633,c_r633,Mildew Knell,he/him,skeleton,Treachery,ice warden,resident,art/avatars/c_r633--mildew-knell.png
+634,c_r634,Lotte Wick,they/them,lich,Limbo,bartender,resident,art/avatars/c_r634--lotte-wick.png
+635,c_r635,Ingrid Blackthorn,he/him,damned soul,Heresy,arena fighter,resident,art/avatars/c_r635--ingrid-blackthorn.png
+636,c_r636,Gristle,he/him,ghoul,Violence,soul sorter,resident,art/avatars/c_r636--gristle.png
+637,c_r637,Orrin Mothwing,she/her,cultist,Violence,spa attendant,resident,art/avatars/c_r637--orrin-mothwing.png
+638,c_r638,Pandora Ironwood,she/her,hellhound-kin,Lust,between torments,resident,art/avatars/c_r638--pandora-ironwood.png
+639,c_r639,Nox Quench,she/her,damned soul,Limbo,kennel keeper,resident,art/avatars/c_r639--nox-quench.png
+640,c_r640,Verity Cinders,he/him,damned soul,Limbo,ferry deckhand,resident,art/avatars/c_r640--verity-cinders.png
+641,c_r641,Paimon Cobweb,he/him,revenant,Treachery,tavern keeper,resident,art/avatars/c_r641--paimon-cobweb.png
+642,c_r642,Ignatius Mothwing,he/him,imp,Violence,tavern keeper,resident,art/avatars/c_r642--ignatius-mothwing.png
+643,c_r643,Yara Toll,he/him,witch,Fraud,lava lifeguard,resident,art/avatars/c_r643--yara-toll.png
+644,c_r644,Salem of the Third Pit,he/him,ghoul,Fraud,Hellnet engineer,resident,art/avatars/c_r644--salem-of-the-third-pit.png
+645,c_r645,Wilhelmina,they/them,banshee,Treachery,throne guard,resident,art/avatars/c_r645--wilhelmina.png
+646,c_r646,Salem the Slightly Singed,she/her,harpy,Lust,between torments,resident,art/avatars/c_r646--salem-the-slightly-singed.png
+647,c_r647,Mabel the Late,he/him,banshee,Gluttony,bath keeper,resident,art/avatars/c_r647--mabel-the-late.png
+648,c_r648,Yara Wick,she/her,ghoul,Greed,gym trainer,resident,art/avatars/c_r648--yara-wick.png
+649,c_r649,Yara Cobweb,he/him,cultist,Lust,pizza cook,resident,art/avatars/c_r649--yara-cobweb.png
+650,c_r650,Lazarus Gallows,she/her,wraith,Violence,brimstone miner,resident,art/avatars/c_r650--lazarus-gallows.png
+651,c_r651,Orrin,they/them,fallen angel,Heresy,gravedigger,resident,art/avatars/c_r651--orrin.png
+652,c_r652,Wendell Gallows,she/her,harpy,Wrath,arena fighter,resident,art/avatars/c_r652--wendell-gallows.png
+653,c_r653,Hazel the Overdue,she/her,succubus,Violence,librarian,resident,art/avatars/c_r653--hazel-the-overdue.png
+654,c_r654,Beleth Toll,she/her,imp,Lust,judgement clerk,resident,art/avatars/c_r654--beleth-toll.png
+655,c_r655,Morrigan Inkwell,she/her,witch,Heresy,night-market cook,resident,art/avatars/c_r655--morrigan-inkwell.png
+656,c_r656,Corvin Flintlock,he/him,skeleton,Lust,spa attendant,resident,art/avatars/c_r656--corvin-flintlock.png
+657,c_r657,Naberius of the Long Queue,she/her,wraith,Lust,judgement clerk,resident,art/avatars/c_r657--naberius-of-the-long-queue.png
+658,c_r658,Zeke Rotwood,they/them,succubus,Treachery,throne guard,resident,art/avatars/c_r658--zeke-rotwood.png
+659,c_r659,Ash the Overdue,he/him,hellhound-kin,Wrath,forum moderator,resident,art/avatars/c_r659--ash-the-overdue.png
+660,c_r660,Tabitha Cindervale,they/them,demon,Gluttony,kennel keeper,resident,art/avatars/c_r660--tabitha-cindervale.png
+661,c_r661,Mabel Lockjaw,he/him,witch,Violence,brimstone miner,resident,art/avatars/c_r661--mabel-lockjaw.png
+662,c_r662,Furfur Wick,they/them,demon,Wrath,paralegal,resident,art/avatars/c_r662--furfur-wick.png
+663,c_r663,Yorick Blight,she/her,lich,Gluttony,pizza cook,resident,art/avatars/c_r663--yorick-blight.png
+664,c_r664,Jasper Fangsley,she/her,succubus,Limbo,bartender,resident,art/avatars/c_r664--jasper-fangsley.png
+665,c_r665,Vesper Ravenscar,they/them,revenant,Greed,gravedigger,resident,art/avatars/c_r665--vesper-ravenscar.png
+666,c_r666,Vaelith the Unbowed,he/him,fallen angel,Treachery,"King of Pride, Bearer of the Ember Crown",sin king,art/avatars/c_r666--vaelith-the-unbowed.png
+667,c_r667,Auraxa Goldmaw,she/her,demon,Greed,"Queen of Greed, Treasurer of Souls",sin king,art/avatars/c_r667--auraxa-goldmaw.png
+668,c_r668,Sylvaine the Velvet,she/her,succubus,Lust,"Queen of Lust, Mistress of Revels",sin king,art/avatars/c_r668--sylvaine-the-velvet.png
+669,c_r669,Nethrys Greeneye,he/him,wraith,Fraud,"King of Envy, Keeper of Eyes",sin king,art/avatars/c_r669--nethrys-greeneye.png
+670,c_r670,Gorvath the Ever-Hungry,he/him,demon,Gluttony,"King of Gluttony, Lord of Feasts",sin king,art/avatars/c_r670--gorvath-the-ever-hungry.png
+671,c_r671,Karnasha the Red,she/her,demon,Wrath,"Queen of Wrath, Warlord of the Throne Guard",sin king,art/avatars/c_r671--karnasha-the-red.png
+672,c_r672,Somnor the Unhurried,they/them,lich,Limbo,"King of Sloth, Keeper of Forms",sin king,art/avatars/c_r672--somnor-the-unhurried.png
+,c_hotline,Hell Hotline,,service,,,service,art/avatars/c_hotline--hell-hotline.png
+,player_default,Default Player,,player,,,player,art/avatars/player_default--default-player.png

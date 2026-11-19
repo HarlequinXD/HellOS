@@ -1,6 +1,6 @@
 /* HellOS procedural pixel art.
  *
- * Every picture in HellOS is generated here at start-up: no image files ship.
+ * Generates interface art and fallbacks for bundled portraits and app icons.
  * Style: HD pixel art (about double PS1 resolution), forged iron, bone and
  * molten orange on dark plum, in the spirit of Deadbird's UI. Each image is
  * reduced to one fixed 256-colour palette (16 ramps x 16 shades) with 4x4
@@ -830,11 +830,12 @@
         return scene(240, tall ? 520 : 140, b[0], { glyph: b[1], horizon: tall ? 0.72 : 0.8, seed: U.hash(key) % 40 + 31 });
       }
       case 'store': {
-        const m = key.match(/^(.*)_(banner|shot\d)$/);
+        const m = key.match(/^(.*)_(bannerbg|banner|shot\d)$/);
         const app = m ? m[1] : key;
-        if (m && m[2] === 'banner') {
+        if (m && (m[2] === 'banner' || m[2] === 'bannerbg')) {
           const px = scene(240, 135, GAME_SCENE[app] || 'lava', { horizon: 0.8, seed: U.hash(app) % 40 + 41 });
-          px.blit(medallion(app, iconFor(app), 40), 150, 24, 2);
+          // bannerbg: the scene alone, for the bundled icon to sit on (art/icons)
+          if (m[2] === 'banner') px.blit(medallion(app, iconFor(app), 40), 150, 24, 2);
           return px;
         }
         const n = m ? +m[2].slice(4) : 1;

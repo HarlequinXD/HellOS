@@ -29,14 +29,18 @@
     size = size || 40;
     const el = h('div.lic', { style: { width: size + 'px', height: size + 'px', borderRadius: size / 2 + 'px', fontSize: Math.round(size * 0.4) + 'px', background: color || null } });
     const art = contactId ? Art.get('avatars', contactId) : null;
-    if (art) el.appendChild(h('img', { src: art, alt: '', onerror() { this.remove(); el.textContent = U.initials(name); } }));
+    if (art) {
+      // the bundled portraits are round with see-through corners, so they sit on nothing
+      if (!/^data:/.test(art)) el.classList.add('lic-art');
+      el.appendChild(h('img', { src: art, alt: '', onerror() { this.remove(); el.classList.remove('lic-art'); el.textContent = U.initials(name); } }));
+    }
     else el.textContent = U.initials(name);
     return el;
   };
   UI.playerAvatar = function (size) {
     const art = Art.get('avatars', 'player_default');
     const el = h('div.lic', { style: { width: size + 'px', height: size + 'px', borderRadius: size / 2 + 'px', background: 'var(--accent)', color: 'var(--on-accent)', fontSize: Math.round(size * 0.38) + 'px' } });
-    if (art) { el.style.background = '#14060A'; el.appendChild(h('img', { src: art, alt: '' })); }
+    if (art) { el.style.background = /^data:/.test(art) ? '#14060A' : 'transparent'; if (!/^data:/.test(art)) el.classList.add('lic-art'); el.appendChild(h('img', { src: art, alt: '' })); }
     else el.textContent = U.initials(Store.settings().name);
     return el;
   };

@@ -1,5 +1,14 @@
 # HellOS changelog
 
+## 6.17.0 — hand-drawn pixel art pack
+- **New portraits for everyone:** all 666 residents, the seven Sin Kings, Lucien, Vex, Charon, Mortis, Morgana, Beelzebub, the Hell Hotline and your default player picture now have 64×64 pixel-art portraits (in `art/avatars`). They appear in Pacts, Calls, Census, Souls, Grimoire, Brimstone and everywhere else a face is shown.
+- **New app icons:** all 19 system apps and 9 HellPlay games have new 64×64 icons (in `art/icons`), on the home screen, in the app drawer, in HellPlay and in recents.
+- HellPlay banners show the new icons on the game's scene.
+- Round portraits now sit cleanly on lists and the call screen, without a square behind them, and stay crisp when scaled.
+- Anything without a bundled image (strangers, wallpapers, game art, the interface) still uses the generated pixel art.
+- Kings in the Census live feed now do kingly things at the Conclave and at court, instead of counting the till.
+- `ART_GUIDE.md`, `Pixel-Art-Gallery.html` (a browsable roster of every portrait and icon) and `tools/export_pixel_pack.py` (regenerates the pack) are included.
+
 ## 6.16.0 — the Sin Kings, the lore of Hell and the Pit
 - **The seven Sin Kings** now live in Hell as full residents (666 residents + 7 kings): Vaelith the Unbowed (Pride, Bearer of the Ember Crown), Auraxa Goldmaw (Greed, the Treasury), Sylvaine the Velvet (Lust, the Office of Revels), Nethrys Greeneye (Envy, the Ministry of Eyes), Gorvath the Ever-Hungry (Gluttony, the Royal Kitchens), Karnasha the Red (Wrath, the Throne Guard) and Somnor the Unhurried (Sloth, the Office of Forms). Each has their own palace, portrait, way of talking (Vaelith says "We"), lore, friends, rivalries and daily routine.
 - **The Septarchy:** the kings rule Hell together under the Pact of Ash. The Conclave of Seven sits every Hexday at 1pm behind the Empty Throne, and each king holds their own weekly court event (the Doomday Audience, the Scorchday Masquerade, the Gloomday Feast, the Doomday bouts…). Every day a king issues a decree. Residents have opinions on each king and each decree, based on their circle, personality and who they know.
