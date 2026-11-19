@@ -70,7 +70,22 @@
     if (!out || NV_RECENT.includes(out)) return fallback;
     NV_RECENT.push(out); if (NV_RECENT.length > 40) NV_RECENT.shift();
     if (c.st) c.st.nv = (c.st.nv || 0) + 1;
-    return out.replace(/,\s*([.!?])/g, '$1').replace(/^\W+(?=\w)/, '');
+    return out.replace(/,\s*([.!?])/g, '$1').replace(/^[,.!?;:\s]+(?=\S)/, '');
+  }
+  // a voice's opener ("Behold,", "ok so", "HEY") in front of a line: names and "I" keep
+  // their capitals, a new sentence keeps its capital, and two openers don't run together
+  let NAMESET = null;
+  function properName(w) {
+    if (!NAMESET) { NAMESET = new Set('hell heaven limbo dis pit up lucien charon cerberus minos styx satan lucifer'.split(' ')); try { R.all.forEach(q => NAMESET.add(q.first.toLowerCase())); Object.values(R.PLACES).forEach(pl => NAMESET.add(String(pl.n).split(' ')[0].toLowerCase().replace(/^the$/, '_'))); } catch (e) { /* not ready yet */ } }
+    return /^I(?:['’](?:m|ll|ve|d))?$/.test(w) || NAMESET.has(w.toLowerCase().replace(/['’]s$/, ''));
+  }
+  const INTERJ = /^(ugh|oh|hey|aw+|hmm+|wow|ha+|honestly|well|okay|ok|yeah|um+|erm|so|mm+|ooh|oof|eh|hi+|hello|yo|bye|wait|look|listen|fine|ahh?|ooh)\b/i;
+  function withPre(pre, s) {
+    const first = (s.match(/^[\w'’]+/) || [''])[0];
+    if (first && first.toLowerCase() === pre.toLowerCase().replace(/\W+$/, '')) return s;
+    if (/[.!?…*~]$/.test(pre)) return pre + ' ' + s;
+    if (/\w$/.test(pre) && INTERJ.test(s)) pre += ',';
+    return pre + ' ' + (properName(first) || /^[A-Z]{2,}/.test(first) && /[A-Z]{3,}/.test(pre + s.slice(0, 12)) ? s : s.charAt(0).toLowerCase() + s.slice(1));
   }
   function XB(key, tpl) { const TB = window.TalkBank; const more = TB && key.split('.').reduce((o, k) => o && o[k], TB.X); return more ? [tpl, tpl].concat(more) : tpl; }
 
@@ -254,8 +269,8 @@
     if (v.terse && s.length > 70 && !/\d(?::\d\d)?(am|pm)|\?$/.test(s)) { const parts = s.split(/(?<=[.!?])\s+/); if (parts.length > 2) s = parts.slice(0, 2).join(' '); }
     const cold = tierId === 'hate' || tierId === 'dislike' || /sorry|awful|rough|are you okay|sucks|here if you need|i'm here|so sorry|holding up|doing okay/i.test(text);
     if (!opts.plain) {
-      if (p.voice.tic && chance(cold ? 0.15 : 0.3)) s = pick(v.pre) + ' ' + s.charAt(0).toLowerCase() + s.slice(1);
-      if (p.voice.tic && chance(v.chatty ? 0.35 : 0.18)) s = s.replace(/[.!]?$/, '') + ', ' + pick(v.post).replace(/^[A-Z](?![A-Z])/, c => c.toLowerCase()).replace(/[.!]$/, '') + '.';
+      if (p.voice.tic && chance(cold ? 0.15 : 0.3)) s = withPre(pick(v.pre), s);
+      if (p.voice.tic && !/\?\s*\S{0,3}$/.test(s) && chance(v.chatty ? 0.35 : 0.18)) s = s.replace(/[.!]?$/, '') + ', ' + pick(v.post).replace(/^[A-Z](?![A-Z])/, c => c.toLowerCase()).replace(/[.!]$/, '') + '.';
       if (chance(0.05)) s = s.replace(/[.!]?$/, '') + '. ' + p.voice.catch.charAt(0).toUpperCase() + p.voice.catch.slice(1) + '.';
       if (chance(cold ? 0.25 : tierId === 'neutral' || tierId === 'wary' ? 0.08 : 0.3)) s = s.replace(/([.!?…~]*)$/, (m) => ', ' + petName(p, tierId) + (m || '.'));
       if (!cold && p.traits.humor > 0.7 && chance(0.12)) s += ' ' + pick(v.laugh);
@@ -464,7 +479,7 @@
     switch (pd.k) {
       case 'name': {
         const n = capWords(v.split(' ').filter(x => !/^(a|an|the|just|yes|it|is|okay)$/.test(x)).slice(0, 2).join(' '));
-        if (!n) return E(IDK, { pet: c.pet });
+        if (!n || / (you|your|are|so|really|very|not|what|why|how|this|that|amazing|cool|great|nice|lol|haha) /.test(' ' + n.toLowerCase() + ' ')) return E('{Ha. Okay, but what\'s your actual name?|That\'s not a name. Is it?|Mm-hm. And your name is…?}', { pet: c.pet });
         remember(c.st, 'name', n); bump(c.st, ack.warm); gossip(c, 'name', n);
         return E('{[n]!|[n], huh.|Nice to meet you, [n].|[n]. Got it.|Ooh, [n]. Cool name.|[n]? Love that.}{| I\'ll remember that.| Won\'t forget it.}', { n });
       }
@@ -870,7 +885,11 @@
     const n = c.pname ? ', ' + c.pname : '';
     const lines = { hate: '{Finally.|Good.|Bye. Don\'t come back.|Good riddance.}', dislike: '{Bye.|Later.|Yeah, bye.|Okay. Bye.}', wary: '{See you.|Bye.|Later.|Take care.}', neutral: '{See ya[n]|Bye[n]|Later[n]|Take care[n]|Catch you later[n]|Stay toasty[n]}{!|.| 👋|}', like: '{Bye[n]! Text me later.|See you soon[n]!|Later! Don\'t burn too much.}', close: '{Bye[n]! Miss you already.|Talk soon[n]!|Byeee! Stay toasty.}', devoted: '{Nooo don\'t go. Okay bye[n]!|Bye bestie[n]! Text me.|See you soon. I mean it.}' };
     const bk = c.tr === 'hate' || c.tr === 'dislike' ? 'bye.cold' : c.tr === 'close' || c.tr === 'devoted' ? 'bye.close' : c.tr === 'like' ? 'bye.like' : 'bye.neutral';
-    return NV(c, bk.replace('.', '_'), E(XB(bk, lines[c.tr]), { n }));
+    // no "night night" or "sweet nightmares" in the middle of the afternoon
+    const hr = Math.floor((HellTime.min() % 1440) / 60), late = hr >= 20 || hr < 5;
+    let out;
+    for (let i = 0; i < 4; i++) { out = NV(c, bk.replace('.', '_'), E(XB(bk, lines[c.tr]), { n })); if (late || !/night|nightmare|sleep|dream|tomorrow/i.test(out)) return out; }
+    return late ? out : E(lines[c.tr], { n });
   };
   H.greet = c => {
     const now = Date.now();
@@ -2259,7 +2278,29 @@
   ];
 
   // talking points that must win over older, broader patterns (put first)
+  // well-wishes: "I hope you have a good day", "have a nice night", "take care"…
+  const NOTQ = '(?<!did you |do you |will you |would you |can you |could you |are you |did u |do u )';
+  const WISH_RE = new RegExp(' (?:i )?hope (?:you|your) (?!know |remember |like me |hate )| ' + NOTQ + '(?:have|enjoy) (?:a |an |the |your |ur )?(?:\\w+ )?(?:\\w+ )?(?:day|night|evening|morning|afternoon|shift|week|weekend|time|one|sleep|rest|party|trip|date|dinner|lunch|breakfast|meal|festival|nap|holiday|break) | ' + NOTQ + 'have fun | take care(?: of yourself)? | stay safe | get well soon | feel better soon | be safe | don t work too hard | do not work too hard ');
+  H.wish = (c, d, t) => {
+    if (coldTier(c)) return E('{Whatever.|Sure.|...Thanks?|Yeah. You too, I guess.}');
+    bump(c.st, 1);
+    if (/ (feel better|get well) /.test(t)) return E('{Aw, thanks. I\'m trying.|Thank you. That\'s sweet.|Thanks! I\'ll live. Well. You know.}');
+    if (/ take care | stay safe | be safe /.test(t)) return E('{You too!|Always do.|You too. Don\'t get eaten.|I will. You too!}');
+    if (/ work /.test(t)) return E('{Ha. Fun. At work. I\'ll try.|Thanks. I\'ll need it.|I\'ll have fun when I clock off.|Thanks! You too, whatever you\'re doing.}');
+    const night = / (night|sleep|evening|nap|rest) /.test(t) || HellTime.min() % 1440 >= 21 * 60;
+    let s = night ? E('{You too!|Thanks, you too!|Night! You too.|Aw, you too. Sweet nightmares.}') : E(XB('wish', '{Aw, thanks! You too.|Thank you! You too!|You too!|That\'s sweet. You too.|Thanks! You have a good one too.|Aw. Same to you.}'));
+    // what the rest of their day actually holds
+    const now = HellTime.min() % 1440, nx = R.day(c.p).find(b => b.s > now && b.kind !== 'commute');
+    if (nx && chance(0.6)) {
+      const w = nx.place && R.PLACES[nx.place] ? R.PLACES[nx.place].n : nx.where;
+      if (nx.kind === 'work') s += ' ' + E('{Got work at [w] at [t], so we\'ll see.|Work at [t]. Wish me luck.|Still got a shift at [w] later, ugh.}', { w, t: R.fmt(nx.s) });
+      else if (nx.kind === 'social' && nx.with != null) s += ' ' + E('{Seeing [n] later, so it might be!|I\'m meeting [n] at [t], so fingers crossed.}', { n: R.get(nx.with).first, t: R.fmt(nx.s) });
+      else if (nx.kind === 'sleep') s += ' ' + E('{Bed soon anyway.|Nearly bedtime for me.}');
+    }
+    return s;
+  };
   const TALK_INTENTS = [
+    ['wish', WISH_RE],
     ['pastlife', / what was (?:your )?life like (?:up top|when you were alive|before)| what did you do (?:up top|when you were alive|before you died|in life|in your life)| what was your job (?:up top|when you were alive|before)| your (?:past|old) life | when were you alive | what era | what (?:did you|was your) do for (?:a )?living up top | tell me about your life up top | who were you (?:up top|before) /],
     ['death', / how did you die | what killed you | how did you pass | cause of death | when did you die | what year did you die | how old were you when you died /],
     ['uptop_now', / what is (?:it|life) like up top | what is up top like | how is up top | tell me about up top | what s happening up top | what was up top like | is up top nice /],
@@ -2267,7 +2308,7 @@
     ['embarrass', / embarrass\w* | cringe(?:st)? (?:moment|story) | most awkward /],
     ['best_hell', / best (?:thing|part) about (?:hell|being here|being dead)| what do you love about hell | favou?rite thing about hell /],
     ['worst_hell', / worst (?:thing|part) about (?:hell|being here|being dead)| what do you hate about hell /],
-    ['hopes', / new year | 6667 | resolutions? | next year | plans? for the (?:year|future) | where do you see yourself /],
+    ['hopes', / what (?:do|are) you hop\w* | what is your hope | what are your hopes | your hopes? | any hopes | what do you wish for | what do you want most | new year | 6667 | resolutions? | next year | plans? for the (?:year|future) | where do you see yourself /],
     ['wyr', / would you rather /],
     ['joke', / tell me a joke | know any jokes | tell a joke | say something funny | make me laugh | got any jokes | joke please /],
     ['advice', / (?:any|give me|need|want) (?:some )?advice | what should i do about | what would you do (?:if|about) | can you help me decide /],
@@ -2371,6 +2412,10 @@
         const g = Brain.guess(text, p.id);
         const okLabel = g && H[g.label] && !/^(greet|ok|yes|no|laugh)$/.test(g.label) && !(g.label === 'person' && !d.person) && !(g.label === 'place' && !d.place);
         if (okLabel) { main = g.label; c.brain = g; if (d.intents.indexOf(main) < 0) d.intents.unshift(main); }
+      } else if (!main && pendingNow && !facts.length && window.Brain && Brain.ready() && !/^(joke|weird|news|define|player_secret|uptop|help)$/.test(st.pending.k)) {
+        // a resident asked you something, but this clearly isn't an answer ("you are amazing" isn't your name)
+        const g = Brain.guess(text, p.id);
+        if (g && g.p >= 0.95 && /^(compliment|insult|thanks|bye|greet|how_are|sorry|love|wish)$/.test(g.label) && H[g.label]) { main = g.label; c.brain = g; if (d.intents.indexOf(main) < 0) d.intents.unshift(main); }
       } else if (main && window.Brain && !c.brainSkip && lt.split(' ').length <= 14) {
         // the rules were sure: teach the hivemind this wording (and this resident's habits)
         try { Brain.learn(text, main, p.id); } catch (e) { /* learning is best-effort */ }

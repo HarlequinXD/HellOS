@@ -5,6 +5,8 @@
 - **The rules still decide what's true.** The model is told what kind of reply to write (a greeting for a close friend, a bad-day "how are you", a goodbye to someone they dislike, love advice…) and never learned any facts: where a fact goes it writes a slot, filled from the resident's real life (their favourite food, friends, job, city Up Top). If a line comes out badly (stutters, repeats, missing facts) it's thrown away and the hand-written line is used.
 - Used for greetings, how-are-yous, thanks, goodbyes, compliments, laughs, best/worst of Hell, hopes, beliefs, superstitions, talents, advice, "I don't know"s, reactions and about 25 kinds of small talk. Voice, mood and slang are layered on top as before.
 - **Rites → System → Resident voice model:** Off, Some (default) or Lots.
+- **Well-wishes:** "I hope you have a good day", "have a nice night", "enjoy your shift", "take care", "hope you feel better" now get a "you too!" (sometimes with what the rest of their day holds), instead of the resident telling you about their day.
+- **Conversation fixes:** saying something nice right after a resident asks your name no longer makes "You Are" your name; voice openers keep names and "I" capitalised and don't run into each other ("Hey, ugh"); no "night night" goodbyes in the afternoon; no tag tacked on after a question ("What's new?, so it is written"); "*wheezes*" keeps both asterisks; "what's your hope?" is understood.
 - Fixes: made-up words no longer get mistaken for lore ("what's a flibbertigibbet?" isn't Flaum any more); saying bye after a resident asks what a word means no longer teaches them the word means "bye".
 
 ## 6.20.0 — the hivemind remembers the world

@@ -54,12 +54,14 @@
     return idx[0];
   }
   function detok(ws) {
-    let s = '', start = true, glue = true;
+    let s = '', start = true, glue = true, star = false;
     ws.forEach(w => {
       w = CASE[w] || w;
-      if (start && /^[a-z]/.test(w)) w = w.charAt(0).toUpperCase() + w.slice(1);
-      s += (/^[.,!?…;:)~”]$/.test(w) || glue ? '' : ' ') + w;
-      glue = /^[“(]$/.test(w);
+      if (start && !star && /^[a-z]/.test(w)) w = w.charAt(0).toUpperCase() + w.slice(1);
+      const closing = w === '*' && star;
+      s += (/^[.,!?…;:)~”]$/.test(w) || closing || glue ? '' : ' ') + w;
+      if (w === '*') star = !star;
+      glue = /^[“(]$/.test(w) || (w === '*' && star);
       if (!/^[“(*\"]$/.test(w)) start = /^[.!?…]$/.test(w);
     });
     return s;
