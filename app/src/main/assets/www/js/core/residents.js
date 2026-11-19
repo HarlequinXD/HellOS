@@ -415,6 +415,49 @@
     });
   })();
 
+  // ------------------------------------------------------------------ finding places in what people type
+  // Exact names first, then other names people use (spots.js), then the same with the spaces
+  // squashed ("disnight market"), then small typos ("nite market", "beelzebubs piza").
+  let placeIndex = null;
+  function buildPlaceIndex() {
+    const clean = s => s.toLowerCase().replace(/[’']/g, '').replace(/&/g, 'and').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+    const out = [];
+    Object.keys(PLACES).forEach(k => {
+      const names = [PLACES[k].n.replace(/^the /i, '')].concat(window.Spots && Spots.ALIASES[k] ? Spots.ALIASES[k] : []);
+      names.forEach(n => { const c = clean(n).replace(/^the /, ''); if (c) out.push({ k, words: c, flat: c.replace(/ /g, '') }); });
+    });
+    return out.sort((a, b) => b.flat.length - a.flat.length);
+  }
+  function lev(a, b, max) {
+    if (Math.abs(a.length - b.length) > max) return max + 1;
+    let prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+    for (let i = 1; i <= a.length; i++) {
+      const cur = [i]; let best = i;
+      for (let j = 1; j <= b.length; j++) { cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); best = Math.min(best, cur[j]); }
+      if (best > max) return max + 1;
+      prev = cur;
+    }
+    return prev[b.length];
+  }
+  function findPlace(text, opts) {
+    if (!placeIndex || (window.Spots && !placeIndex.spots)) { placeIndex = buildPlaceIndex(); placeIndex.spots = !!window.Spots; }
+    const t = ' ' + String(text || '').toLowerCase().replace(/[’']/g, '').replace(/&/g, 'and').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim() + ' ';
+    for (const e of placeIndex) if (t.indexOf(' ' + e.words + ' ') >= 0) return e.k;
+    if (opts && opts.exact) return null;
+    const flat = t.replace(/ /g, '');
+    for (const e of placeIndex) if (e.flat.length >= 6 && flat.indexOf(e.flat) >= 0) return e.k;
+    // typos: compare against runs of 1-4 neighbouring words, squashed together
+    const words = t.trim().split(' ');
+    const runs = [];
+    for (let i = 0; i < words.length; i++) { let r = ''; for (let n = 0; n < 4 && i + n < words.length; n++) { r += words[i + n]; if (r.length >= 7) runs.push(r); } }
+    for (const e of placeIndex) {
+      const L = e.flat.length; if (L < 8) continue;
+      const max = L >= 13 ? 2 : 1;
+      for (const r of runs) if (Math.abs(r.length - L) <= max && r[0] === e.flat[0] && lev(r, e.flat, max) <= max) return e.k;
+    }
+    return null;
+  }
+
   // ------------------------------------------------------------------ faces
   function makeFace(kd, r, circle) {
     const f = kd.f;
@@ -732,7 +775,7 @@
       });
       return hits.sort((a, b) => b[1] - a[1]).map(x => x[0]);
     },
-    findPlace(text) { const t = text.toLowerCase(); return Object.keys(PLACES).find(k => t.indexOf(PLACES[k].n.toLowerCase().replace(/^the /, '').replace('’', '\'')) >= 0 || t.indexOf(PLACES[k].n.toLowerCase().replace(/^the /, '')) >= 0) || null; },
+    findPlace,
     day, now, log, world, fmt, placeName, dayNum, workday, travel, xy, pairings, XY,
     face: p => p.face,
     contactFor(p) { return { id: p.cid, npc: p.npc, rid: p.id, name: p.npc === 'pizza' ? 'Beelzebub’s Pizza' : p.name, number: p.number, email: p.email, circle: 'Friends', fav: false, color: p.color }; }
