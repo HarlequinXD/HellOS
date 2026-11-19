@@ -343,6 +343,10 @@ OS.register({
               if (v === 'toggle') { set('hivemind', s.hivemind === false); page.rerender(); }
               if (v === 'reset' && window.Brain) { Brain.reset(); OS.toast('The hivemind forgot everything it learned here'); page.rerender(); }
             }),
+            nav('message', 'Resident voice model', ({ off: 'Off: only hand-written lines', lots: 'Lots: residents write most small talk themselves' }[s.neuralVoice]) || 'Some: residents sometimes word things themselves', async () => {
+              const v = await OS.sheet('Resident voice model: a small language model, trained on the game\'s own lines, that lets residents word small talk themselves. Facts always come from the world.', [{ label: 'Off', value: 'off', checked: s.neuralVoice === 'off' }, { label: 'Some', value: 'some', checked: !s.neuralVoice || s.neuralVoice === 'some' }, { label: 'Lots', value: 'lots', checked: s.neuralVoice === 'lots' }]);
+              if (v) { set('neuralVoice', v); page.rerender(); }
+            }),
             nav('keypad', 'Navigation', s.navMode === 'buttons' ? '3 buttons' : 'Gestures', async () => { const v = await OS.sheet('Navigation', [{ label: 'Gestures', value: 'gestures', checked: s.navMode === 'gestures' }, { label: '3 buttons', value: 'buttons', checked: s.navMode === 'buttons' }]); if (v) { set('navMode', v); page.rerender(); } }),
             nav('storage', 'Back up now', 'Soul Vault', async () => { if (!OS.online()) { OS.toast('No Hellnet connection'); return; } OS.toast('Backing up your soul…'); await new Promise(r => setTimeout(r, 1800)); Store.set('lastBackup', Date.now()); Sound.play('success'); OS.toast('Backup complete'); }),
             nav('download', 'System update', 'HellOS ' + OS.version, () => systemUpdate())),

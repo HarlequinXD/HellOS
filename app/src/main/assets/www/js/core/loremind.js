@@ -40,12 +40,24 @@
     const out = []; for (let k = 0; k < K; k++) out.push({ id: IDS[k], p: z[k] / sum });
     return out.sort((a, b) => b.p - a.p).slice(0, 5);
   }
+  const ASK = new Set('what whats who whos where when why how tell about know you your are did does was were thing things anything something everything heard hear like any have has can could would should there their them they please mean meant'.split(' '));
   function guess(text, minP) {
     const r = recall(text); if (!r.length) return null;
     const [a, b] = r;
     if (a.id === '_none' || a.p < (minP || 0.45) || (b && a.p - b.p < 0.12)) return null;
     const entry = window.Knowledge ? Knowledge.get(a.id) : null;
-    return entry ? { entry, p: a.p } : null;
+    if (!entry) return null;
+    // the guess has to share at least one real word with what was asked (made-up or
+    // unknown words look alike to the network, so "what is a flibbertigibbet" isn't Flaum).
+    // Names are matched loosely so typos still count; descriptions need the same word stem.
+    const words = String(text).toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length >= 3 && !Knowledge.STOP.has(w) && !ASK.has(w));
+    if (words.length) {
+      const nameW = [...new Set([entry.name].concat(entry.names || []).join(' ').toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length >= 3))];
+      const stems = new Set([entry.desc || '', entry.text || '', JSON.stringify(entry.facts || '')].join(' ').toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length >= 3).map(w => w.slice(0, 5)));
+      const near = (x, y) => { if (Math.abs(x.length - y.length) > 2) return false; let prev = Array.from({ length: y.length + 1 }, (_, k) => k); for (let m = 1; m <= x.length; m++) { const cur = [m]; for (let n = 1; n <= y.length; n++) cur[n] = Math.min(prev[n] + 1, cur[n - 1] + 1, prev[n - 1] + (x[m - 1] === y[n - 1] ? 0 : 1)); prev = cur; } return prev[y.length] <= (y.length >= 7 ? 2 : 1); };
+      if (!words.some(w => stems.has(w.slice(0, 5)) || nameW.some(n => n === w || (w.length >= 4 && near(w, n))))) return null;
+    }
+    return { entry, p: a.p };
   }
   window.LoreMind = { ready: () => load(), recall, guess };
 })();

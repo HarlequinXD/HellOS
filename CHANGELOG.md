@@ -1,5 +1,12 @@
 # HellOS changelog
 
+## 6.21.0 — residents find their own words
+- **Residents have their own language model:** a small neural network (a GRU, 128 units, about 310 KB, trained from scratch in `tools/neural/train.py` on the game's own lines, no outside AI) that writes replies one word at a time instead of picking a ready-made sentence. About a third of what it writes is a sentence that appears nowhere in the game's text.
+- **The rules still decide what's true.** The model is told what kind of reply to write (a greeting for a close friend, a bad-day "how are you", a goodbye to someone they dislike, love advice…) and never learned any facts: where a fact goes it writes a slot, filled from the resident's real life (their favourite food, friends, job, city Up Top). If a line comes out badly (stutters, repeats, missing facts) it's thrown away and the hand-written line is used.
+- Used for greetings, how-are-yous, thanks, goodbyes, compliments, laughs, best/worst of Hell, hopes, beliefs, superstitions, talents, advice, "I don't know"s, reactions and about 25 kinds of small talk. Voice, mood and slang are layered on top as before.
+- **Rites → System → Resident voice model:** Off, Some (default) or Lots.
+- Fixes: made-up words no longer get mistaken for lore ("what's a flibbertigibbet?" isn't Flaum any more); saying bye after a resident asks what a word means no longer teaches them the word means "bye".
+
 ## 6.20.0 — the hivemind remembers the world
 - **The hivemind has a memory of the world:** a second neural network, trained from scratch (`tools/brain/train_lore.js`), on all 990 things in the world's history and lore: every person, nation, city, war, age, people and continent of Up Top, and every king, circle, place, faction, species and event of Hell.
 - It recognises them **by name**, even misspelt or half-remembered ("casian the unluky", "grelhold"), and **by description**: "who invented the printing press?" → Tomas Inkwell, "who was the last emperor?" → Cassian the Unlucky, "who is the tide queen?" → Marelle Undine, "when was the steam engine invented?" → the Age of Engines.
