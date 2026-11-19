@@ -1,5 +1,20 @@
 # HellOS changelog
 
+## 6.21.0 — residents find their own words
+- **Residents have their own language model:** a small neural network (a GRU, 128 units, about 310 KB, trained from scratch in `tools/neural/train.py` on the game's own lines, no outside AI) that writes replies one word at a time instead of picking a ready-made sentence. About a third of what it writes is a sentence that appears nowhere in the game's text.
+- **The rules still decide what's true.** The model is told what kind of reply to write (a greeting for a close friend, a bad-day "how are you", a goodbye to someone they dislike, love advice…) and never learned any facts: where a fact goes it writes a slot, filled from the resident's real life (their favourite food, friends, job, city Up Top). If a line comes out badly (stutters, repeats, missing facts) it's thrown away and the hand-written line is used.
+- Used for greetings, how-are-yous, thanks, goodbyes, compliments, laughs, best/worst of Hell, hopes, beliefs, superstitions, talents, advice, "I don't know"s, reactions and about 25 kinds of small talk. Voice, mood and slang are layered on top as before.
+- **Rites → System → Resident voice model:** Off, Some (default) or Lots.
+- Fixes: made-up words no longer get mistaken for lore ("what's a flibbertigibbet?" isn't Flaum any more); saying bye after a resident asks what a word means no longer teaches them the word means "bye".
+
+## 6.20.0 — the hivemind remembers the world
+- **The hivemind has a memory of the world:** a second neural network, trained from scratch (`tools/brain/train_lore.js`), on all 990 things in the world's history and lore: every person, nation, city, war, age, people and continent of Up Top, and every king, circle, place, faction, species and event of Hell.
+- It recognises them **by name**, even misspelt or half-remembered ("casian the unluky", "grelhold"), and **by description**: "who invented the printing press?" → Tomas Inkwell, "who was the last emperor?" → Cassian the Unlucky, "who is the tide queen?" → Marelle Undine, "when was the steam engine invented?" → the Age of Engines.
+- **Answers fit the question:** "when" gives dates, "where" gives the place, "who won" gives the winner, "why" gives the cause, "how did he die" gives the death. Follow-ups keep the subject ("who invented the printing press?" → "when was that?", "what are the Grell?" → "where do they live?").
+- **Nothing is made up:** the network only works out what you're asking about. Every answer comes from the lore itself (`js/core/knowledge.js`).
+- **Residents still know different things:** scholars, liches, witches and kings know almost everything, residents know their own homeland, era and wars ("I lived through that war"), and others may never have heard of it.
+- The main hivemind also learned the new kind of question.
+
 ## 6.19.0 — Up Top, the peoples of Hell, and much more to talk about
 - **Up Top:** the world of the living now has 6,000 years of made-up history. It has six continents, eight human peoples and six humanoid species (the stone-skinned Grell, the singing Sylphine, the small Murrow, the amphibious Tidekin, the horned Vashti and the night-eyed Lumen) and ten ages from the Dawn to the Glass Age. There are 85 nations that rise and fall with every ruler in order, about 220 cities, about 70 wars (including two Great Wars) and nearly 500 famous people, all consistent with each other. A dozen great nations and famous figures are written by hand (the Auric Empire, Grellhold, the Oruun Sea-League, Tomas Inkwell who invented printing, Cassian the Unlucky…).
 - **Every damned resident lived Up Top:** where, when, as what, under which ruler, during which war, and how they died, all worked out from how long they've been dead. Ask "what was life like up top?", "how did you die?", "what do you miss?". Their Census page has a Life Up Top section.

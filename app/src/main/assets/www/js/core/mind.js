@@ -58,6 +58,20 @@
   function E(tpl, slots) { if (Array.isArray(tpl)) tpl = pick(tpl); SEEN.add(tpl); return (/^\s/.test(tpl) ? ' ' : '') + tidy(gen(parse(tpl), slots || {})); }
   function T(name, list) { const TB = window.TalkBank; if (TB && TB.T[name]) list = list.concat(TB.T[name]); SAID.push([name, list]); return list; }
   // a template plus extra wordings from the bank (the original stays twice as likely as each extra)
+  // the residents' own language model (neural.js) writes the wording some of the time;
+  // the rule's own line is always the fallback, and facts only ever come in through slots
+  const NV_RECENT = [];
+  function NV(c, label, fallback, slots) {
+    const N = window.Neural;
+    if (!N || !c || !c.p || Math.random() >= N.rate() || !N.ready()) return fallback;
+    let sl;
+    try { sl = Object.assign(slotsFor(c), { n: c.pname || '', p: c.pet || '' }, slots || {}); } catch (e) { return fallback; }
+    const out = N.write(label, sl);
+    if (!out || NV_RECENT.includes(out)) return fallback;
+    NV_RECENT.push(out); if (NV_RECENT.length > 40) NV_RECENT.shift();
+    if (c.st) c.st.nv = (c.st.nv || 0) + 1;
+    return out.replace(/,\s*([.!?])/g, '$1').replace(/^\W+(?=\w)/, '');
+  }
   function XB(key, tpl) { const TB = window.TalkBank; const more = TB && key.split('.').reduce((o, k) => o && o[k], TB.X); return more ? [tpl, tpl].concat(more) : tpl; }
 
   // ================================================================ state
@@ -361,7 +375,7 @@
   }
   const coldTier = c => c.tr === 'hate' || c.tr === 'dislike';
   function guarded(c, base) { if ((c.tr === 'hate' && chance(0.6)) || (c.tr === 'dislike' && chance(0.3))) { c.refused = true; return E(REFUSE, { pet: c.pet }); } return null; }
-  function idk(c) { c.refused = true; return E(IDK, { pet: c.pet }); }
+  function idk(c) { c.refused = true; return NV(c, 'idk', E(IDK, { pet: c.pet })); }
   const no = (c, s) => { c.refused = true; return s; };
 
   function relationTo(p, q) {
@@ -723,7 +737,7 @@
   H.how_are = c => {
     const m = c.tl.mood;
     const TBh = window.TalkBank && TalkBank.X.how;
-    const base = TBh && chance(0.55) ? E(m >= 2 ? TBh.good : m >= 0 ? TBh.ok : TBh.bad) : E('{I\'m|Doing|Feeling|Honestly,|Eh,|Oh,} [adj]{.|, thanks.|, you?|. Could be worse. I could be in Heaven.|, thanks for asking.|. How about you?|, all things considered.}', { adj: gen(parse(m >= 2 ? '{great|really good|pretty good|amazing|on fire (literally)|fantastic}' : m >= 0 ? '{fine|okay|alright|not bad|surviving|decent|same as ever}' : '{meh|tired|not great|kind of rubbish|cranky|grumpy|over it}'), {}) });
+    const base = NV(c, m >= 2 ? 'how_good' : m >= 0 ? 'how_ok' : 'how_bad', null) || (TBh && chance(0.55) ? E(m >= 2 ? TBh.good : m >= 0 ? TBh.ok : TBh.bad) : E('{I\'m|Doing|Feeling|Honestly,|Eh,|Oh,} [adj]{.|, thanks.|, you?|. Could be worse. I could be in Heaven.|, thanks for asking.|. How about you?|, all things considered.}', { adj: gen(parse(m >= 2 ? '{great|really good|pretty good|amazing|on fire (literally)|fantastic}' : m >= 0 ? '{fine|okay|alright|not bad|surviving|decent|same as ever}' : '{meh|tired|not great|kind of rubbish|cranky|grumpy|over it}'), {}) }));
     const inc = c.tl.find(b => b.incident && b.s <= HellTime.min());
     return base + (inc && chance(0.5) ? E(' {I [i] today.|Earlier I [i].}', { i: fp(inc.incident) }) : '');
   };
@@ -829,7 +843,7 @@
     const d = bump(c.st, 2 + c.p.traits.pride * 4);
     if (c.tr === 'hate') return E('{Flattery won\'t work.|Too late for that.|Hmph.}');
     if (c.tr === 'dislike' || c.tr === 'wary') return E('{...Thanks, I guess.|Huh. Thanks.|Okay. Thanks.}');
-    return E(XB('compliment', '{Aww, thanks!|Stop it, you!|I know. But thank you.|You\'re not so bad yourself.|Thank you! You\'re alright too.}'));
+    return NV(c, 'compliment', E(XB('compliment', '{Aww, thanks!|Stop it, you!|I know. But thank you.|You\'re not so bad yourself.|Thank you! You\'re alright too.}')));
   };
   H.insult = (c, d, t) => {
     if (/ (lol|lmao|haha|hahaha|jk|kidding|joking|xd|hehe) /.test(t || '') && !coldTier(c) && c.p.traits.humor > 0.3) {
@@ -851,12 +865,12 @@
     if (c.st.aff < 0) { bump(c.st, 3 + c.p.traits.warmth * 5); return c.p.traits.temper > 0.7 ? E('{Hmph. We\'ll see.|Apology noted. Not accepted. Yet.|Fine.}') : E('{...Okay. Apology accepted.|Fine. Thanks for saying it.|Alright. Let\'s move on.}'); }
     return E('{For what?|No need to apologise.|You\'re fine!|All good.}');
   };
-  H.thanks = c => { bump(c.st, 1); return coldTier(c) ? E(XB('thanks_cold', '{Whatever.|Sure.|Yeah yeah.}')) : E(XB('thanks', '{No worries|Anytime|You owe me one|Of course|Don\'t mention it. Seriously, don\'t|No problem|Any time, [p]|Happy to help}{!|.| :)}'), { p: c.pet }); };
+  H.thanks = c => { bump(c.st, 1); return coldTier(c) ? NV(c, 'thanks_cold', E(XB('thanks_cold', '{Whatever.|Sure.|Yeah yeah.}'))) : NV(c, 'thanks', E(XB('thanks', '{No worries|Anytime|You owe me one|Of course|Don\'t mention it. Seriously, don\'t|No problem|Any time, [p]|Happy to help}{!|.| :)}'), { p: c.pet })); };
   H.bye = c => {
     const n = c.pname ? ', ' + c.pname : '';
     const lines = { hate: '{Finally.|Good.|Bye. Don\'t come back.|Good riddance.}', dislike: '{Bye.|Later.|Yeah, bye.|Okay. Bye.}', wary: '{See you.|Bye.|Later.|Take care.}', neutral: '{See ya[n]|Bye[n]|Later[n]|Take care[n]|Catch you later[n]|Stay toasty[n]}{!|.| 👋|}', like: '{Bye[n]! Text me later.|See you soon[n]!|Later! Don\'t burn too much.}', close: '{Bye[n]! Miss you already.|Talk soon[n]!|Byeee! Stay toasty.}', devoted: '{Nooo don\'t go. Okay bye[n]!|Bye bestie[n]! Text me.|See you soon. I mean it.}' };
     const bk = c.tr === 'hate' || c.tr === 'dislike' ? 'bye.cold' : c.tr === 'close' || c.tr === 'devoted' ? 'bye.close' : c.tr === 'like' ? 'bye.like' : 'bye.neutral';
-    return E(XB(bk, lines[c.tr]), { n });
+    return NV(c, bk.replace('.', '_'), E(XB(bk, lines[c.tr]), { n }));
   };
   H.greet = c => {
     const now = Date.now();
@@ -864,10 +878,10 @@
     const n = c.pname ? ' ' + c.pname : '';
     bump(c.st, U.sameDay(c.st.seen || 0, now) ? 0 : 1);
     let s;
-    if (c.tr === 'hate') s = E(XB('greet_cold', '{What do you want?|Ugh. You.|Oh. It\'s you.|What.}'));
-    else if (c.tr === 'dislike') s = E(XB('greet_cold', '{What?|Oh. Hi.|Hey. What do you want?}'));
-    else if (gap > 2 * 86400000 && c.st.talks > 2) s = E(XB('greet_long', '{Long time no see[n]!|Look who it is! Where have you been[n]?|[n]! Thought you\'d been exorcised.}'), { n: n.trim() ? n : '' });
-    else s = E(c.tr === 'close' || c.tr === 'devoted' ? XB('greet_close', '{Heyyy[n]!|There you are[n]!|Hi[n]! Missed you.|Hey[n]! My favourite soul.|Oh good, it\'s you[n]!|Hiii[n]!}{| What\'s up?| How are you?|}') : XB('greet', '{Hey[n].|Hi[n]!|Hello[n].|Oh, hey[n].|Yo[n].|Evening[n]. It\'s always evening.|Greetings[n].|Hiya[n].}{| What\'s up?| What\'s burning?|}'), { n });
+    if (c.tr === 'hate') s = NV(c, 'greet_cold', E(XB('greet_cold', '{What do you want?|Ugh. You.|Oh. It\'s you.|What.}')));
+    else if (c.tr === 'dislike') s = NV(c, 'greet_cold', E(XB('greet_cold', '{What?|Oh. Hi.|Hey. What do you want?}')));
+    else if (gap > 2 * 86400000 && c.st.talks > 2) s = NV(c, 'greet_long', null) || E(XB('greet_long', '{Long time no see[n]!|Look who it is! Where have you been[n]?|[n]! Thought you\'d been exorcised.}'), { n: n.trim() ? n : '' });
+    else s = NV(c, c.tr === 'close' || c.tr === 'devoted' ? 'greet_close' : 'greet', null) || E(c.tr === 'close' || c.tr === 'devoted' ? XB('greet_close', '{Heyyy[n]!|There you are[n]!|Hi[n]! Missed you.|Hey[n]! My favourite soul.|Oh good, it\'s you[n]!|Hiii[n]!}{| What\'s up?| How are you?|}') : XB('greet', '{Hey[n].|Hi[n]!|Hello[n].|Oh, hey[n].|Yo[n].|Evening[n]. It\'s always evening.|Greetings[n].|Hiya[n].}{| What\'s up?| What\'s burning?|}'), { n });
     // plans with other residents tonight
     if (window.Social && !coldTier(c) && chance(0.45)) { const up = Social.upcoming(c.p); if (up && up.s - HellTime.min() < 300) s += ' ' + (up.date ? E('{Can\'t talk long, I have a date with [n] at [t] 😳|I\'m seeing [n] at [t]. Like, SEEING seeing.}', { n: R.get(up.with).first, t: R.fmt(up.s) }) : E('{Can\'t talk long, I\'m meeting [n] at [t].|Heads up, I\'m seeing [n] at [w] at [t].}', { n: R.get(up.with).first, w: R.PLACES[up.place].n, t: R.fmt(up.s) })); }
     // messages passed on, secrets that leaked, news to ask about
@@ -882,10 +896,10 @@
     else if (!coldTier(c) && chance(0.25)) { const pet = recall(c.st, 'pet'); if (pet) s += ' ' + E('{How\'s your [p]?|Say hi to your [p] for me.}', { p: pet.v }); }
     return s;
   };
-  H.laugh = c => coldTier(c) ? E('{What\'s funny?|Glad you\'re amused.}') : E(XB('laugh', '{Ha!|Hehe.|Right?|I know, I\'m hilarious.|lol.}'));
-  H.yes = c => E(REACT);
+  H.laugh = c => coldTier(c) ? E('{What\'s funny?|Glad you\'re amused.}') : NV(c, 'laugh', E(XB('laugh', '{Ha!|Hehe.|Right?|I know, I\'m hilarious.|lol.}')));
+  H.yes = c => NV(c, 'react', E(REACT));
   H.no = c => E('{Oh. Okay.|Fair.|No? Alright.|Hm, okay.}');
-  H.ok = c => E(REACT);
+  H.ok = c => NV(c, 'react', E(REACT));
 
   // ================================================================ the player's Grimoire
   const DAYS = HellTime.WEEKDAYS;
@@ -1444,12 +1458,14 @@
       if (id === 'threat') bump(c.st, coldTier(c) ? -2 : 0);
       const more = window.TalkBank && TalkBank.SMALL[id];
       const life = window.UpTop ? UpTop.pastLife(p) : null;
-      return E(more ? [tpl, tpl].concat(more) : tpl, {
+      const sl = {
         city: life ? life.city.name : 'the Brimstone Mines',
         food: p.fav.food, music: p.fav.music, game: p.fav.game, kind: p.kind, wake: R.fmt(wake), bed: R.fmt(bed), fplace: p.fav.place, colour: p.fav.colour, animal: p.fav.animal,
         animal1: p.fav.animal.replace(/s$/, ''), petname: hashPick(['Gerald', 'Biscuit', 'Lord Chompers', 'Ash', 'Moloch', 'Tiny', 'Sir Bites'], p.id), souls: 6 + U.hash('s' + p.id) % 600,
         bday: HellTime.label(U.hash('b' + p.id) % 336).replace(/^\w+ /, ''), o: p.lore.origin || 'the Brimstone Mines', busy, co: co ? co.first : 'nobody', job: p.job.title, crushname: crush
-      });
+      };
+      const said = E(more ? [tpl, tpl].concat(more) : tpl, sl);
+      return id === 'crush' && !(c.tr === 'close' || c.tr === 'devoted') ? said : NV(c, id, said, sl);
     };
   });
   const SMALL_INTENTS = SMALL.map(([id, re]) => [id, re]);
@@ -2044,7 +2060,30 @@
     return TE(c, '{No idea now. When I was there it was [era].|It’s been [years] years. Probably nothing like [city] in my day.|In my time? [e]}', { e: L.era.text.split('. ')[0] + '.' }) + (chance(0.5) ? askBack(c, 'uptop', TBK().ASKS.uptop) : '');
   };
   // questions about Up Top history: people, nations, cities, wars, ages, peoples
+  // anything in the world's memory (knowledge.js), answered from the facts, by what was asked
+  H.know = (c, d, t) => {
+    const e = d.know || (window.Knowledge && Knowledge.byName(t)); if (!e) return null;
+    const p = c.p, L = lifeOf(p), q = Knowledge.qtype(c.t0 || t);
+    c.ctx = { type: 'know', id: e.id };
+    const fact = Knowledge.answer(e, q);
+    // their own past life
+    if (L && e.ref && e.kind === 'city' && e.ref.id === L.city.id) return E('{That’s where I lived!|[n]? My home town!|I grew up in [n]!}', { n: e.name }) + ' ' + fact;
+    if (L && e.ref && e.kind === 'nation' && e.ref.id === L.nation.id) return E('{That was my country!|I lived there.|Home, once.}') + ' ' + fact;
+    if (L && e.kind === 'era' && e.id === 'up:era:' + L.era.id) return E('{That was my time!|I lived through that.|That’s when I was alive.}') + ' ' + fact;
+    if (L && e.ref && e.kind === 'war' && L.war && L.war.id === e.ref.id) return E('{I lived through that war.|I was there for that one.|Don’t remind me. I was there.}') + ' ' + fact;
+    // how much they know
+    const hellish = /^(event|gov|circle|species|faction|king|place)$/.test(e.kind);
+    const scholar = p.kind === 'lich' || p.kind === 'witch' || p.voice.id === 'nerd' || p.traits.curiosity > 0.75 || !!p.king;
+    const roll = U.hash('kn' + p.id + e.id) % 10;
+    const knows = scholar || (hellish ? roll < 9 : e.famous ? roll < 7 : e.kind === 'era' || e.kind === 'people' || e.kind === 'continent' || e.kind === 'world' ? roll < 8 : roll < 3)
+      || (L && e.ref && ((e.ref.nation && e.ref.nation === L.nation.id) || (e.kind === 'nation' && e.ref.cont === L.nation.cont && roll < 6)));
+    if (!knows) return E('{Never heard of [n].|[n]? No idea, sorry.|Doesn’t ring a bell.|No clue. Ask a lich, they know all that.|Hmm, [n]... nope. Try Infernopedia.}', { n: e.name });
+    const opener = scholar ? E('{Ah, [n].|Oh, I know this one.|Good question.|[N]!}', { n: e.name, N: cap(e.name) }) : E('{Oh, [n].|[N]? Yeah.|I know a bit.|Sort of.}', { n: e.name, N: cap(e.name) });
+    const more = scholar && chance(0.6) ? Knowledge.answer(e, q === 'what' ? 'when' : 'what') : '';
+    return opener + ' ' + fact + (more && more !== fact ? ' ' + more : '');
+  };
   H.uptop_q = (c, d, t) => {
+    if (window.Knowledge) { const e = Knowledge.byName(t); if (e) { d.know = e; return H.know(c, d, t); } }
     const p = c.p, hit = window.UpTop ? UpTop.find(t) : null;
     if (!hit) return null;
     const L = lifeOf(p), name = hit.obj.name, desc = UpTop.describe(hit);
@@ -2068,9 +2107,9 @@
     return TE(c, k(D.start) + ', ' + hashPick(D.middle, c.p.id * 3 + HellTime.day()) + ', ' + hashPick(D.end, c.p.id * 7 + HellTime.day())) + (chance(0.35) ? askBack(c, 'weird', TBK().ASKS.weird) : '');
   };
   H.embarrass = c => { const g = guarded(c); if (g) return g; if (c.tr === 'wary' || c.tr === 'neutral' && chance(0.5)) return no(c, E('{Ha, no. Maybe when I know you better.|Nice try. Earn it.}')); return E('{Oh no. Okay.|Ugh, fine.|Don’t laugh.}') + ' ' + TE(c, hashPick(TBK().EMBARRASS, c.p.id + (c.st.talks || 0))); };
-  H.best_hell = c => TE(c, TBK().BEST_HELL);
-  H.worst_hell = c => TE(c, TBK().WORST_HELL);
-  H.hopes = c => TE(c, TBK().HOPES) + (chance(0.4) ? askBack(c, 'dream', TBK().ASKS.dream) : '');
+  H.best_hell = c => NV(c, 'best_hell', TE(c, TBK().BEST_HELL));
+  H.worst_hell = c => NV(c, 'worst_hell', TE(c, TBK().WORST_HELL));
+  H.hopes = c => NV(c, 'hopes', TE(c, TBK().HOPES)) + (chance(0.4) ? askBack(c, 'dream', TBK().ASKS.dream) : '');
   H.wyr = (c, d, t) => {
     const m = t.match(/ would you rather (.+?) or (.+?) $/);
     if (m) { const a = m[1].trim(), b = m[2].trim().replace(/ \?$/, ''); const pk = wyrPick(c, a, b); return E('{Easy. [x].|[X], obviously.|Ooh. [X]. Final answer.|Hmm... [x]. Don’t judge me.}', { x: pk, X: cap(pk) }) + ' ' + E('{You?|What about you?|And you?}'); }
@@ -2082,7 +2121,7 @@
   H.advice = (c, d, t) => {
     const A = TBK().ADVICE, k = / (love|crush|date|dating|like someone|heart) /.test(t) ? 'love' : / (work|job|boss|shift) /.test(t) ? 'work' : / (money|souls|broke|debt|rich) /.test(t) ? 'money' : / (friend|fight|argument|fell out) /.test(t) ? 'friend' : 'any';
     if (coldTier(c)) return E('{Advice? Leave me alone. There.|Figure it out yourself.}');
-    return TE(c, A[k]);
+    return NV(c, 'advice_' + k, TE(c, A[k]));
   };
   H.confess = c => {
     if (c.tr === 'close' || c.tr === 'devoted') return H.secret(c);
@@ -2114,11 +2153,11 @@
     const f = mine[0];
     return E('{I’m in [f].|Yeah, [f].|I’m with [f]{, obviously|}.}', { f: f.name }) + ' ' + f.text.split('. ')[0] + '.' + (mine[1] ? ' ' + E('{And [g], on the side.|Also [g].}', { g: mine[1].name }) : '');
   };
-  H.belief = c => TE(c, TBK().BELIEF);
+  H.belief = c => NV(c, 'belief', TE(c, TBK().BELIEF));
   H.books = c => E('{I’m reading [b].|[b]. Can’t put it down.|Just finished [b]. Recommend it.}', { b: hashPick(TBK().BOOKS, c.p.id + Math.floor(HellTime.day() / 3)) });
-  H.talent = c => TE(c, TBK().TALENTS);
+  H.talent = c => NV(c, 'talents', TE(c, TBK().TALENTS));
   H.regret = c => { const g = guarded(c); if (g) return g; return TE(c, TBK().REGRET); };
-  H.superstition = c => TE(c, TBK().SUPERSTITION);
+  H.superstition = c => NV(c, 'superstition', TE(c, TBK().SUPERSTITION));
   // stories in parts: "and then?" carries on
   H.story = c => {
     if (coldTier(c)) return E('{No.|Not for you.}');
@@ -2283,8 +2322,26 @@
     const tq = t.replace(/ \?/g, ' ').replace(/\s+/g, ' ');
     const story = st.story && !d.person && (STORY_GO.test(tq) || (tq.trim().split(' ').length <= 2 && !d.question && !d.place && !d.intents.filter(i => !/^(ok|yes|no|laugh)$/.test(i)).length)) ? continueStory(c, tq) : null;
     if (story) { d.place = null; d.intents = []; fk = null; }
-    // questions about Up Top history (people, nations, cities, wars, ages)
-    if (!story && window.UpTop && !d.person && (d.question || / (tell me about|have you heard of|heard of|do you know|ever heard|what about|who was|what was) /.test(t))) { const uh = UpTop.find(t); if (uh && !(d.place && uh.kind === 'city')) d.intents = ['uptop_q'].concat(d.intents.filter(i => !/^(lore|court|judge|person|place)$/.test(i))); }
+    // questions about the world: anything in Knowledge, found by name, by the hivemind's memory, or still being talked about
+    if (!story && window.Knowledge) {
+      const asking = d.question || / (tell me about|have you heard of|heard of|do you know|ever heard|what about|who was|what was|who were|what were|remember) /.test(t);
+      const personal = / (you|your|u|ur|yours|yourself) /.test(t.replace(/ (do you know|have you heard|ever heard|you heard|can you tell me|could you tell me|tell me about|you know about|do you remember) /g, ' '));
+      let hit = null;
+      // a follow-up about the same thing comes first: "when was that?", "where do they live?", "who won?"
+      const follow = freshCtx && st.ctx.type === 'know' && d.question && t.split(' ').filter(Boolean).length <= 7 && !d.person && !d.place && / (when|where|why|who|how|what happened|that|it|they|he|she|them|their|his|her) /.test(t) && !Knowledge.byName(t0);
+      if (follow) hit = Knowledge.get(st.ctx.id);
+      if (!hit && asking && !personal) {
+        hit = Knowledge.byName(t0);
+        if (hit && (hit.kind === 'king' || hit.kind === 'place') && !/^(when|why)$/.test(Knowledge.qtype(t0))) hit = null; // the kings and places have their own answers
+        if (hit && /^(species|faction)$/.test(hit.kind) && d.intents.some(i => /^(species_q|faction_q)$/.test(i))) hit = null;
+        if (!hit && !d.person && !d.place && window.LoreMind && LoreMind.ready()) {
+          const main0 = d.intents.find(i => !/^(greet|ok|yes|no|laugh)$/.test(i));
+          if (!main0 || /^(lore|uptop_q|court|judge|frame|define)$/.test(main0)) { const g = LoreMind.guess(t0, main0 ? 0.6 : 0.5); if (g && !/^(king|place)$/.test(g.entry.kind)) hit = g.entry; }
+        }
+      }
+      // a follow-up about the same thing: "when was that?", "who won?", "why?", "how did it end?"
+      if (hit) { d.know = hit; d.intents = ['know'].concat(d.intents.filter(i => !/^(lore|uptop_q|court|judge|person|place|origin|age|death)$/.test(i))); fk = null; }
+    }
     // places: a shop or stall named, or "what's that?" / "what's there?" about the place just mentioned
     if (window.Spots && !d.person && !story && d.intents[0] !== 'uptop_q') {
       // the place being talked about: the subject itself, or one the resident just mentioned in passing
@@ -2319,7 +2376,7 @@
         try { Brain.learn(text, main, p.id); } catch (e) { /* learning is best-effort */ }
       }
       const ev = d.question || / should | if i | would you /.test(t) ? null : extractEvent(t);
-      if (pending && /^(invite|news|player_secret|help|define)$/.test(pending.k) && (!main || main === 'invite' || pending.k === 'news' || pending.k === 'player_secret' || pending.k === 'help' || (pending.k === 'define' && !d.question))) {
+      if (pending && /^(invite|news|player_secret|help|define)$/.test(pending.k) && (!main || main === 'invite' || pending.k === 'news' || pending.k === 'player_secret' || pending.k === 'help' || (pending.k === 'define' && !d.question && !/^(bye|greet|thanks|insult|sorry|how_are)$/.test(main)))) {
         st.pending = null;
         out.push(takeAnswer2(c, pending, t, text) || E(REACT));
       } else if (pending && !ev && !facts.length && !d.question && (!main || (pending.k === 'opinion' && /^(compliment|insult|love)$/.test(main)))) {
