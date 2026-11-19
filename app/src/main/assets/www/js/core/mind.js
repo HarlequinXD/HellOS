@@ -216,7 +216,7 @@
       if (id === 'social') { if (res.person && re.test(t)) res.intents.push(id); continue; }
       if (id === 'person') { if (res.person && / (who is|do you know|what do you think|what about|have you seen|did you see|where is|what is .* doing|how is|tell me about|know|is .* (nice|okay|cool|mean)) /.test(t)) res.intents.push(id); continue; }
       if (id === 'judge') { const q = evalQ(t) || (PLAYER_DOING.test(t) && /\?|any good|is it/.test(t) ? {} : null); if (q && !/ (history|rumou?rs?|story|lore|decree|conclave|septarchy|the pit|forum) /.test(t) && !(q.name && (R.findByName(' ' + q.name + ' ').length || /^(you|me)$/.test(q.name)))) res.intents.push(id); continue; }
-      if (id === 'place') { if (res.place && / (have you been|ever been|been to|what do you think|like|go to|is .* (good|nice|fun)|what is|tell me about|history|rumou?rs?|story|who runs|who owns) /.test(t)) res.intents.push(id); continue; }
+      if (id === 'place') { if (res.place && (PLACE_Q.test(t) || / (have you been|ever been|been to|what do you think|like|go to|is .* (good|nice|fun)|what is|tell me about|history|rumou?rs?|story|who runs|who owns) /.test(t) || (/\?\s*$/.test(raw || '') && t.split(' ').filter(Boolean).length <= 6))) res.intents.push(id); continue; }
       if (re.test(t)) res.intents.push(id);
     }
     res.question = /\?/.test(t) || /^ (what|where|who|why|how|when|which|do|does|did|are|is|can|could|would|will|have|has|should) /.test(t);
@@ -607,19 +607,94 @@
       default: return c.p.traits.gossip > 0.8 ? E('{Never met them, but I heard|Don\'t know them. Rumour is} they\'re {a|an} [k] who [s].', { k: q.kind, s: q.lore.how }) : E('{[n]? Never heard of them.|Don\'t know any [n].|idk who that is.|Who?}', { n });
     }
   };
+  // ---------------------------------------------------------------- talking about places
+  // questions about a place (or "there", "that", "it" when a place was just mentioned)
+  const PLACE_Q = / (what s [a-z ]+ like|what is [a-z ]+ like|what is (?:that|it|this|there)|what s (?:that|it|there)|whats (?:that|there)|what is at|what s at|what s it like|what is it like|what kind of place|never heard of|tell me (?:about|more)|explain|what do they (?:sell|have|do)|what can you (?:do|get|buy|eat|see)|what is there|anything (?:good|fun|to do)|any good (?:shops|stalls|food|places)|shops?|stalls?|stands?|vendors?|favou?rite (?:shop|stall|spot|place|bit|part|thing|stand)|recommend|what should i (?:get|try|buy|order|eat|do|see)|what s good|what is good|worth (?:it|going|a visit)|is it (?:good|nice|fun|any good|worth|busy|expensive|open)|open|hours|close|where is (?:it|that)|how do i get|how far|is it far|have you been|been there|go there) /;
+  const PLACE_SIDE = / (what s that|what is that|whats that|what s there|what is there|whats there|what s that place|where s that|where is that|what is it like there|that place|the place|is it (?:good|nice|fun) there|what do you recommend there|recommend there) /;
+  const PLACE_FOLLOW = / (that|it|there|this place|that place|the place|the market|the shop|the stall|that stall|that shop) | recommend | what should i (?:get|try|buy|order|eat) | favou?rite (?:shop|stall|spot|stand|bit|part) | what s good | what is good /;
+  // how well a resident knows a place: 'been' (goes there), 'heard' (knows of it), 'no'
+  const FAMOUS = ['acheron', 'minos', 'pizza', 'dis', 'night_market', 'lake_fire', 'arena', 'throne', 'mall', 'pit', 'tower', 'baths', 'styx', 'cocytus', 'law'];
+  function knowsPlace(p, key) {
+    if (!R.PLACES[key]) return 'no';
+    if (p.job.place === key || R.PLACES[key].n === p.fav.place || p.hobbies.some(hb => hb[1] === key) || R.log(p).some(b => b.place === key)) return 'been';
+    if (p.king || R.PLACES[key].c === p.circle || SOCIAL_IDS.indexOf(key) >= 0 && U.hash(p.id + ':' + key) % 3) return 'been';
+    if (FAMOUS.indexOf(key) >= 0 || U.hash('kn' + p.id + key) % 10 < 8) return 'heard';
+    return 'no';
+  }
+  const listAnd = a => a.length <= 1 ? (a[0] || '') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];
   H.place = (c, d, t) => {
-    const pl = R.PLACES[d.place], key = d.place;
-    const LP = window.Lore && Lore.PLACES[key];
-    if (LP && / (tell me about|history|what is .* like|what s .* like|rumou?rs?|story|who runs|who owns|what is) /.test(t || '')) {
-      const first = LP.text.split(/(?<=\.)\s+/)[0];
-      return (c.p.job.place === key ? E('{I work there!|That\'s my work.}') + ' ' : '') + first + ' ' + E('{Rumour is [r].|They say [r].|I heard [r].}', { r: LP.rumour });
+    const p = c.p, key = d.place, pl = R.PLACES[key], SP = window.Spots && Spots.of(key), LP = window.Lore && Lore.PLACES[key];
+    t = t || '';
+    const know = knowsPlace(p, key), works = p.job.place === key;
+    const spot = d.spot || (c.st.ctx && c.st.ctx.type === 'place' && c.st.ctx.id === key && c.st.ctx.spot && SP ? SP.spots.find(x => x.n === c.st.ctx.spot) : null);
+    c.ctx = { type: 'place', id: key, spot: spot ? spot.n : null };
+    const nm = pl.n, Nm = cap(pl.n);
+    const note = (k, text) => { (c.placeNotes = c.placeNotes || []).push([k, text]); };
+    if (know === 'no') return E('{[w]? Never heard of it, honestly.|No idea, never been to [w].|[w]? Is that in [ci]? Never been.}', { w: nm, ci: R.CIRCLES[pl.c] });
+    const asks = re => re.test(t);
+    // about one shop or stall at the place
+    if (spot && !asks(/ (open|hours|close|closed|what time|where is|how do i get|how far|is it far|what s there|what is there|whats there|what shops|what stalls|other (?:shops|stalls)) /)) {
+      const pk = Spots.pick(p, spot);
+      note('spot:' + spot.n, cap(spot.n) + ': ' + spot.d);
+      if (/ (recommend|should i|what s good|what is good|best thing|what to get|order) /.test(t)) note('rec:' + spot.n + ':' + p.id, 'At ' + spot.n + ', ' + p.first + ' says get the ' + pk.thing);
+      if (asks(/ (recommend|should i (?:get|try|buy|order|eat)|what s good|what is good|what do (?:i|you) get|best thing|what to get|order) /)) return pk.mine ? E('{Get the [x]. I get it every time.|The [x], obviously. My favourite.|[X]. Trust me.}', { x: pk.thing, X: cap(pk.thing) }) : E('{Get the [x].|Everyone gets the [x].|The [x] [is] the thing to get there.}', { x: pk.thing, is: /s$/.test(pk.thing) && !/ss$/.test(pk.thing) ? 'are' : 'is' });
+      if (asks(/ (favou?rite|do you like|is it good|any good|worth) /)) { const fav = Spots.favourite(p, key); return fav.n === spot.n ? E('{Love it. It\'s my favourite at [w].|Best one at [w], honestly.}', { w: nm }) : E('{It\'s alright. I prefer [f].|Not bad, but [f] is better.}', { f: fav.n }); }
+      return E('{[S]? It\'s [d].|[S] is [d].}', { S: spot.n.replace(/^the /, 'The '), d: spot.d }) + (know === 'been' ? ' ' + E('{Get the [x].|Try the [x].}', { x: pk.thing }) : '');
     }
-    const lg = R.log(c.p);
+    // their favourite spot there
+    if (SP && asks(/ (favou?rite|best) (?:shop|stall|spot|place|bit|part|thing|stand|one|bar)/)) {
+      if (know === 'heard') return E('{Never been, so I couldn\'t say.|Haven\'t been, sorry. People rave about [f], though.}', { f: SP.spots[0].n });
+      const fav = Spots.favourite(p, key), pk = Spots.pick(p, fav);
+      note('favspot:' + p.id, p.name + '’s favourite spot here: ' + fav.n + ' (gets the ' + pk.thing + ')');
+      return E('{[F], easily.|Oh, [f]!|[F]. Every time.}', { f: fav.n, F: cap(fav.n) }) + ' ' + (pk.mine ? E('{They do [x], and I\'m obsessed.|I always get the [x].}', { x: pk.thing }) : E('{It\'s [d].|Can\'t beat it: [d].}', { d: fav.d }));
+    }
+    // recommendations
+    if (SP && asks(/ (recommend|should i (?:get|try|buy|order|eat|do|see)|what s good|what is good|what do (?:i|you) get|what to get|worth (?:it|going|a visit)) /)) {
+      const fav = know === 'been' ? Spots.favourite(p, key) : SP.spots[0], pk = Spots.pick(p, fav);
+      note('rec:' + p.id, p.first + ' recommends ' + fav.n + ': get the ' + pk.thing);
+      return (know === 'heard' ? E('{Never been, but everyone says|I haven\'t been, but apparently} [f] is the place to go, and you get the [x] there.', { f: fav.n, x: pk.thing }) : E('{Go to [f] and get the [x].|Hit [f], get the [x]. Thank me later.|[F]. Get the [x].}', { f: fav.n, F: cap(fav.n), x: pk.thing }));
+    }
+    // what's there
+    if (SP && asks(/ (what s there|what is there|whats there|what s at|what is at|what do they (?:sell|have|do)|what can you (?:do|get|buy|eat|see)|anything (?:good|fun|to do)|any good (?:shops|stalls|food|places)|what shops|what stalls|which shops|which stalls|shops?|stalls?|stands?|vendors?) /)) {
+      note('spots', 'Has ' + listAnd(SP.spots.map(x => x.n)));
+      const items = SP.spots.slice(0, 4).map(x => x.n + (chance(0.5) ? ' (' + x.d.split(',')[0] + ')' : ''));
+      return E('{There\'s [l].|You\'ve got [l].|Loads. [L].}', { l: listAnd(items), L: cap(listAnd(items)) }) + (know === 'heard' ? ' ' + E('{Or so I\'ve heard.|That\'s what people say, anyway.}') : '');
+    }
+    // opening hours
+    if (SP && asks(/ (open|hours|close|closed|what time) /)) {
+      const open = Spots.isOpen(key, Math.floor(HellTime.min() / 60));
+      note('hours', cap(Spots.hours(key)));
+      return E('{It\'s [h].|[H].}', { h: Spots.hours(key), H: cap(Spots.hours(key)) }) + ' ' + E(open ? '{It\'s open now.|Should be open right now.}' : '{It\'s shut right now.|Closed at the moment.}');
+    }
+    // where it is / how to get there
+    if (asks(/ (where is (?:it|that)|where is|how do i get|how far|is it far|how long to get) /)) {
+      const here = c.nb && c.nb.place && R.PLACES[c.nb.place] ? c.nb.place : null;
+      const tr = here && here !== key ? R.travel(p, here, key) : null;
+      return E('{It\'s in [ci], the [o] Circle.|Down in [ci].}', { ci: R.CIRCLES[pl.c], o: window.Lore ? Lore.ordinal(pl.c + 1) : '' }) + (tr ? ' ' + E('{From here it\'s about [m] minutes by [v].|I\'m about [m] minutes away by [v].}', { m: Math.round(tr.mins), v: { walk: 'foot', tram: 'Hellnet tram', ferry: 'ferry', fly: 'wing' }[tr.mode] || tr.mode }) : '');
+    }
+    // what the place is
+    if (asks(/ (what is (?:that|it|this)|what s (?:that|it)|whats that|what kind of place|never heard of|explain|what is the|what s the|what is [a-z ]+ \?|tell me about|tell me more|what s [a-z ]+ like|what is [a-z ]+ like) /) || t.split(' ').filter(Boolean).length <= 5) {
+      const what = SP ? SP.what : LP ? LP.text.split(/(?<=\.)\s+/)[0] : 'a place in ' + R.CIRCLES[pl.c];
+      note('what', cap(what.replace(/\.$/, '')) + ', in ' + R.CIRCLES[pl.c]);
+      let s = E('{It\'s [w].|Oh, it\'s [w].|[N]? It\'s [w].}', { w: what, N: nm });
+      s += ' ' + E('{It\'s in [ci], the [o] Circle.|You\'ll find it in [ci].}', { ci: R.CIRCLES[pl.c], o: window.Lore ? Lore.ordinal(pl.c + 1) : '' });
+      if (works) s += ' ' + E('{I work there, actually.|That\'s my work!}');
+      else if (p.fav.place === nm) s += ' ' + E('{It\'s my favourite place in Hell.|I love it there.}');
+      else if (know === 'heard') s += ' ' + E('{Never been myself, though.|Haven\'t been, but I hear it\'s good.}');
+      else if (SP && chance(0.6)) s += ' ' + E('{Go to [f] if you go.|[F] is the best bit.}', { f: Spots.favourite(p, key).n, F: cap(Spots.favourite(p, key).n) });
+      return s;
+    }
+    if (LP && asks(/ (history|rumou?rs?|story|who runs|who owns|how old) /)) {
+      const first = LP.text.split(/(?<=\.)\s+/)[0];
+      return (works ? E('{I work there!|That\'s my work.}') + ' ' : '') + first + ' ' + E('{Rumour is [r].|They say [r].|I heard [r].}', { r: LP.rumour });
+    }
+    const lg = R.log(p);
     const went = lg.find(b => b.place === key);
     if (went) return E('{I was there today|Been there today, actually|I was literally just there}{!|.} I [a].', { a: lc(went.act) });
-    if (c.p.job.place === key) return E('{That\'s where I work|I work there}{.|, so... yes.|! [w] is basically my second home.}', { w: pl.n });
-    if (c.p.fav.place === pl.n) return E('{Oh I love [w]!|[w] is my favourite place.|Best place in Hell, honestly.}', { w: pl.n });
-    return E('{[w]? It\'s alright.|Been to [w] a few times.|[w] is fine I guess.|Never really go to [w].}', { w: pl.n });
+    if (works) return E('{That\'s where I work|I work there}{.|, so... yes.|! [w] is basically my second home.}', { w: nm });
+    if (p.fav.place === nm) return E('{Oh I love [w]!|[w] is my favourite place.|Best place in Hell, honestly.}', { w: nm });
+    if (know === 'heard') return E('{Never been to [w], but I hear it\'s [a].|Haven\'t been. People say it\'s [a].}', { w: nm, a: pick(['good', 'fun', 'worth it', 'a bit much']) });
+    return E('{[w]? It\'s alright.|Been to [w] a few times.|[w] is fine I guess.|[W]? Good spot.}', { w: nm, W: Nm });
   };
   H.how_are = c => {
     const m = c.tl.mood;
@@ -845,6 +920,8 @@
       if (went) Journal.place(key, 'visit:' + c.p.id + ':' + HD(), c.p.name + ' was here on ' + HellTime.label() + ' (' + third(c.p, went.act) + ')', c.p.id);
       if (c.p.job.place === key) Journal.place(key, 'staff:' + c.p.id, c.p.name + ' works here as ' + c.p.job.title, c.p.id);
       if (c.p.fav.place === R.PLACES[key].n) Journal.place(key, 'fav:' + c.p.id, c.p.name + '’s favourite place', c.p.id);
+      // what they told you about the place, its shops and what to get
+      (c.placeNotes || []).forEach(([k, text]) => Journal.place(key, k, text, c.p.id));
     },
     weather: c => Journal.world('weather:' + HD() + ':' + c.p.circle, HellTime.label() + ', ' + R.CIRCLES[c.p.circle] + ': ' + cap(c.world.weather) + ', ' + c.world.temp + '° (' + HellTime.date().seasonName + ')', c.p.id),
     news: c => Journal.world('news:' + HD(), HellTime.label() + ': ' + cap(c.world.headline), c.p.id),
@@ -1593,7 +1670,7 @@
   function shiftEnd(tl) { const w = tl.filter(b => b.kind === 'work' && b.s > 0); return w.length ? w[w.length - 1].e : null; }
   function blocksAfter(p, tl, ref) { return tl.filter(b => b.s >= ref - 5 && b.kind !== 'sleep' && b.kind !== 'commute').map(b => Object.assign({ where: R.placeName(p, b.place) }, b)); }
   function planList(bs) {
-    const parts = bs.slice(0, 3).map(b => futureOf(b.act) + (b.place !== 'home' && b.act.indexOf(b.where.replace(/^the /, '')) < 0 && b.kind !== 'social' ? ' at ' + b.where : ''));
+    const parts = bs.slice(0, 3).map(b => futureOf(b.act) + (b.place !== 'home' && b.act.indexOf(b.where.replace(/^the /, '')) < 0 && b.kind !== 'social' && !/ at the | in the | on the /.test(' ' + b.act + ' ') ? ' at ' + b.where : ''));
     return parts.length === 1 ? parts[0] : parts.slice(0, -1).join(', ') + ' and then ' + parts[parts.length - 1];
   }
   H.schedule = (c, d, t) => {
@@ -1957,9 +2034,21 @@
     if (!st.talks) hist(st, 'first', 'we first started talking');
     const d = detect(t, p, text);
     const out = [];
-    const fk = followKind(t);
+    let fk = followKind(t);
     const freshCtx = st.ctx && now - st.ctx.t < 20 * 60000;
-    // repetition
+    // places: a shop or stall named, or "what's that?" / "what's there?" about the place just mentioned
+    if (window.Spots && !d.person) {
+      // the place being talked about: the subject itself, or one the resident just mentioned in passing
+      const mainPlace = freshCtx && st.ctx.type === 'place' ? st.ctx.id : null, sidePlace = freshCtx && st.ctx.type !== 'place' ? st.ctx.place || null : null;
+      const sp = Spots.find(t0, d.place || mainPlace || sidePlace) || (!d.place ? Spots.find(t0, null, true) : null);
+      if (sp && (!d.place || d.place === sp.place)) { d.place = sp.place; d.spot = sp.spot; }
+      else if (!d.place && mainPlace && (PLACE_FOLLOW.test(t) || (fk && /^(what|more|where)$/.test(fk)))) d.place = mainPlace;
+      else if (!d.place && sidePlace && PLACE_SIDE.test(t)) d.place = sidePlace;
+      if (d.place && (d.spot || PLACE_Q.test(t) || (fk && /^(what|more|where)$/.test(fk) && d.place === mainPlace)) && d.intents[0] !== 'place') { d.intents = ['place'].concat(d.intents.filter(i => i !== 'place' && i !== 'judge')); fk = null; }
+    }
+    // repetition only counts within one sitting: same Hell day, and not after a long gap
+    if (st.lastAt && (now - st.lastAt > 15 * 60000 || st.lastDay !== HellTime.day())) st.last = [];
+    st.lastAt = now; st.lastDay = HellTime.day();
     const lt = t.trim();
     const fr = fk && (freshCtx || /^(really|sympathy|same)$/.test(fk)) ? followup(c, fk) : null;
     if (fr) out.push(fr);
@@ -2030,6 +2119,8 @@
         else if (out.length < 3 && !st.pending && !/bye|insult|invite|cancel/.test(main || '')) { const q = maybeAsk(c); if (q) out.push(q); }
       }
     }
+    // a place the resident just mentioned becomes the subject ("what's that?", "what's there?")
+    if (out.length && !(st.ctx && st.ctx.t === now && st.ctx.type === 'place')) { const said = out.filter(Boolean).join(' '), pk = R.findPlace(said, { exact: true }); if (pk) { if (st.ctx && st.ctx.t === now) st.ctx.place = pk; else st.ctx = { type: 'place', id: pk, t: now }; } }
     // what did this reply just talk about? ("is it good?" will refer to it)
     if (out.length && !/^(judge|player_doing)$/.test(d.intents[0] || '')) noteThings(p, st, out.filter(Boolean).join(' '));
     st.last.push(lt); if (st.last.length > 6) st.last.shift();

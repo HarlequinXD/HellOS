@@ -64,7 +64,7 @@ The APK is signed with the fixed key in `keystore/`, so new builds install over 
   - `css/os.css` + `css/apps.css` hold layout; `css/retro.css` is the retro Android look (title bars, lists, plates, frame, checkboxes), driven by `js/core/surface-theme.js`.
   - `js/core/` holds the kernel (window manager, notifications, scheduler), setup, lock, home, shade, telephony and characters.
   - `js/apps/` holds the system apps; `js/store/` holds the HellPlay catalog and its apps.
-- All art is procedural 256-colour pixel art generated at start-up by `js/core/pixelart.js`. No image files ship. See **[ART_GUIDE.md](ART_GUIDE.md)**.
+- Every resident, king and app has a bundled 64×64 pixel-art portrait or icon in `www/art/` (browse them in [Pixel-Art-Gallery.html](Pixel-Art-Gallery.html)). Everything else is procedural 256-colour pixel art generated at start-up by `js/core/pixelart.js`. See **[ART_GUIDE.md](ART_GUIDE.md)**.
 
 ### Adding a HellPlay app
 

@@ -364,3 +364,7 @@ input[type=range]::-webkit-slider-thumb { width: 24px; height: 24px; margin-top:
 .pinpad .dots span.on { background: #FFA23A; border-color: #000; }
 .home .widget, .home .widget .muted, .home .widget .wtitle { color: #F3E6DA !important; }
 .home .widget .muted { color: #CDB8AA !important; }
+
+/* bundled round portraits (art/avatars) */
+.lic.lic-art, .li .lic.lic-art, .cava.lic-art { background: transparent !important; box-shadow: none !important; }
+.lic img, .cava img { image-rendering: pixelated; }

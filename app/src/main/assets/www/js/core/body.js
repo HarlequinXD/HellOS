@@ -62,6 +62,12 @@
       if (HellWeather.bad(w.cond) && /lake_fire|styx|sands|whirlwind|cocytus|kennels|acheron/.test(blk.place)) return 'shields their face from the ' + w.cond.n.toLowerCase();
     }
     if (r < 42) return 'checks their phone';
+    if (kind === 'work' && p.king) {
+      // a king at court: the Conclave, their own court event, or ruling
+      if (blk.court === 'conclave') return pk(['argues a point in the Conclave', 'raises a hand to speak', 'glares across the Hall of Seven Seats', 'whispers to a fellow king', 'votes on a decree', 'listens to Lucien read the minutes', 'drums their fingers on the table', 'objects, loudly'], key);
+      if (r < 80) return present(blk.court === 'event' ? blk.act : pk(p.job.acts, key));
+      return pk(['dismisses a courtier', 'signs a royal order', 'receives a petitioner', 'is bowed to', 'adjusts their crown', 'consults an advisor', 'reads a report from the circles'], key);
+    }
     if (kind === 'work' && r < 75 && p.job.acts.length) return present(pk(p.job.acts, key)).replace(/ all (day|shift|night)$/, '');
     if (kind === 'hobby' && r < 70) return present(blk.act.replace(/ \(.*\)$/, ''));
     return slots(pk(BY_KIND[kind] || BY_KIND.home, key));

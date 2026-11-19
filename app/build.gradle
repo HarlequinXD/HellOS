@@ -10,8 +10,8 @@ android {
         applicationId 'com.harlequinxd.hellos'
         minSdk 26
         targetSdk 35
-        versionCode 18
-        versionName '6.16.0'
+        versionCode 20
+        versionName '6.18.0'
     }
 
     // A fixed debug key lives in the repo so every CI build installs over the last one.

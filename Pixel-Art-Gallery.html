@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HellOS Pixel Art</title>
+<style>
+:root { color-scheme:dark; background:#140d1a; color:#fae5d2; font-family:system-ui,sans-serif; }
+body { max-width:1100px; margin:auto; padding:22px 18px 48px; }
+header { margin:18px 0 26px; border-bottom:1px solid #63404d; padding-bottom:16px; }
+h1 { margin:0; font-family:Georgia,serif; font-size:clamp(33px,7vw,60px); color:#ffd0a4; }
+p { margin:.4em 0; color:#d4b9bb; }
+nav { display:flex; gap:10px; flex-wrap:wrap; margin:14px 0; }
+button, input { font:inherit; padding:9px 12px; background:#271727; color:inherit; border:1px solid #72505f; border-radius:5px; }
+button { cursor:pointer; }
+button[aria-pressed=true] { background:#7c3a4f; border-color:#d7908a; }
+label { display:block; margin-bottom:6px; }
+input { box-sizing:border-box; width:min(100%,470px); }
+#count { margin:12px 0; }
+#grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,155px),1fr)); gap:10px; }
+article { background:#211627; border:1px solid #392b41; padding:12px 8px; text-align:center; min-width:0; }
+article img { display:block; width:96px; height:96px; image-rendering:pixelated; margin:0 auto 8px; }
+article div { overflow-wrap:anywhere; }
+.meta { color:#d3a8b7; font-size:13px; margin-top:4px; }
+.id { display:block; color:#bba9c1; font:11px ui-monospace,monospace; margin-top:5px; }
+a { color:#f6c39a; }
+</style>
+</head>
+<body>
+<header>
+<h1>HellOS Pixel Art</h1>
+<p>Resident portraits and underworld app icons</p>
+<nav aria-label="Asset downloads">
+  <a href="app/src/main/assets/www/art/residents.csv">Resident CSV</a>
+  <a href="app/src/main/assets/www/art/apps.csv">App CSV</a>
+  <a href="app/src/main/assets/www/art/manifest.json">Asset manifest</a>
+</nav>
+</header>
+<nav aria-label="Gallery view">
+  <button id="residents" type="button" aria-pressed="true">Residents</button>
+  <button id="apps" type="button" aria-pressed="false">App icons</button>
+  <button id="extras" type="button" aria-pressed="false">Other portraits</button>
+</nav>
+<label for="search">Search by name, ID, pronouns, species, circle or job</label>
+<input id="search" type="search" autocomplete="off">
+<p id="count" aria-live="polite"></p>
+<main id="grid"></main>
+<script src="app/src/main/assets/www/art/asset-index.js"></script>
+<script src="app/src/main/assets/www/art/gallery-data.js"></script>
+<script>
+'use strict';
+const prefix = 'app/src/main/assets/www/';
+const grid = document.querySelector('#grid');
+const search = document.querySelector('#search');
+const count = document.querySelector('#count');
+const buttons = Array.from(document.querySelectorAll('button'));
+let mode = 'residents';
+
+function render() {
+  const apps = mode === 'apps';
+  const query = search.value.toLowerCase().trim();
+  const data = apps ? HellOSGallery.apps : HellOSGallery.residents.filter(
+    r => (mode === 'extras') === (r.role === 'player' || r.role === 'service')
+  );
+  const results = data.filter(row => Object.values(row).join(' ').toLowerCase().includes(query));
+  const cards = document.createDocumentFragment();
+  for (const row of results) {
+    const id = apps ? row.app_id : row.contact_id;
+    const imagePath = prefix + HellOSPixelAssets[apps ? 'icons' : 'avatars'][id];
+    const card = document.createElement('article');
+    const link = document.createElement('a');
+    const image = new Image(96, 96);
+    image.loading = 'lazy';
+    image.src = imagePath;
+    image.alt = row.display_name + (apps ? ' icon' : ' portrait');
+    link.href = imagePath;
+    link.append(image);
+    const name = document.createElement('strong');
+    name.textContent = row.display_name;
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    meta.textContent = (apps ? [row.group, row.motif] : [row.kind, row.pronouns, row.circle]).filter(Boolean).join(' · ');
+    const asset = document.createElement('span');
+    asset.className = 'id';
+    asset.textContent = imagePath.split('/').pop();
+    card.append(link, name, meta, asset);
+    cards.append(card);
+  }
+  grid.replaceChildren(cards);
+  count.textContent = results.length + (results.length === 1 ? ' match' : ' matches');
+}
+
+search.addEventListener('input', render);
+for (const button of buttons) button.addEventListener('click', () => {
+  mode = button.id;
+  for (const item of buttons) item.setAttribute('aria-pressed', String(item === button));
+  search.value = '';
+  render();
+});
+render();
+</script>
+</body>
+</html>
