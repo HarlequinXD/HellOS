@@ -1,5 +1,13 @@
 # HellOS changelog
 
+## 6.20.0 — the hivemind remembers the world
+- **The hivemind has a memory of the world:** a second neural network, trained from scratch (`tools/brain/train_lore.js`), on all 990 things in the world's history and lore: every person, nation, city, war, age, people and continent of Up Top, and every king, circle, place, faction, species and event of Hell.
+- It recognises them **by name**, even misspelt or half-remembered ("casian the unluky", "grelhold"), and **by description**: "who invented the printing press?" → Tomas Inkwell, "who was the last emperor?" → Cassian the Unlucky, "who is the tide queen?" → Marelle Undine, "when was the steam engine invented?" → the Age of Engines.
+- **Answers fit the question:** "when" gives dates, "where" gives the place, "who won" gives the winner, "why" gives the cause, "how did he die" gives the death. Follow-ups keep the subject ("who invented the printing press?" → "when was that?", "what are the Grell?" → "where do they live?").
+- **Nothing is made up:** the network only works out what you're asking about. Every answer comes from the lore itself (`js/core/knowledge.js`).
+- **Residents still know different things:** scholars, liches, witches and kings know almost everything, residents know their own homeland, era and wars ("I lived through that war"), and others may never have heard of it.
+- The main hivemind also learned the new kind of question.
+
 ## 6.19.0 — Up Top, the peoples of Hell, and much more to talk about
 - **Up Top:** the world of the living now has 6,000 years of made-up history. It has six continents, eight human peoples and six humanoid species (the stone-skinned Grell, the singing Sylphine, the small Murrow, the amphibious Tidekin, the horned Vashti and the night-eyed Lumen) and ten ages from the Dawn to the Glass Age. There are 85 nations that rise and fall with every ruler in order, about 220 cities, about 70 wars (including two Great Wars) and nearly 500 famous people, all consistent with each other. A dozen great nations and famous figures are written by hand (the Auric Empire, Grellhold, the Oruun Sea-League, Tomas Inkwell who invented printing, Cassian the Unlucky…).
 - **Every damned resident lived Up Top:** where, when, as what, under which ruler, during which war, and how they died, all worked out from how long they've been dead. Ask "what was life like up top?", "how did you die?", "what do you miss?". Their Census page has a Life Up Top section.

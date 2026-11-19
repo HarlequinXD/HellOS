@@ -250,7 +250,7 @@
     }
     // the world wars
     wars.push({ id: 'gw1', name: 'the First Great War', a: 'ironcommon', b: 'lanthorne', s: 4788, e: 4794, winner: 'ironcommon', cause: 'everyone’s alliances at once', battle: 'the Battle of the Seven Rivers', great: true });
-    wars.push({ id: 'gw2', name: 'the Second Great War', a: 'ironcommon', b: 'provinces', s: 5280, e: 5287, winner: 'provinces', cause: 'the Iron Commonwealth wanted everything back', battle: 'the Siege of Isshavik', great: true });
+    wars.push({ id: 'gw2', name: 'the Second Great War', a: 'ironcommon', b: 'provinces', s: 5280, e: 5287, winner: 'provinces', cause: 'the Iron Commonwealth wanting everything back', battle: 'the Siege of Isshavik', great: true });
     // famous people
     const people = [];
     const roleTot = ROLES.reduce((a, x) => a + x[1], 0);

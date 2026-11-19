@@ -21,7 +21,7 @@ const ctx = { console, Math, Date, JSON, Set, Map, Object, Array, String, Number
 ctx.window = ctx; ctx.document = { createElement: () => ({}) };
 ctx.Store = { get: (k, d) => (k in store ? store[k] : d), set: (k, v) => { store[k] = v; }, emit() {}, on() {}, update(k, d, f) { const v = ctx.Store.get(k, d); const r = f(v); store[k] = r === undefined ? v : r; }, settings: () => ({ souls: 66 }), setting() {} };
 vm.createContext(ctx);
-['util.js', 'helltime.js', 'weather.js', 'grammar.js', 'lexicon.js', 'uptop.js', 'residents.js', 'lore.js', 'spots.js', 'hellfolk.js', 'talkbank.js', 'mind.js', 'brain.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(CORE, f), 'utf8'), ctx, { filename: f }));
+['util.js', 'helltime.js', 'weather.js', 'grammar.js', 'lexicon.js', 'uptop.js', 'residents.js', 'lore.js', 'spots.js', 'hellfolk.js', 'talkbank.js', 'knowledge.js', 'mind.js', 'brain.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(CORE, f), 'utf8'), ctx, { filename: f }));
 const { Mind, Brain, Residents: R, Lexicon } = ctx;
 
 // ---------------------------------------------------------------- seeds from the rules
@@ -59,6 +59,7 @@ const HAND = {
   person: ['do you know __n__', 'what do you think of __n__', 'have you seen __n__', 'how is __n__', 'tell me about __n__', 'is __n__ nice', 'who is __n__', 'did you see __n__ today'],
   // questions about the residents' lives with each other (answered from the live Census and their phones)
   social: ['what is __n__ up to', 'where is __n__ right now', 'what is __n__ doing', 'when did you last see __n__', 'when was the last time you saw __n__', 'what did you and __n__ do', 'what did you two talk about', 'what did you talk about with __n__', 'are you and __n__ dating', 'are you and __n__ a thing', 'do you have a crush on __n__', 'is __n__ your girlfriend', 'is __n__ your boyfriend', 'did you text __n__ today', 'has __n__ messaged you', 'have you heard from __n__', 'are you still friends with __n__', 'did you and __n__ fall out', 'do you get along with __n__', 'why do you hate __n__', 'did you two fight', 'how do you know __n__', 'how did you and __n__ meet', 'any news about __n__', 'what has __n__ been up to', 'how are things with __n__', 'are you close with __n__', 'you seeing __n__ later', 'hows __n__ going', 'is __n__ at work', 'is __n__ home'],
+  know: ['who invented the printing press', 'who won the war', 'when did the empire fall', 'who was the last emperor', 'what happened in the great war', 'who founded the city', 'when was the steam engine invented', 'who ruled the khaganate', 'what was the old empire like', 'where were the grell from', 'who was the first king', 'why did the war start', 'who discovered the sea route', 'tell me some history', 'what happened in history'],
   pastlife: ['what was life like up top', 'what did you do before you died', 'what was your job when you were alive', 'tell me about your old life', 'who were you before', 'what were you up top', 'did you have a job up top', 'what was your life like'],
   death: ['how did you die', 'what killed you', 'how did u die', 'when did you die', 'how old were you when you died', 'what was your cause of death'],
   night_dream: ['did you dream last night', 'any weird dreams', 'what did you dream about', 'have any nightmares', 'dream anything good'],

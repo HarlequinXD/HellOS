@@ -2044,7 +2044,30 @@
     return TE(c, '{No idea now. When I was there it was [era].|It’s been [years] years. Probably nothing like [city] in my day.|In my time? [e]}', { e: L.era.text.split('. ')[0] + '.' }) + (chance(0.5) ? askBack(c, 'uptop', TBK().ASKS.uptop) : '');
   };
   // questions about Up Top history: people, nations, cities, wars, ages, peoples
+  // anything in the world's memory (knowledge.js), answered from the facts, by what was asked
+  H.know = (c, d, t) => {
+    const e = d.know || (window.Knowledge && Knowledge.byName(t)); if (!e) return null;
+    const p = c.p, L = lifeOf(p), q = Knowledge.qtype(c.t0 || t);
+    c.ctx = { type: 'know', id: e.id };
+    const fact = Knowledge.answer(e, q);
+    // their own past life
+    if (L && e.ref && e.kind === 'city' && e.ref.id === L.city.id) return E('{That’s where I lived!|[n]? My home town!|I grew up in [n]!}', { n: e.name }) + ' ' + fact;
+    if (L && e.ref && e.kind === 'nation' && e.ref.id === L.nation.id) return E('{That was my country!|I lived there.|Home, once.}') + ' ' + fact;
+    if (L && e.kind === 'era' && e.id === 'up:era:' + L.era.id) return E('{That was my time!|I lived through that.|That’s when I was alive.}') + ' ' + fact;
+    if (L && e.ref && e.kind === 'war' && L.war && L.war.id === e.ref.id) return E('{I lived through that war.|I was there for that one.|Don’t remind me. I was there.}') + ' ' + fact;
+    // how much they know
+    const hellish = /^(event|gov|circle|species|faction|king|place)$/.test(e.kind);
+    const scholar = p.kind === 'lich' || p.kind === 'witch' || p.voice.id === 'nerd' || p.traits.curiosity > 0.75 || !!p.king;
+    const roll = U.hash('kn' + p.id + e.id) % 10;
+    const knows = scholar || (hellish ? roll < 9 : e.famous ? roll < 7 : e.kind === 'era' || e.kind === 'people' || e.kind === 'continent' || e.kind === 'world' ? roll < 8 : roll < 3)
+      || (L && e.ref && ((e.ref.nation && e.ref.nation === L.nation.id) || (e.kind === 'nation' && e.ref.cont === L.nation.cont && roll < 6)));
+    if (!knows) return E('{Never heard of [n].|[n]? No idea, sorry.|Doesn’t ring a bell.|No clue. Ask a lich, they know all that.|Hmm, [n]... nope. Try Infernopedia.}', { n: e.name });
+    const opener = scholar ? E('{Ah, [n].|Oh, I know this one.|Good question.|[N]!}', { n: e.name, N: cap(e.name) }) : E('{Oh, [n].|[N]? Yeah.|I know a bit.|Sort of.}', { n: e.name, N: cap(e.name) });
+    const more = scholar && chance(0.6) ? Knowledge.answer(e, q === 'what' ? 'when' : 'what') : '';
+    return opener + ' ' + fact + (more && more !== fact ? ' ' + more : '');
+  };
   H.uptop_q = (c, d, t) => {
+    if (window.Knowledge) { const e = Knowledge.byName(t); if (e) { d.know = e; return H.know(c, d, t); } }
     const p = c.p, hit = window.UpTop ? UpTop.find(t) : null;
     if (!hit) return null;
     const L = lifeOf(p), name = hit.obj.name, desc = UpTop.describe(hit);
@@ -2283,8 +2306,26 @@
     const tq = t.replace(/ \?/g, ' ').replace(/\s+/g, ' ');
     const story = st.story && !d.person && (STORY_GO.test(tq) || (tq.trim().split(' ').length <= 2 && !d.question && !d.place && !d.intents.filter(i => !/^(ok|yes|no|laugh)$/.test(i)).length)) ? continueStory(c, tq) : null;
     if (story) { d.place = null; d.intents = []; fk = null; }
-    // questions about Up Top history (people, nations, cities, wars, ages)
-    if (!story && window.UpTop && !d.person && (d.question || / (tell me about|have you heard of|heard of|do you know|ever heard|what about|who was|what was) /.test(t))) { const uh = UpTop.find(t); if (uh && !(d.place && uh.kind === 'city')) d.intents = ['uptop_q'].concat(d.intents.filter(i => !/^(lore|court|judge|person|place)$/.test(i))); }
+    // questions about the world: anything in Knowledge, found by name, by the hivemind's memory, or still being talked about
+    if (!story && window.Knowledge) {
+      const asking = d.question || / (tell me about|have you heard of|heard of|do you know|ever heard|what about|who was|what was|who were|what were|remember) /.test(t);
+      const personal = / (you|your|u|ur|yours|yourself) /.test(t.replace(/ (do you know|have you heard|ever heard|you heard|can you tell me|could you tell me|tell me about|you know about|do you remember) /g, ' '));
+      let hit = null;
+      // a follow-up about the same thing comes first: "when was that?", "where do they live?", "who won?"
+      const follow = freshCtx && st.ctx.type === 'know' && d.question && t.split(' ').filter(Boolean).length <= 7 && !d.person && !d.place && / (when|where|why|who|how|what happened|that|it|they|he|she|them|their|his|her) /.test(t) && !Knowledge.byName(t0);
+      if (follow) hit = Knowledge.get(st.ctx.id);
+      if (!hit && asking && !personal) {
+        hit = Knowledge.byName(t0);
+        if (hit && (hit.kind === 'king' || hit.kind === 'place') && !/^(when|why)$/.test(Knowledge.qtype(t0))) hit = null; // the kings and places have their own answers
+        if (hit && /^(species|faction)$/.test(hit.kind) && d.intents.some(i => /^(species_q|faction_q)$/.test(i))) hit = null;
+        if (!hit && !d.person && !d.place && window.LoreMind && LoreMind.ready()) {
+          const main0 = d.intents.find(i => !/^(greet|ok|yes|no|laugh)$/.test(i));
+          if (!main0 || /^(lore|uptop_q|court|judge|frame|define)$/.test(main0)) { const g = LoreMind.guess(t0, main0 ? 0.6 : 0.5); if (g && !/^(king|place)$/.test(g.entry.kind)) hit = g.entry; }
+        }
+      }
+      // a follow-up about the same thing: "when was that?", "who won?", "why?", "how did it end?"
+      if (hit) { d.know = hit; d.intents = ['know'].concat(d.intents.filter(i => !/^(lore|uptop_q|court|judge|person|place|origin|age|death)$/.test(i))); fk = null; }
+    }
     // places: a shop or stall named, or "what's that?" / "what's there?" about the place just mentioned
     if (window.Spots && !d.person && !story && d.intents[0] !== 'uptop_q') {
       // the place being talked about: the subject itself, or one the resident just mentioned in passing
