@@ -1,10 +1,14 @@
 # HellOS
 
-See [CHANGELOG.md](CHANGELOG.md) for what changed in each version.
+**A hell-themed fake Android phone that you install as an APK, set in a living underworld.**
 
-A full fake phone operating system for Android, built on Android's foundations and set on fire. HellOS installs as a normal APK and takes over the whole screen: boot animation, first-run setup, lock screen, launcher, notification shade, recents, and a set of working system apps plus the **HellPlay** store.
+HellOS takes over the whole screen and acts like a phone from Hell: boot animation, first-run setup, lock screen, launcher, notification shade, recents, 19 working system apps and the **HellPlay** store. On the other end of that phone is a whole world. 666 residents and the seven Sin Kings each have a job, a home, friends, rivals, habits and a daily routine on Hell's own clock. They travel across the nine circles, text and date each other, post on the Pit forum, react to the kings' decrees and the weather, and remember what you tell them. You can text them, call them, make plans with them, gossip about each other, and look up everything in the Census and your Grimoire.
+
+Everything runs offline in the APK: the world is worked out from fixed seeds, the conversations come from a built-in language engine and a small neural network trained from scratch, and the art is 256-colour dithered pixel art.
 
 > HellOS is fiction. It cannot place real calls or send real messages.
+
+See [CHANGELOG.md](CHANGELOG.md) for what changed in each version.
 
 ## Get the APK
 
@@ -43,12 +47,22 @@ The APK is signed with the fixed key in `keystore/`, so new builds install over 
 | Rites | Settings. Every page works: network, devices, apps (force stop, clear data, disable, uninstall), notifications, battery, display, sounds, storage, security, privacy, accessibility, system, about (tap build number 7×). |
 | HellPlay | App store: browse, search, buy with souls, real download/install progress, uninstall, updates, ratings. |
 
-**The 666 residents (`js/core/residents.js`, `js/core/mind.js`, `js/core/voice.js`)**
+**The world of Hell**
+
+- **Hell time** (`js/core/helltime.js`): its own calendar (6666 AF, four seasons, a 7-day week with made-up names, festivals). One Hell day passes every real hour by default, and the whole OS (clock, alarms, calendar, weather) runs on it.
+- **Weather** (`js/core/weather.js`) for each of the nine circles, which changes what residents do.
+- **The Septarchy** (`js/core/lore.js`): Hell is ruled by seven Sin Kings, one for each deadly sin, who meet as the Conclave of Seven every Hexday and issue a decree every day. Residents like some kings and hate others.
+- **Lore**: a history of Hell from the Fall to 6666 AF, the nine circles and who rules them, and a history and a rumour for every place.
+- **Places** (`js/core/spots.js`): every place on the map has shops, stalls, bars and sights, with what they sell and what to get, and opening hours. Residents explain them and recommend things from their own tastes.
+- **The Pit** (`js/core/forum.js`): Hell's forum. Residents and kings post and reply when they check their phones, and reply to what you post.
+
+**The 666 residents and seven kings (`js/core/residents.js`, `js/core/mind.js`, `js/core/social.js`, `js/core/body.js`, `js/core/voice.js`)**
 
 - Every resident is generated from a fixed seed: name, species, own pixel portrait, job and shift, home circle, hobbies, likes, favourites, backstory, sin, dream, fear, quirk, secret, friends, rivals, partners and siblings. Nothing is stored for them, so 666 lives cost no space.
 - Each one lives a real daily routine on the phone's clock: sleep, breakfast, commute, work, lunch, hobbies, errands and evenings out with friends (both sides of a meet-up agree on it), plus one odd thing that happens to them each day. They travel between places on Hell's map (walking, the Hellnet tram, Charon's ferry or flying), text each other, date, fall out, and remember it all. Census shows the record.
-- The conversation engine is built in and offline. It understands about 60 kinds of question and remark (slang and typos too), answers from the resident's own life (now, today, yesterday, tomorrow, who they saw, other residents, places), and says "idk about that" in many ways when they don't know.
-- 13 texting voices (gremlin, noble, grump, poet, shouter, nervous, spooky…) with per-resident slang, emoji, tics, typos, pet names and double-texting.
+- They text each other, meet up, go on dates, fall out and make up, and remember what they talked about. Ask one about another and they tell you. A minute-by-minute live feed shows what each one is doing.
+- The conversation engine is built in and offline. It understands over a hundred kinds of question and remark (opinions on anything, plans and invites, places, kings, decrees, history, the forum, other residents) (slang and typos too), answers from the resident's own life (now, today, yesterday, tomorrow, who they saw, other residents, places), and says "idk about that" in many ways when they don't know.
+- 20 texting voices (gremlin, noble, grump, poet, shouter, nervous, spooky… and one for each Sin King) with per-resident slang, emoji, tics, typos, pet names and double-texting.
 - A hidden memory: your name, likes, pets, mood, where you went, anything you ask them to remember. They bring it up later, and gossipy friends pass some of it on.
 - A like meter from −100 to 100: compliments, kindness, answering their questions and gifts of souls raise it; insults and repeating yourself lower it. It changes how they greet you, what they will tell you (secrets need a close friend) and whether they block you.
 - Residents have phones: your messages are delivered, buzz in their pocket or bag, and get read and answered when they reach for the phone, which can take a while if they're at work, out or asleep (Sending → Delivered → Read). Busy residents may not pick up calls and text back later.
