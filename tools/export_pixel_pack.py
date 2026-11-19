@@ -12,6 +12,9 @@ import re
 import subprocess
 
 from PIL import Image, ImageDraw
+import sys as _sys
+_sys.path.insert(0, str(Path(__file__).resolve().parent))
+from hellpalette import quantize, save as save_indexed  # 256 colours + Bayer dither, like pixelart.js
 
 ROOT = Path(__file__).resolve().parents[1]
 WWW = ROOT / 'app/src/main/assets/www'
@@ -732,7 +735,7 @@ def main():
         digest = hashlib.sha256(pic.tobytes()).digest()
         assert digest not in portrait_hashes, f'Duplicate portrait: {cid}'
         portrait_hashes.add(digest)
-        pic.save(WWW / file,optimize=True)
+        save_indexed(quantize(pic), WWW / file)
         art_index['avatars'][cid] = file
         pronouns = {'she':'she/her','he':'he/him','they':'they/them'}.get(p['pron'],'')
         resident_rows.append(dict(resident_id=p.get('id'), contact_id=cid, display_name=p['name'],
@@ -743,7 +746,7 @@ def main():
     for app in data['apps']:
         app_id = app['id']
         file = f'art/icons/app--{app_id}.png'
-        app_icon(app_id).save(WWW / file,optimize=True)
+        save_indexed(quantize(app_icon(app_id)), WWW / file)
         art_index['icons'][app_id] = file
         app_rows.append(dict(app_id=app_id, display_name=app['name'], group=app['source'],
                              motif=ICONS[app_id][1], asset_path=file))

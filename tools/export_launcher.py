@@ -5,6 +5,9 @@ into the Android mipmap folders. Needs Python Playwright + Chrome/Chromium.
 """
 import asyncio, base64, os, subprocess, sys, time
 from playwright.async_api import async_playwright
+from PIL import Image
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from hellpalette import snap, save as save_indexed
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 WWW = os.path.join(ROOT, 'app/src/main/assets/www')
@@ -22,7 +25,7 @@ JS = """(d) => {
       const s = Math.round(72 * k); g.drawImage(logo, (fg.width - s) / 2, (fg.height - s) / 2 + 2 * k, s, s);
       const lg = document.createElement('canvas'); lg.width = lg.height = Math.round(48 * k);
       const h = lg.getContext('2d'); h.imageSmoothingEnabled = false;
-      h.fillStyle = '#1a0710'; h.beginPath(); h.arc(lg.width / 2, lg.height / 2, lg.width / 2, 0, 7); h.fill();
+      h.fillStyle = 'rgb(19,10,15)'; /* palette colour */ h.beginPath(); h.arc(lg.width / 2, lg.height / 2, lg.width / 2, 0, 7); h.fill();
       const t = Math.round(40 * k); h.drawImage(logo, (lg.width - t) / 2, (lg.height - t) / 2 + k, t, t);
       out[name] = [fg.toDataURL(), lg.toDataURL()];
     }
@@ -48,6 +51,12 @@ async def main():
                 os.makedirs(d, exist_ok=True)
                 open(os.path.join(d, 'ic_hellos_fg.png'), 'wb').write(base64.b64decode(fg.split(',')[1]))
                 open(os.path.join(d, 'ic_launcher.png'), 'wb').write(base64.b64decode(legacy.split(',')[1]))
+                # keep the launcher icons inside the 256-colour palette (no smoothing, no stray colours)
+                for fn in ('ic_hellos_fg.png', 'ic_launcher.png'):
+                    fp = os.path.join(d, fn)
+                    with Image.open(fp) as im:
+                        out = snap(im)
+                    save_indexed(out, fp)
                 print('wrote', d)
             await b.close()
     finally:

@@ -20,6 +20,17 @@ at the same path. To regenerate the pack from the roster and app registry, run
 HellOS generates other interface images and fallback art at run time in
 `app/src/main/assets/www/js/core/pixelart.js`.
 
+## The bundled images follow the same rules
+
+Every PNG in `art/`, the Android launcher icons and the preview image use only the 256 palette colours
+below, with the same 4×4 Bayer ordered dithering (strength 22) and the same weighted nearest-colour lookup
+as `pixelart.js`, and their alpha is either fully clear or fully solid. They are saved as indexed PNGs.
+
+- `python3 tools/quantize_art.py` converts any image that breaks the rules (run it after adding or editing a PNG).
+- `python3 tools/quantize_art.py --check` only reports them.
+- `tools/hellpalette.py` holds the palette and dithering; `export_pixel_pack.py` and `export_launcher.py` use it,
+  so regenerated art comes out right.
+
 ## Rules the runtime generator follows
 
 - **256 colours.** One fixed palette of 16 ramps × 16 shades (iron, plum, blood, crimson, ember, gold,

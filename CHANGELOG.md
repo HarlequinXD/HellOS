@@ -5,6 +5,7 @@
 - **New app icons:** all 19 system apps and 9 HellPlay games have new 64×64 icons (in `art/icons`), on the home screen, in the app drawer, in HellPlay and in recents.
 - HellPlay banners show the new icons on the game's scene.
 - Round portraits now sit cleanly on lists and the call screen, without a square behind them, and stay crisp when scaled.
+- **Every bundled image is now true HellOS pixel art:** all 703 portraits and icons and the launcher icons use only the game's 256-colour palette with the same 4×4 Bayer ordered dithering as the generated art, and hard-edged transparency. They're saved as indexed PNGs, so the art pack is about 1 MB smaller too. `tools/quantize_art.py` converts or checks them.
 - Anything without a bundled image (strangers, wallpapers, game art, the interface) still uses the generated pixel art.
 - Kings in the Census live feed now do kingly things at the Conclave and at court, instead of counting the till.
 - `ART_GUIDE.md`, `Pixel-Art-Gallery.html` (a browsable roster of every portrait and icon) and `tools/export_pixel_pack.py` (regenerates the pack) are included.
